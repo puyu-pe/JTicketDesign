@@ -13,16 +13,33 @@ public class StringUtils {
     return result.toString();
   }
 
-  public static String padRight(String str, int length, char character) {
+  public static String padRight(String str, int length, char pad) {
     StringBuilder result = new StringBuilder();
     for (int i = 0; i < length; ++i) {
       if (i < str.length()) {
         result.append(str.charAt(i));
       } else {
-        result.append(character);
+        result.append(pad);
       }
     }
     return result.toString();
+  }
+
+  public static String padLeft(String text, int length, char pad, int marginRight) {
+    String str = text + " ".repeat(marginRight);
+    if (length > str.length()) {
+      StringBuilder result = new StringBuilder();
+      int padLength = length - str.length();
+      for (int i = 0; i < length; ++i) {
+        if (i < padLength) {
+          result.append(pad);
+        } else {
+          result.append(str.charAt(i - padLength));
+        }
+      }
+      return result.toString();
+    }
+    return padRight(str, length, pad);
   }
 
   public static List<String> split(String text, int characterPerLine) {
@@ -34,22 +51,4 @@ public class StringUtils {
     }
     return paragraph;
   }
-
-  public static String padLeft(String text, int length, char character, int marginRight) {
-    String str = text + " ".repeat(marginRight);
-    if (length > str.length()) {
-      StringBuilder result = new StringBuilder();
-      int padLength = length - str.length();
-      for (int i = 0; i < length; ++i) {
-        if (i < padLength) {
-          result.append(character);
-        } else {
-          result.append(str.charAt(i - padLength));
-        }
-      }
-      return result.toString();
-    }
-    return padRight(str, length, character);
-  }
-
 }

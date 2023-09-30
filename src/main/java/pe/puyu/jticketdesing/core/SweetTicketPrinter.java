@@ -10,9 +10,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.github.anastaciocintra.escpos.EscPos;
+import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
 import com.github.anastaciocintra.escpos.EscPos.CutMode;
+import com.github.anastaciocintra.escpos.EscPos.PinConnector;
 import com.github.anastaciocintra.escpos.EscPosConst.Justification;
+import com.github.anastaciocintra.escpos.Style.ColorMode;
 import com.github.anastaciocintra.escpos.Style.FontSize;
+import com.github.anastaciocintra.escpos.barcode.QRCode;
+import com.github.anastaciocintra.escpos.barcode.QRCode.QRErrorCorrectionLevel;
+import com.github.anastaciocintra.escpos.barcode.QRCode.QRModel;
 import com.github.anastaciocintra.escpos.image.BitonalThreshold;
 import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
 import com.github.anastaciocintra.escpos.image.EscPosImage;
@@ -32,14 +38,14 @@ class Default {
 public class SweetTicketPrinter {
 
   private JSONObject printerInfo;
-  private String typeDocument;
   private JSONObject bodyTicket;
+  private JSONObject metadata;
+  private String typeDocument;
+  private EscPos escpos;
   private int times;
   private int maxTicketWidth;
-  private EscPos escpos;
 
-  public SweetTicketPrinter(JSONObject data) throws Exception {
-    // WARNING: Falta testear EncodingLatin2 para caracteres con diacritics
+  public SweetTicketPrinter(JSONObject data, JSONObject meta) throws Exception {
     printerInfo = data.getJSONObject("printer");
     typeDocument = data.getString("type");
     bodyTicket = data.getJSONObject("data");
@@ -49,6 +55,8 @@ public class SweetTicketPrinter {
 
   private void initEscPos() throws Exception {
     this.escpos = new EscPos(getOutputStreamByPrinterType());
+    this.escpos.setCharacterCodeTable(CharacterCodeTable.WCP1250_Latin2);
+    this.escpos.setCharsetName("UTF-8");
   }
 
   private OutputStream getOutputStreamByPrinterType() throws Exception {
@@ -85,14 +93,38 @@ public class SweetTicketPrinter {
       case "invoice":
         this.businessAdditional();
         this.documentLegal();
+        this.customer();
+        this.additional();
+        this.items();
+        this.amounts();
+        this.additionalFooter();
+        this.finalMessage();
+        this.stringQR();
+        this.escpos.pulsePin(PinConnector.Pin_2, 120, 240);
         break;
       case "note":
+        this.documentLegal();
+        this.customer();
+        this.additional();
         break;
       case "command":
+        this.productionArea();
+        this.textBackgroudInverted();
+        this.documentLegal();
+        this.additional();
+        this.items();
         break;
       case "precount":
+        this.documentLegal();
+        this.additional();
+        this.items();
+        this.amounts();
         break;
       case "extra":
+        this.titleExtra();
+        this.additional();
+        this.items();
+        this.amounts();
         break;
       default:
         throw new Exception(String.format("No se pudo imprimir el diseño tipo de documento %s", this.typeDocument));
@@ -114,11 +146,10 @@ public class SweetTicketPrinter {
         this.escpos.writeLF(comercialDescription.getString("value"));
         this.escpos.getStyle().reset();
       }
-      if (type == "img") {
+      if (type == "img" && metadata.has("imagePath")) {
         RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
         imageWrapper.setJustification(Justification.Center);
-        // FIX: obtener la url absoluta de la imagen
-        BufferedImage image = ImageIO.read(new File(""));
+        BufferedImage image = ImageIO.read(new File(metadata.getString("imagePath")));
         EscPosImage escPosImage = new EscPosImage(new CoffeeImageImpl(image), new BitonalThreshold());
         escpos.write(imageWrapper, escPosImage);
       }
@@ -255,7 +286,86 @@ public class SweetTicketPrinter {
     this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
   }
 
-  private void additionalFooter(){
-    //NOTE: aqui me quede
+  private void additionalFooter() throws Exception {
+    if (!this.bodyTicket.has("additionalFooter")) {
+      this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
+      return;
+    }
+    var additionalFooter = this.bodyTicket.getJSONArray("additionalFooter");
+    for (Object item : additionalFooter) {
+      this.escpos.writeLF(StringUtils.padRight(item.toString(), this.maxTicketWidth, ' '));
+    }
+    this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
+  }
+
+  private void finalMessage() throws Exception {
+    if (!this.bodyTicket.has("finalMessage")) {
+      this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
+      return;
+    }
+    this.escpos.getStyle().setJustification(Justification.Center);
+    Object finalMessageObj = this.bodyTicket.get("");
+    if (finalMessageObj instanceof JSONArray) {
+      var finalMessage = (JSONArray) finalMessageObj;
+      for (var item : finalMessage) {
+        this.escpos.writeLF(item.toString());
+      }
+    } else {
+      this.escpos.writeLF(finalMessageObj.toString());
+    }
+    this.escpos.getStyle().reset();
+  }
+
+  private void stringQR() throws Exception {
+    if (!this.bodyTicket.has("stringQR")) {
+      this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
+      return;
+    }
+    var qrCode = new QRCode();
+    qrCode
+        .setSize(10)
+        .setJustification(Justification.Center)
+        .setModel(QRModel._2)
+        .setErrorCorrectionLevel(QRErrorCorrectionLevel.QR_ECLEVEL_Q);
+    this.escpos.write(qrCode, this.bodyTicket.getString("stringQR"));
+  }
+
+  private void productionArea() throws Exception {
+    if (!this.bodyTicket.has("productionArea")) {
+      this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
+      return;
+    }
+    this.escpos.getStyle().setJustification(Justification.Center);
+    this.escpos.writeLF(this.bodyTicket.getString("productionArea"));
+    this.escpos.getStyle().reset();
+  }
+
+  private void titleExtra() throws Exception {
+    if (!this.bodyTicket.has("titleExtra")) {
+      this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
+      return;
+    }
+    var titleExtra = this.bodyTicket.getJSONObject("titleExtra");
+    this.escpos.getStyle()
+        .setJustification(Justification.Center)
+        .setBold(true)
+        .setFontSize(FontSize._2, FontSize._2);
+    this.escpos.writeLF(titleExtra.getString("title"));
+    this.escpos.getStyle().setBold(false);
+    this.escpos.writeLF(titleExtra.getString("subtitle"));
+    this.escpos.getStyle().reset();
+  }
+
+  private void textBackgroudInverted() throws Exception {
+    if (!this.bodyTicket.has("textBackgroudInverted")) {
+      this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
+      return;
+    }
+    this.escpos.getStyle()
+        .setJustification(Justification.Center)
+        .setBold(true)
+        .setColorMode(ColorMode.WhiteOnBlack);
+    this.escpos.writeLF(this.bodyTicket.getString("textBackgroundInverted"));
+    this.escpos.getStyle().reset();
   }
 }
