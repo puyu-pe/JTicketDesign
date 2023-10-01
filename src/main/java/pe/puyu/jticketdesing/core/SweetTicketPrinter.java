@@ -1,8 +1,11 @@
 package pe.puyu.jticketdesing.core;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.OutputStream;
+import java.text.DecimalFormat;
 
 import javax.imageio.ImageIO;
 
@@ -31,7 +34,7 @@ class Default {
   public final static int TIMES = 1;
   public final static int MAX_TICKET_WIDTH = 42;
   public final static int QUANTITY_COLUMN_WIDTH = 4;
-  public final static int MARGIN_RIGHT = 2;
+  public final static int MARGIN_RIGHT = 0;
   public final static int TOTAL_COLUMN_WIDTH = 7 + MARGIN_RIGHT;
 }
 
@@ -39,13 +42,12 @@ public class SweetTicketPrinter {
 
   private JSONObject printerInfo;
   private JSONObject bodyTicket;
-  private JSONObject metadata;
   private String typeDocument;
   private EscPos escpos;
   private int times;
   private int maxTicketWidth;
 
-  public SweetTicketPrinter(JSONObject data, JSONObject meta) throws Exception {
+  public SweetTicketPrinter(JSONObject data) throws Exception {
     printerInfo = data.getJSONObject("printer");
     typeDocument = data.getString("type");
     bodyTicket = data.getJSONObject("data");
@@ -55,8 +57,7 @@ public class SweetTicketPrinter {
 
   private void initEscPos() throws Exception {
     this.escpos = new EscPos(getOutputStreamByPrinterType());
-    this.escpos.setCharacterCodeTable(CharacterCodeTable.WCP1250_Latin2);
-    this.escpos.setCharsetName("UTF-8");
+    this.escpos.setCharacterCodeTable(CharacterCodeTable.WPC1252);
   }
 
   private OutputStream getOutputStreamByPrinterType() throws Exception {
@@ -75,7 +76,6 @@ public class SweetTicketPrinter {
       for (int i = 0; i < times; ++i) {
         printLayout();
       }
-      this.escpos.close();
     } catch (Exception e) {
       String name_system = this.printerInfo.getString("name_system");
       int port = this.printerInfo.getInt("port");
@@ -84,6 +84,8 @@ public class SweetTicketPrinter {
           name_system,
           port, type, e.getMessage());
       throw new Exception(error);
+    } finally {
+      this.escpos.close();
     }
   }
 
@@ -138,7 +140,7 @@ public class SweetTicketPrinter {
     if (business.has("comercialDescription")) {
       var comercialDescription = business.getJSONObject("comercialDescription");
       String type = comercialDescription.getString("type");
-      if (type == "text") {
+      if (type.equalsIgnoreCase("text")) {
         this.escpos.getStyle()
             .setBold(true)
             .setFontSize(FontSize._2, FontSize._2)
@@ -146,11 +148,17 @@ public class SweetTicketPrinter {
         this.escpos.writeLF(comercialDescription.getString("value"));
         this.escpos.getStyle().reset();
       }
-      if (type == "img" && metadata.has("imagePath")) {
+      if (type.equalsIgnoreCase("img") && this.bodyTicket.has("logoPath")) {
         RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
         imageWrapper.setJustification(Justification.Center);
-        BufferedImage image = ImageIO.read(new File(metadata.getString("imagePath")));
-        EscPosImage escPosImage = new EscPosImage(new CoffeeImageImpl(image), new BitonalThreshold());
+        BufferedImage image = ImageIO.read(new File(this.bodyTicket.getString("logoPath")));
+        int size = 290;
+        Image scaledImage = image.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+        BufferedImage resizedImage = new BufferedImage(size, size, 2);
+        Graphics2D g = resizedImage.createGraphics();
+        g.drawImage(scaledImage, 0, 0, null);
+        g.dispose();
+        EscPosImage escPosImage = new EscPosImage(new CoffeeImageImpl(resizedImage), new BitonalThreshold());
         escpos.write(imageWrapper, escPosImage);
       }
     }
@@ -225,12 +233,13 @@ public class SweetTicketPrinter {
     this.escpos.getStyle().setBold(true);
     var items = this.bodyTicket.getJSONArray("items");
     int descriptionColumnWidth = this.maxTicketWidth - Default.TOTAL_COLUMN_WIDTH;
+    var priceFormat = new DecimalFormat("0.00");
 
     if (items.getJSONObject(0).has("quantity")) {
       descriptionColumnWidth -= Default.QUANTITY_COLUMN_WIDTH;
       this.escpos.write(StringUtils.padRight("CAN", Default.QUANTITY_COLUMN_WIDTH, ' '));
     }
-    this.escpos.write(StringUtils.padRight("DESCRIPTION", descriptionColumnWidth, ' '));
+    this.escpos.write(StringUtils.padRight("DESCRIPCIÓN", descriptionColumnWidth, ' '));
     this.escpos.write(StringUtils.padLeft("TOTAL", Default.TOTAL_COLUMN_WIDTH, ' ', Default.MARGIN_RIGHT));
     this.escpos.feed(1);
     this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
@@ -245,7 +254,8 @@ public class SweetTicketPrinter {
           var itemDescription = description.getString(j);
           this.escpos.write(StringUtils.padRight(itemDescription, descriptionColumnWidth, ' '));
           if (j == 0) {
-            this.escpos.write(StringUtils.padLeft(item.getString("totalPrice"), Default.TOTAL_COLUMN_WIDTH, ' ',
+            this.escpos.write(StringUtils.padLeft(priceFormat.format(item.getBigDecimal("totalPrice")),
+                Default.TOTAL_COLUMN_WIDTH, ' ',
                 Default.MARGIN_RIGHT));
           }
           this.escpos.feed(1);
@@ -255,14 +265,14 @@ public class SweetTicketPrinter {
         for (int j = 0; j < lines.size(); ++j) {
           if (j == 0) {
             this.escpos
-                .write(StringUtils.padLeft(item.getString("quantity") + " ", Default.QUANTITY_COLUMN_WIDTH, ' ',
-                    Default.MARGIN_RIGHT));
+                .write(StringUtils.padLeft(item.getString("quantity"), Default.QUANTITY_COLUMN_WIDTH, ' ', 1));
           } else {
             this.escpos.write(StringUtils.padRight("", Default.QUANTITY_COLUMN_WIDTH, ' '));
           }
           this.escpos.write(StringUtils.padRight(lines.get(j), descriptionColumnWidth, ' '));
           if (j == 0) {
-            this.escpos.write(StringUtils.padLeft(item.getString("totalPrice"), Default.TOTAL_COLUMN_WIDTH, ' ',
+            this.escpos.write(StringUtils.padLeft(priceFormat.format(item.getBigDecimal("totalPrice")),
+                Default.TOTAL_COLUMN_WIDTH, ' ',
                 Default.MARGIN_RIGHT));
           }
           this.escpos.feed(1);
@@ -304,7 +314,7 @@ public class SweetTicketPrinter {
       return;
     }
     this.escpos.getStyle().setJustification(Justification.Center);
-    Object finalMessageObj = this.bodyTicket.get("");
+    Object finalMessageObj = this.bodyTicket.get("finalMessage");
     if (finalMessageObj instanceof JSONArray) {
       var finalMessage = (JSONArray) finalMessageObj;
       for (var item : finalMessage) {
@@ -317,17 +327,18 @@ public class SweetTicketPrinter {
   }
 
   private void stringQR() throws Exception {
-    if (!this.bodyTicket.has("stringQR")) {
+    if (!this.bodyTicket.has("stringQR") || this.bodyTicket.isNull("stringQR")) {
       this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
       return;
     }
     var qrCode = new QRCode();
     qrCode
-        .setSize(10)
+        .setSize(4)
         .setJustification(Justification.Center)
         .setModel(QRModel._2)
         .setErrorCorrectionLevel(QRErrorCorrectionLevel.QR_ECLEVEL_Q);
-    this.escpos.write(qrCode, this.bodyTicket.getString("stringQR"));
+
+    this.escpos.write(qrCode, this.bodyTicket.get("stringQR").toString());
   }
 
   private void productionArea() throws Exception {
