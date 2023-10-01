@@ -1,25 +1,24 @@
 package pe.puyu.jticketdesing;
 
+import java.io.ByteArrayOutputStream;
 
 import com.github.anastaciocintra.escpos.EscPos;
+import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
 
-import pe.puyu.jticketdesing.core.SweetTicketPrinter;
-
-/**
- * Hello world!
- *
- */
 public class Main {
   public static void main(String[] args) {
-    try (TcpIpOutputStream outputStream = new TcpIpOutputStream("192.168.1.100", 9100)) {
-      EscPos escpos = new EscPos(outputStream);
-      escpos.writeLF("Hello world");
+    try (TcpIpOutputStream outputStream = new TcpIpOutputStream("192.168.18.100",
+        9100)) {
+      var baos = new ByteArrayOutputStream();
+      EscPos escpos = new EscPos(baos);
+      escpos.setCharacterCodeTable(CharacterCodeTable.WPC1252);
+      escpos.writeLF("sdjflasjdsfjsdfasdf");
       escpos.feed(5).cut(EscPos.CutMode.FULL);
+      baos.toByteArray();
       escpos.close();
     } catch (Exception e) {
       e.printStackTrace();
     }
-    SweetTicketPrinter.test();
   }
 }

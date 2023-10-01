@@ -1,0 +1,25 @@
+# Maven build directory
+target/
+
+# Eclipse IDE files (if you're using Eclipse)
+.classpath
+.project
+.settings/
+.metadata
+jdt.ls-java-project
+
+# IntelliJ IDEA files (if you're using IntelliJ IDEA)
+.idea/
+
+# NetBeans IDE files (if you're using NetBeans)
+nb-configuration.xml
+
+# JavaFX build artifacts
+out/
+
+# Logs
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
