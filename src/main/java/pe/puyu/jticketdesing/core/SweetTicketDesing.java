@@ -3,8 +3,8 @@ package pe.puyu.jticketdesing.core;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.OutputStream;
 import java.text.DecimalFormat;
 
 import javax.imageio.ImageIO;
@@ -26,7 +26,6 @@ import com.github.anastaciocintra.escpos.image.BitonalThreshold;
 import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
 import com.github.anastaciocintra.escpos.image.EscPosImage;
 import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
-import com.github.anastaciocintra.output.TcpIpOutputStream;
 
 import pe.puyu.jticketdesing.util.StringUtils;
 
@@ -38,60 +37,42 @@ class Default {
   public final static int TOTAL_COLUMN_WIDTH = 7 + MARGIN_RIGHT;
 }
 
-public class SweetTicketPrinter {
+public class SweetTicketDesing {
 
-  private JSONObject printerInfo;
-  private JSONObject bodyTicket;
-  private String typeDocument;
+  private JSONObject ticket;
+  private JSONObject metadata; // typeTicket, times, maxTicketWidth, logoPath
   private EscPos escpos;
+  private String typeTicket;
   private int times;
   private int maxTicketWidth;
 
-  public SweetTicketPrinter(JSONObject data) throws Exception {
-    printerInfo = data.getJSONObject("printer");
-    typeDocument = data.getString("type");
-    bodyTicket = data.getJSONObject("data");
-    times = data.has("times") ? data.getInt("times") : Default.TIMES;
-    maxTicketWidth = printerInfo.has("width") ? printerInfo.getInt("width") : Default.MAX_TICKET_WIDTH;
+  public SweetTicketDesing(JSONObject ticket, JSONObject metadata) throws Exception {
+    this.ticket = ticket;
+    this.metadata = metadata;
+    this.typeTicket = this.metadata.getString("typeTicket");
+    this.times = metadata.has("times") ? metadata.getInt("times") : Default.TIMES;
+    this.maxTicketWidth = metadata.has("maxTicketWidth") ? metadata.getInt("maxTicketWidth") : Default.MAX_TICKET_WIDTH;
   }
 
-  private void initEscPos() throws Exception {
-    this.escpos = new EscPos(getOutputStreamByPrinterType());
-    this.escpos.setCharacterCodeTable(CharacterCodeTable.WPC1252);
-  }
-
-  private OutputStream getOutputStreamByPrinterType() throws Exception {
-    var printerInfo = this.printerInfo;
-    switch (printerInfo.getString("type")) {
-      case "ethernet":
-        return new TcpIpOutputStream(printerInfo.getString("name_system"), printerInfo.getInt("port"));
-      default:
-        throw new Exception(String.format("Tipo de impresora: %s no soportado", printerInfo.getString("type")));
-    }
-  }
-
-  public void printTicket() throws Exception {
+  public byte[] getBytes() throws Exception {
     try {
-      initEscPos();
+      var byteArrayOutputStream = new ByteArrayOutputStream();
+      this.escpos = new EscPos(byteArrayOutputStream);
+      this.escpos.setCharacterCodeTable(CharacterCodeTable.WPC1252);
       for (int i = 0; i < times; ++i) {
-        printLayout();
+        desingLayout();
       }
+      return byteArrayOutputStream.toByteArray();
     } catch (Exception e) {
-      String name_system = this.printerInfo.getString("name_system");
-      int port = this.printerInfo.getInt("port");
-      String type = this.printerInfo.getString("type");
-      var error = String.format("Error al imprimir ticket en name_system: %s, port: %d , type: %s. Mensaje error: %s",
-          name_system,
-          port, type, e.getMessage());
-      throw new Exception(error);
+      throw new Exception("Error al diseñar el ticket");
     } finally {
       this.escpos.close();
     }
   }
 
-  private void printLayout() throws Exception {
+  private void desingLayout() throws Exception {
     this.header();
-    switch (this.typeDocument) {
+    switch (this.typeTicket) {
       case "invoice":
         this.businessAdditional();
         this.documentLegal();
@@ -129,14 +110,14 @@ public class SweetTicketPrinter {
         this.amounts();
         break;
       default:
-        throw new Exception(String.format("No se pudo imprimir el diseño tipo de documento %s", this.typeDocument));
+        throw new Exception(String.format("No se pudo imprimir el diseño tipo de documento %s", this.typeTicket));
     }
     this.escpos.feed(4);
     this.escpos.cut(CutMode.PART);
   }
 
   private void header() throws Exception {
-    JSONObject business = this.bodyTicket.getJSONObject("business");
+    JSONObject business = this.ticket.getJSONObject("business");
     if (business.has("comercialDescription")) {
       var comercialDescription = business.getJSONObject("comercialDescription");
       String type = comercialDescription.getString("type");
@@ -148,10 +129,10 @@ public class SweetTicketPrinter {
         this.escpos.writeLF(comercialDescription.getString("value"));
         this.escpos.getStyle().reset();
       }
-      if (type.equalsIgnoreCase("img") && this.bodyTicket.has("logoPath")) {
+      if (type.equalsIgnoreCase("img") && this.metadata.has("logoPath")) {
         RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
         imageWrapper.setJustification(Justification.Center);
-        BufferedImage image = ImageIO.read(new File(this.bodyTicket.getString("logoPath")));
+        BufferedImage image = ImageIO.read(new File(this.metadata.getString("logoPath")));
         int size = 290;
         Image scaledImage = image.getScaledInstance(size, size, Image.SCALE_SMOOTH);
         BufferedImage resizedImage = new BufferedImage(size, size, 2);
@@ -169,7 +150,7 @@ public class SweetTicketPrinter {
   }
 
   private void businessAdditional() throws Exception {
-    JSONObject business = this.bodyTicket.getJSONObject("business");
+    JSONObject business = this.ticket.getJSONObject("business");
     if (!business.has("additional")) {
       this.escpos.feed(1);
       return;
@@ -184,21 +165,21 @@ public class SweetTicketPrinter {
 
   private void documentLegal() throws Exception {
     this.escpos.getStyle().setJustification(Justification.Center).setBold(true);
-    switch (this.typeDocument) {
+    switch (this.typeTicket) {
       case "invoice":
       case "note":
       case "command":
-        if (this.bodyTicket.has("document")) {
-          var document = this.bodyTicket.getJSONObject("document");
+        if (this.ticket.has("document")) {
+          var document = this.ticket.getJSONObject("document");
           this.escpos
               .writeLF(String.format("%s %s", document.getString("description"), document.getString("identifier")));
         } else {
-          var document = this.bodyTicket.getString("document");
-          this.escpos.writeLF(String.format("%s %s", document, bodyTicket.getString("documentId")));
+          var document = this.ticket.getString("document");
+          this.escpos.writeLF(String.format("%s %s", document, ticket.getString("documentId")));
         }
         break;
       case "precount":
-        var document = this.bodyTicket.getJSONObject("document");
+        var document = this.ticket.getJSONObject("document");
         this.escpos.getStyle().setFontSize(FontSize._2, FontSize._2);
         this.escpos.writeLF(document.getString("description"));
         break;
@@ -208,8 +189,8 @@ public class SweetTicketPrinter {
   }
 
   private void customer() throws Exception {
-    if (this.bodyTicket.has("customer")) {
-      JSONArray customer = this.bodyTicket.getJSONArray("customer");
+    if (this.ticket.has("customer")) {
+      JSONArray customer = this.ticket.getJSONArray("customer");
       for (var item : customer) {
         this.escpos.writeLF(item.toString());
       }
@@ -219,8 +200,8 @@ public class SweetTicketPrinter {
   }
 
   private void additional() throws Exception {
-    if (this.bodyTicket.has("additional")) {
-      JSONArray additional = this.bodyTicket.getJSONArray("additional");
+    if (this.ticket.has("additional")) {
+      JSONArray additional = this.ticket.getJSONArray("additional");
       for (var item : additional) {
         this.escpos.writeLF(item.toString());
       }
@@ -228,10 +209,10 @@ public class SweetTicketPrinter {
   }
 
   private void items() throws Exception {
-    if (!this.bodyTicket.has("items"))
+    if (!this.ticket.has("items"))
       return;
     this.escpos.getStyle().setBold(true);
-    var items = this.bodyTicket.getJSONArray("items");
+    var items = this.ticket.getJSONArray("items");
     int descriptionColumnWidth = this.maxTicketWidth - Default.TOTAL_COLUMN_WIDTH;
     var priceFormat = new DecimalFormat("0.00");
 
@@ -283,11 +264,11 @@ public class SweetTicketPrinter {
   }
 
   private void amounts() throws Exception {
-    if (!this.bodyTicket.has("amounts")) {
+    if (!this.ticket.has("amounts")) {
       this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
       return;
     }
-    var amounts = this.bodyTicket.getJSONObject("amounts").toMap();
+    var amounts = this.ticket.getJSONObject("amounts").toMap();
     for (var amount : amounts.entrySet()) {
       this.escpos.writeLF(
           StringUtils.padLeft(String.format("%s: %s", amount.getKey(), amount.getValue().toString()),
@@ -297,11 +278,11 @@ public class SweetTicketPrinter {
   }
 
   private void additionalFooter() throws Exception {
-    if (!this.bodyTicket.has("additionalFooter")) {
+    if (!this.ticket.has("additionalFooter")) {
       this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
       return;
     }
-    var additionalFooter = this.bodyTicket.getJSONArray("additionalFooter");
+    var additionalFooter = this.ticket.getJSONArray("additionalFooter");
     for (Object item : additionalFooter) {
       this.escpos.writeLF(StringUtils.padRight(item.toString(), this.maxTicketWidth, ' '));
     }
@@ -309,12 +290,12 @@ public class SweetTicketPrinter {
   }
 
   private void finalMessage() throws Exception {
-    if (!this.bodyTicket.has("finalMessage")) {
+    if (!this.ticket.has("finalMessage")) {
       this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
       return;
     }
     this.escpos.getStyle().setJustification(Justification.Center);
-    Object finalMessageObj = this.bodyTicket.get("finalMessage");
+    Object finalMessageObj = this.ticket.get("finalMessage");
     if (finalMessageObj instanceof JSONArray) {
       var finalMessage = (JSONArray) finalMessageObj;
       for (var item : finalMessage) {
@@ -327,7 +308,7 @@ public class SweetTicketPrinter {
   }
 
   private void stringQR() throws Exception {
-    if (!this.bodyTicket.has("stringQR") || this.bodyTicket.isNull("stringQR")) {
+    if (!this.ticket.has("stringQR") || this.ticket.isNull("stringQR")) {
       this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
       return;
     }
@@ -338,25 +319,25 @@ public class SweetTicketPrinter {
         .setModel(QRModel._2)
         .setErrorCorrectionLevel(QRErrorCorrectionLevel.QR_ECLEVEL_Q);
 
-    this.escpos.write(qrCode, this.bodyTicket.get("stringQR").toString());
+    this.escpos.write(qrCode, this.ticket.get("stringQR").toString());
   }
 
   private void productionArea() throws Exception {
-    if (!this.bodyTicket.has("productionArea")) {
+    if (!this.ticket.has("productionArea")) {
       this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
       return;
     }
     this.escpos.getStyle().setJustification(Justification.Center);
-    this.escpos.writeLF(this.bodyTicket.getString("productionArea"));
+    this.escpos.writeLF(this.ticket.getString("productionArea"));
     this.escpos.getStyle().reset();
   }
 
   private void titleExtra() throws Exception {
-    if (!this.bodyTicket.has("titleExtra")) {
+    if (!this.ticket.has("titleExtra")) {
       this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
       return;
     }
-    var titleExtra = this.bodyTicket.getJSONObject("titleExtra");
+    var titleExtra = this.ticket.getJSONObject("titleExtra");
     this.escpos.getStyle()
         .setJustification(Justification.Center)
         .setBold(true)
@@ -368,7 +349,7 @@ public class SweetTicketPrinter {
   }
 
   private void textBackgroudInverted() throws Exception {
-    if (!this.bodyTicket.has("textBackgroudInverted")) {
+    if (!this.ticket.has("textBackgroudInverted")) {
       this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
       return;
     }
@@ -376,7 +357,7 @@ public class SweetTicketPrinter {
         .setJustification(Justification.Center)
         .setBold(true)
         .setColorMode(ColorMode.WhiteOnBlack);
-    this.escpos.writeLF(this.bodyTicket.getString("textBackgroundInverted"));
+    this.escpos.writeLF(this.ticket.getString("textBackgroundInverted"));
     this.escpos.getStyle().reset();
   }
 }

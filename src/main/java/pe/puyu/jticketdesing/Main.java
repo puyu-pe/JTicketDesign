@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
+import com.github.anastaciocintra.escpos.EscPosConst.Justification;
+import com.github.anastaciocintra.escpos.Style.FontSize;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
 
 public class Main {
@@ -13,10 +15,11 @@ public class Main {
       var baos = new ByteArrayOutputStream();
       EscPos escpos = new EscPos(baos);
       escpos.setCharacterCodeTable(CharacterCodeTable.WPC1252);
-      escpos.writeLF("sdjflasjdsfjsdfasdf");
+      escpos.getStyle().setBold(true).setJustification(Justification.Center).setFontSize(FontSize._2, FontSize._2);
+      escpos.writeLF("oscar alcides");
       escpos.feed(5).cut(EscPos.CutMode.FULL);
-      baos.toByteArray();
       escpos.close();
+      outputStream.write(baos.toByteArray());
     } catch (Exception e) {
       e.printStackTrace();
     }
