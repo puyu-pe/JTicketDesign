@@ -1,26 +1,28 @@
 package pe.puyu.jticketdesing;
 
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import javax.print.PrintService;
 
 import com.github.anastaciocintra.escpos.EscPos;
-import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
+import com.github.anastaciocintra.escpos.EscPos.CutMode;
 import com.github.anastaciocintra.escpos.EscPosConst.Justification;
-import com.github.anastaciocintra.escpos.Style.FontSize;
-import com.github.anastaciocintra.output.TcpIpOutputStream;
+import com.github.anastaciocintra.output.PrinterOutputStream;
 
 public class Main {
-  public static void main(String[] args) {
-    try (TcpIpOutputStream outputStream = new TcpIpOutputStream("192.168.18.100",
-        9100)) {
-      var baos = new ByteArrayOutputStream();
-      EscPos escpos = new EscPos(baos);
-      escpos.setCharacterCodeTable(CharacterCodeTable.WPC1252);
-      escpos.getStyle().setBold(true).setJustification(Justification.Center).setFontSize(FontSize._2, FontSize._2);
-      escpos.writeLF("oscar alcides");
-      escpos.feed(5).cut(EscPos.CutMode.FULL);
+  public static void main(String[] args) throws InterruptedException {
+    String[] printServicesNames = PrinterOutputStream.getListPrintServicesNames();
+    for (String printServiceName : printServicesNames) {
+      System.out.println(printServiceName);
+    }
+    PrintService printService = PrinterOutputStream.getPrintServiceByName("XPRINTER");
+    try (var escpos = new EscPos(new PrinterOutputStream(printService))) {
+      escpos.getStyle().setBold(true).setJustification(Justification.Center);
+      escpos.writeLF("DESCRIPTIÓN Ñ PERÚ");
+      escpos.feed(4);
+      escpos.cut(CutMode.PART);
       escpos.close();
-      outputStream.write(baos.toByteArray());
-    } catch (Exception e) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }

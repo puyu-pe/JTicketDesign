@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.nio.file.Path;
 import java.text.DecimalFormat;
 
 import javax.imageio.ImageIO;
@@ -19,14 +20,13 @@ import com.github.anastaciocintra.escpos.EscPos.PinConnector;
 import com.github.anastaciocintra.escpos.EscPosConst.Justification;
 import com.github.anastaciocintra.escpos.Style.ColorMode;
 import com.github.anastaciocintra.escpos.Style.FontSize;
-import com.github.anastaciocintra.escpos.barcode.QRCode;
-import com.github.anastaciocintra.escpos.barcode.QRCode.QRErrorCorrectionLevel;
-import com.github.anastaciocintra.escpos.barcode.QRCode.QRModel;
+import com.github.anastaciocintra.escpos.image.BitonalOrderedDither;
 import com.github.anastaciocintra.escpos.image.BitonalThreshold;
 import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
 import com.github.anastaciocintra.escpos.image.EscPosImage;
 import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
 
+import pe.puyu.jticketdesing.util.QRCodeGenerator;
 import pe.puyu.jticketdesing.util.StringUtils;
 
 class Default {
@@ -64,7 +64,7 @@ public class SweetTicketDesing {
       }
       return byteArrayOutputStream.toByteArray();
     } catch (Exception e) {
-      throw new Exception("Error al diseñar el ticket");
+      throw new Exception(String.format("Error al diseñar el ticket: %s", e.getMessage()));
     } finally {
       this.escpos.close();
     }
@@ -312,14 +312,13 @@ public class SweetTicketDesing {
       this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
       return;
     }
-    var qrCode = new QRCode();
-    qrCode
-        .setSize(4)
-        .setJustification(Justification.Center)
-        .setModel(QRModel._2)
-        .setErrorCorrectionLevel(QRErrorCorrectionLevel.QR_ECLEVEL_Q);
-
-    this.escpos.write(qrCode, this.ticket.get("stringQR").toString());
+    String tmpPath = Path.of(System.getProperty("java.io.tmpdir"), "qr.png").toString();
+    QRCodeGenerator.render(this.ticket.get("stringQR").toString(), tmpPath);
+    BufferedImage image = ImageIO.read(new File(tmpPath));
+    EscPosImage escposImage = new EscPosImage(new CoffeeImageImpl(image), new BitonalOrderedDither());
+    RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
+    imageWrapper.setJustification(Justification.Center);
+    this.escpos.write(imageWrapper, escposImage);
   }
 
   private void productionArea() throws Exception {
