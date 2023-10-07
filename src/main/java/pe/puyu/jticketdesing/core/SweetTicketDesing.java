@@ -171,8 +171,10 @@ public class SweetTicketDesing {
       case "command":
         if (this.ticket.has("document")) {
           var document = this.ticket.getJSONObject("document");
+          this.escpos.feed(1);
           this.escpos
-              .writeLF(String.format("%s %s", document.getString("description"), document.getString("identifier")));
+              .writeLF(
+                  String.format("%s %s", document.getString("description"), document.get("identifier").toString()));
         } else {
           var document = this.ticket.getString("document");
           this.escpos.writeLF(String.format("%s %s", document, ticket.getString("documentId")));
@@ -234,7 +236,7 @@ public class SweetTicketDesing {
         for (int j = 0; j < description.length(); ++j) {
           var itemDescription = description.getString(j);
           this.escpos.write(StringUtils.padRight(itemDescription, descriptionColumnWidth, ' '));
-          if (j == 0) {
+          if (j == 0 && item.has("totalPrice")) {
             this.escpos.write(StringUtils.padLeft(priceFormat.format(item.getBigDecimal("totalPrice")),
                 Default.TOTAL_COLUMN_WIDTH, ' ',
                 Default.MARGIN_RIGHT));
@@ -246,12 +248,12 @@ public class SweetTicketDesing {
         for (int j = 0; j < lines.size(); ++j) {
           if (j == 0) {
             this.escpos
-                .write(StringUtils.padLeft(item.getString("quantity"), Default.QUANTITY_COLUMN_WIDTH, ' ', 1));
+                .write(StringUtils.padLeft(item.get("quantity").toString(), Default.QUANTITY_COLUMN_WIDTH, ' ', 1));
           } else {
             this.escpos.write(StringUtils.padRight("", Default.QUANTITY_COLUMN_WIDTH, ' '));
           }
           this.escpos.write(StringUtils.padRight(lines.get(j), descriptionColumnWidth, ' '));
-          if (j == 0) {
+          if (j == 0 && item.has("totalPrice")) {
             this.escpos.write(StringUtils.padLeft(priceFormat.format(item.getBigDecimal("totalPrice")),
                 Default.TOTAL_COLUMN_WIDTH, ' ',
                 Default.MARGIN_RIGHT));
@@ -348,7 +350,8 @@ public class SweetTicketDesing {
   }
 
   private void textBackgroudInverted() throws Exception {
-    if (!this.ticket.has("textBackgroudInverted")) {
+
+    if (!this.ticket.has("textBackgroundInverted") || this.ticket.isNull("textBackgroundInverted")) {
       this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
       return;
     }
@@ -356,7 +359,7 @@ public class SweetTicketDesing {
         .setJustification(Justification.Center)
         .setBold(true)
         .setColorMode(ColorMode.WhiteOnBlack);
-    this.escpos.writeLF(this.ticket.getString("textBackgroundInverted"));
+    this.escpos.writeLF(StringUtils.padBoth(this.ticket.getString("textBackgroundInverted"), maxTicketWidth, ' '));
     this.escpos.getStyle().reset();
   }
 }
