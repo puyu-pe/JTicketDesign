@@ -20,6 +20,9 @@ import com.github.anastaciocintra.escpos.EscPos.PinConnector;
 import com.github.anastaciocintra.escpos.EscPosConst.Justification;
 import com.github.anastaciocintra.escpos.Style.ColorMode;
 import com.github.anastaciocintra.escpos.Style.FontSize;
+import com.github.anastaciocintra.escpos.barcode.QRCode;
+import com.github.anastaciocintra.escpos.barcode.QRCode.QRErrorCorrectionLevel;
+import com.github.anastaciocintra.escpos.barcode.QRCode.QRModel;
 import com.github.anastaciocintra.escpos.image.BitonalOrderedDither;
 import com.github.anastaciocintra.escpos.image.BitonalThreshold;
 import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
@@ -54,11 +57,25 @@ public class SweetTicketDesing {
     this.maxTicketWidth = metadata.has("maxTicketWidth") ? metadata.getInt("maxTicketWidth") : Default.MAX_TICKET_WIDTH;
   }
 
+  private void initEscPos(ByteArrayOutputStream buffer) throws Exception {
+    this.escpos = new EscPos(buffer);
+    if (metadata.has("charCodeTable") && !metadata.isNull("charCodeTable")) {
+      this.escpos.setCharacterCodeTable(CharacterCodeTable.valueOf(metadata.getString("charCodeTable")));
+    } else {
+      this.escpos.setCharacterCodeTable(CharacterCodeTable.WPC1252);
+    }
+    if (metadata.has("charSetName") && !metadata.isNull("charSetName")) {
+      try {
+        this.escpos.setCharsetName(metadata.getString("charSetName"));
+      } catch (Exception e) {
+      }
+    }
+  }
+
   public byte[] getBytes() throws Exception {
     try {
       var byteArrayOutputStream = new ByteArrayOutputStream();
-      this.escpos = new EscPos(byteArrayOutputStream);
-      this.escpos.setCharacterCodeTable(CharacterCodeTable.WPC1252);
+      initEscPos(byteArrayOutputStream);
       for (int i = 0; i < times; ++i) {
         desingLayout();
       }
@@ -314,13 +331,28 @@ public class SweetTicketDesing {
       this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
       return;
     }
-    String tmpPath = Path.of(System.getProperty("java.io.tmpdir"), "qr.png").toString();
-    QRCodeGenerator.render(this.ticket.get("stringQR").toString(), tmpPath);
-    BufferedImage image = ImageIO.read(new File(tmpPath));
-    EscPosImage escposImage = new EscPosImage(new CoffeeImageImpl(image), new BitonalOrderedDither());
-    RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
-    imageWrapper.setJustification(Justification.Center);
-    this.escpos.write(imageWrapper, escposImage);
+    boolean nativeQR = false;
+    var stringQr = this.ticket.get("stringQR").toString();
+    if (metadata.has("nativeQR") && !metadata.isNull("nativeQR")) {
+      nativeQR = metadata.getBoolean("nativeQR");
+    }
+    if (!nativeQR) {
+      String tmpPath = Path.of(System.getProperty("java.io.tmpdir"), "qr.png").toString();
+      QRCodeGenerator.render(stringQr, tmpPath);
+      BufferedImage image = ImageIO.read(new File(tmpPath));
+      EscPosImage escposImage = new EscPosImage(new CoffeeImageImpl(image), new BitonalOrderedDither());
+      RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
+      imageWrapper.setJustification(Justification.Center);
+      this.escpos.write(imageWrapper, escposImage);
+    } else {
+      var qrCode = new QRCode();
+      qrCode
+          .setSize(10)
+          .setJustification(Justification.Center)
+          .setModel(QRModel._2)
+          .setErrorCorrectionLevel(QRErrorCorrectionLevel.QR_ECLEVEL_Q);
+      this.escpos.write(qrCode, stringQr);
+    }
   }
 
   private void productionArea() throws Exception {
@@ -355,11 +387,18 @@ public class SweetTicketDesing {
       this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
       return;
     }
-    this.escpos.getStyle()
-        .setJustification(Justification.Center)
-        .setBold(true)
-        .setColorMode(ColorMode.WhiteOnBlack);
-    this.escpos.writeLF(StringUtils.padBoth(this.ticket.getString("textBackgroundInverted"), maxTicketWidth, ' '));
+    char pad = '*';
+    boolean supportBackgroundInverted = true;
+    if (metadata.has("backgroundInverted") && !metadata.isNull("backgroundInverted")) {
+      supportBackgroundInverted = metadata.getBoolean("backgroundInverted");
+    }
+    if (supportBackgroundInverted) {
+      pad = ' ';
+      this.escpos.getStyle().setColorMode(ColorMode.WhiteOnBlack);
+    }
+    var textBackgroundInverted = String.format(" %s ", this.ticket.getString("textBackgroundInverted"));
+    this.escpos.getStyle().setJustification(Justification.Center).setBold(true);
+    this.escpos.writeLF(StringUtils.padBoth(textBackgroundInverted, maxTicketWidth, pad));
     this.escpos.getStyle().reset();
   }
 }
