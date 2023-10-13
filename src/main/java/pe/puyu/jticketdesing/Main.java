@@ -1,14 +1,5 @@
 package pe.puyu.jticketdesing;
 
-import java.io.IOException;
-
-import javax.print.PrintService;
-
-import com.github.anastaciocintra.escpos.EscPos;
-import com.github.anastaciocintra.escpos.EscPos.CutMode;
-import com.github.anastaciocintra.escpos.EscPosConst.Justification;
-import com.github.anastaciocintra.output.PrinterOutputStream;
-
 import pe.puyu.jticketdesing.util.StringUtils;
 
 public class Main {
