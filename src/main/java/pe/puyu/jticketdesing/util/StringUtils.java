@@ -1,6 +1,7 @@
 package pe.puyu.jticketdesing.util;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -64,5 +65,41 @@ public class StringUtils {
       paragraph.add(matcher.group());
     }
     return paragraph;
+  }
+
+  public static String cutOverflow(String text, int widthCell, int fontsize) {
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < text.length(); ++i) {
+      if ((i + 1) * fontsize > widthCell) {
+        break;
+      }
+      result.append(text.charAt(i));
+    }
+    return result.toString();
+  }
+
+  public static List<String> wrapText(String text, int widthCell, int fontsize) {
+    var words = text.split("\\s+");
+    List<String> wrapText = new LinkedList<>();
+    for (int i = 0; i < words.length; ++i) {
+      int accum = 0;
+      List<String> row = new LinkedList<>();
+      String word = (i == (words.length - 1)) ? words[i] : words[i] + " ";
+      while (accum + (word.length() * fontsize) <= widthCell) {
+        row.add(word);
+        accum += (word.length() * fontsize);
+        ++i;
+        if(i >= words.length)
+         break;
+        word = (i == (words.length - 1)) ? words[i] : words[i] + " ";
+      }
+      if (accum == 0) {
+        wrapText.add(cutOverflow(word, widthCell, fontsize));
+      } else {
+        wrapText.add(String.join("", row));
+        --i;
+      }
+    }
+    return wrapText;
   }
 }

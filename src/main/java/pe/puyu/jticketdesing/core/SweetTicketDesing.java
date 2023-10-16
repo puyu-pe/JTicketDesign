@@ -17,7 +17,6 @@ import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
 import com.github.anastaciocintra.escpos.EscPos.CutMode;
 import com.github.anastaciocintra.escpos.EscPos.PinConnector;
 import com.github.anastaciocintra.escpos.EscPosConst.Justification;
-import com.github.anastaciocintra.escpos.Style.ColorMode;
 import com.github.anastaciocintra.escpos.Style.FontSize;
 import com.github.anastaciocintra.escpos.barcode.QRCode;
 import com.github.anastaciocintra.escpos.barcode.QRCode.QRErrorCorrectionLevel;
@@ -30,6 +29,8 @@ import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
 
 import pe.puyu.jticketdesing.util.QRCodeGenerator;
 import pe.puyu.jticketdesing.util.StringUtils;
+import pe.puyu.jticketdesing.util.escpos.EscPosWrapper;
+import pe.puyu.jticketdesing.util.escpos.StyleWrapper;
 
 class Default {
   public final static int TIMES = 1;
@@ -107,11 +108,11 @@ public class SweetTicketDesing {
         this.additional();
         break;
       case "command":
-        this.productionArea();
-        this.textBackgroudInverted();
         this.documentLegal();
+        this.textBackgroudInverted();
         this.additional();
         this.items();
+        this.finalMessage();
         break;
       case "precount":
         this.documentLegal();
@@ -133,6 +134,8 @@ public class SweetTicketDesing {
   }
 
   private void header() throws Exception {
+    if (typeTicket.equalsIgnoreCase("command"))
+      return;
     JSONObject business = this.ticket.getJSONObject("business");
     if (business.has("comercialDescription")) {
       var comercialDescription = business.getJSONObject("comercialDescription");
@@ -180,29 +183,36 @@ public class SweetTicketDesing {
   }
 
   private void documentLegal() throws Exception {
-    this.escpos.getStyle().setJustification(Justification.Center).setBold(true);
+    if (!this.ticket.has("document"))
+      return;
+    var documentObj = this.ticket.get("document");
+    String text = "";
+    if (!(documentObj instanceof String)) {
+      var document = (JSONObject) documentObj;
+      if (document.has("identifier")) {
+        text = String.format("%s %s", document.getString("description"), document.get("identifier").toString());
+      } else {
+        text = document.getString("description");
+      }
+    } else {
+      text = String.format("%s", documentObj.toString());
+    }
+    var escPosWrapper = new EscPosWrapper(escpos, StyleWrapper.textBold());
     switch (this.typeTicket) {
-      case "invoice":
-      case "note":
       case "command":
-        if (this.ticket.has("document")) {
-          var document = this.ticket.getJSONObject("document");
-          this.escpos
-              .writeLF(
-                  String.format("%s %s", document.getString("description"), document.get("identifier").toString()));
-        } else {
-          var document = this.ticket.getString("document");
-          this.escpos.writeLF(String.format("%s %s", document, ticket.getString("documentId")));
-        }
+        escPosWrapper.toCenter(text, this.maxTicketWidth, FontSize._2, FontSize._1);
+        break;
+      case "note":
+      case "invoice":
+        escPosWrapper.toCenter(text, this.maxTicketWidth);
+        escPosWrapper.printLine(' ', this.maxTicketWidth);
         break;
       case "precount":
-        var document = this.ticket.getJSONObject("document");
-        this.escpos.getStyle().setFontSize(FontSize._2, FontSize._2);
-        this.escpos.writeLF(document.getString("description"));
+        var document = (JSONObject) documentObj;
+        escPosWrapper.toCenter(document.getString("description"), this.maxTicketWidth, FontSize._2);
+        escPosWrapper.printLine(' ', this.maxTicketWidth);
         break;
     }
-    this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
-    this.escpos.getStyle().reset();
   }
 
   private void customer() throws Exception {
@@ -218,68 +228,108 @@ public class SweetTicketDesing {
   }
 
   private void additional() throws Exception {
+    var escPosWrapper = new EscPosWrapper(escpos);
     if (this.ticket.has("additional")) {
       JSONArray additional = this.ticket.getJSONArray("additional");
+      var isCommand = this.typeTicket.equalsIgnoreCase("command");
+      var fontSize = isCommand ? FontSize._2 : FontSize._1;
+      if (isCommand)
+        escPosWrapper.addStyleBold();
       for (var item : additional) {
-        this.escpos.writeLF(item.toString());
+        var lines = StringUtils.wrapText(item.toString(), maxTicketWidth,
+            StyleWrapper.valueFontSize(fontSize));
+        for (int i = 0; i < lines.size(); ++i) {
+          if (isCommand) {
+            escPosWrapper.toCenter(lines.get(i), this.maxTicketWidth, fontSize, FontSize._1);
+          } else {
+            escPosWrapper.toLeft(lines.get(i), this.maxTicketWidth, fontSize);
+          }
+        }
       }
     }
-    this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
+    escPosWrapper.printLine(' ', this.maxTicketWidth);
   }
 
   private void items() throws Exception {
-    if (!this.ticket.has("items"))
+    if (!this.ticket.has("items") || this.ticket.getJSONArray("items").isEmpty())
       return;
-    this.escpos.getStyle().setBold(true);
+
     var items = this.ticket.getJSONArray("items");
-    int descriptionColumnWidth = this.maxTicketWidth - Default.TOTAL_COLUMN_WIDTH;
-    var priceFormat = new DecimalFormat("0.00");
+    boolean isCommand = this.typeTicket.equalsIgnoreCase("command");
+    int quantityWidth = 0;
+    var fontSize = isCommand ? FontSize._2 : FontSize._1;
+    int totalWidth = isCommand ? 0 : Default.TOTAL_COLUMN_WIDTH;
+    int descriptionWidth = this.maxTicketWidth;
+    var price = new DecimalFormat("0.00");
 
     if (items.getJSONObject(0).has("quantity")) {
-      descriptionColumnWidth -= Default.QUANTITY_COLUMN_WIDTH;
-      this.escpos.write(StringUtils.padRight("CAN", Default.QUANTITY_COLUMN_WIDTH, ' '));
+      quantityWidth = Default.QUANTITY_COLUMN_WIDTH * StyleWrapper.valueFontSize(fontSize);
+      descriptionWidth -= (quantityWidth + totalWidth);
+    } else {
+      descriptionWidth -= totalWidth;
     }
-    this.escpos.write(StringUtils.padRight("DESCRIPCIÓN", descriptionColumnWidth, ' '));
-    this.escpos.write(StringUtils.padLeft("TOTAL", Default.TOTAL_COLUMN_WIDTH, ' ', Default.MARGIN_RIGHT));
-    this.escpos.feed(1);
-    this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
-    this.escpos.getStyle().setBold(false);
 
+    var escPosWrapper = new EscPosWrapper(escpos);
+    escPosWrapper.toLeft("CAN", quantityWidth, false);
+    escPosWrapper.toCenter("DESCRIPCION", descriptionWidth, FontSize._1, false);
+    escPosWrapper.toRight("TOTAL", totalWidth, true);
+    escPosWrapper.printBoldLine('-', this.maxTicketWidth);
     for (int i = 0; i < items.length(); ++i) {
+      if (isCommand)
+        escPosWrapper.addStyleBold();
       var item = items.getJSONObject(i);
-      Object descriptionObj = item.get("description");
+      var descriptionObj = item.get("description");
       if (descriptionObj instanceof JSONArray) {
         var description = (JSONArray) descriptionObj;
         for (int j = 0; j < description.length(); ++j) {
-          var itemDescription = description.getString(j);
-          this.escpos.write(StringUtils.padRight(itemDescription, descriptionColumnWidth, ' '));
-          if (j == 0 && item.has("totalPrice")) {
-            this.escpos.write(StringUtils.padLeft(priceFormat.format(item.getBigDecimal("totalPrice")),
-                Default.TOTAL_COLUMN_WIDTH, ' ',
-                Default.MARGIN_RIGHT));
+          escPosWrapper.printLine(' ', quantityWidth, false);
+          if (isCommand)
+            escPosWrapper.toCenter(description.getString(j), descriptionWidth, fontSize, FontSize._1);
+          else
+            escPosWrapper.toLeft(description.getString(j), descriptionWidth, FontSize._1, j != 0);
+          if (j == 0) {
+            escPosWrapper.toRight(price.format(item.getBigDecimal("totalPrice")), totalWidth, true);
           }
-          this.escpos.feed(1);
         }
       } else {
-        var lines = StringUtils.split(descriptionObj.toString(), descriptionColumnWidth);
+        var lines = StringUtils.wrapText(descriptionObj.toString(), descriptionWidth,
+            StyleWrapper.valueFontSize(fontSize));
         for (int j = 0; j < lines.size(); ++j) {
           if (j == 0) {
-            this.escpos
-                .write(StringUtils.padLeft(item.get("quantity").toString(), Default.QUANTITY_COLUMN_WIDTH, ' ', 1));
+            escPosWrapper.toLeft(item.get("quantity").toString(), quantityWidth, fontSize, FontSize._1, false);
           } else {
-            this.escpos.write(StringUtils.padRight("", Default.QUANTITY_COLUMN_WIDTH, ' '));
+            escPosWrapper.printLine(' ', quantityWidth, false);
           }
-          this.escpos.write(StringUtils.padRight(lines.get(j), descriptionColumnWidth, ' '));
+          if (isCommand) {
+            escPosWrapper.toCenter(lines.get(j), descriptionWidth, fontSize, FontSize._1);
+          } else {
+            escPosWrapper.toLeft(lines.get(j), descriptionWidth, !item.has("totalPrice"));
+          }
           if (j == 0 && item.has("totalPrice")) {
-            this.escpos.write(StringUtils.padLeft(priceFormat.format(item.getBigDecimal("totalPrice")),
-                Default.TOTAL_COLUMN_WIDTH, ' ',
-                Default.MARGIN_RIGHT));
+            escPosWrapper.toRight(price.format(item.getBigDecimal("totalPrice")), totalWidth);
+          } else if (!isCommand) {
+            escPosWrapper.printLine(' ', totalWidth, true);
           }
-          this.escpos.feed(1);
         }
       }
+      if (item.has("commentary")) {
+        escPosWrapper.removeStyleBold();
+        var lines = StringUtils.wrapText(item.getString("commentary"), descriptionWidth, 1);
+        for (int j = 0; j < lines.size(); ++j) {
+          escPosWrapper.printLine(' ', quantityWidth, false);
+          if (isCommand)
+            escPosWrapper.toCenter(lines.get(j), descriptionWidth);
+          else
+            escPosWrapper.toLeft(lines.get(j), descriptionWidth);
+        }
+      }
+      escPosWrapper.printLine(' ', maxTicketWidth);
     }
-    this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth)).getStyle().reset();
+    if (isCommand)
+      escPosWrapper.printLine(' ', maxTicketWidth);
+    else {
+      escPosWrapper.printLine('-', maxTicketWidth);
+    }
   }
 
   private void amounts() throws Exception {
@@ -315,17 +365,16 @@ public class SweetTicketDesing {
       this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
       return;
     }
-    this.escpos.getStyle().setJustification(Justification.Center);
+    var escposWrapper = new EscPosWrapper(escpos);
     Object finalMessageObj = this.ticket.get("finalMessage");
     if (finalMessageObj instanceof JSONArray) {
       var finalMessage = (JSONArray) finalMessageObj;
       for (var item : finalMessage) {
-        this.escpos.writeLF(item.toString());
+        escposWrapper.toCenter(item.toString(), maxTicketWidth);
       }
     } else {
-      this.escpos.writeLF(finalMessageObj.toString());
+      escposWrapper.toCenter(finalMessageObj.toString(), maxTicketWidth);
     }
-    this.escpos.getStyle().reset();
   }
 
   private void stringQR() throws Exception {
@@ -355,17 +404,6 @@ public class SweetTicketDesing {
     }
   }
 
-  private void productionArea() throws Exception {
-    if (!this.ticket.has("productionArea")) {
-      this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
-      return;
-    }
-    this.escpos.getStyle().setJustification(Justification.Center);
-    this.escpos.writeLF(this.ticket.getString("productionArea"));
-    this.escpos.getStyle().reset();
-    this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
-  }
-
   private void titleExtra() throws Exception {
     if (!this.ticket.has("titleExtra")) {
       this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
@@ -384,24 +422,23 @@ public class SweetTicketDesing {
   }
 
   private void textBackgroudInverted() throws Exception {
-
-    if (!this.ticket.has("textBackgroundInverted") || this.ticket.isNull("textBackgroundInverted")) {
-      this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
-      return;
+    if (this.ticket.has("textBackgroundInverted") && !this.ticket.isNull("textBackgroundInverted")) {
+      var escPosWrapper = new EscPosWrapper(escpos);
+      boolean supportBackgroundInverted = true;
+      if (metadata.has("backgroundInverted") && !metadata.isNull("backgroundInverted")) {
+        supportBackgroundInverted = metadata.getBoolean("backgroundInverted");
+      }
+      var text = String.format(" %s ", this.ticket.getString("textBackgroundInverted"));
+      var pad = '*';
+      if (supportBackgroundInverted) {
+        pad = ' ';
+        escPosWrapper.addStyleInverted();
+      } else {
+        escPosWrapper.addStyleBold();
+      }
+      escPosWrapper.toCenter(text, this.maxTicketWidth, pad);
+      escPosWrapper.removeStyleInverted();
+      escPosWrapper.printLine(' ', this.maxTicketWidth);
     }
-    char pad = '*';
-    boolean supportBackgroundInverted = true;
-    if (metadata.has("backgroundInverted") && !metadata.isNull("backgroundInverted")) {
-      supportBackgroundInverted = metadata.getBoolean("backgroundInverted");
-    }
-    if (supportBackgroundInverted) {
-      pad = ' ';
-      this.escpos.getStyle().setColorMode(ColorMode.WhiteOnBlack);
-    }
-    var textBackgroundInverted = String.format(" %s ", this.ticket.getString("textBackgroundInverted"));
-    this.escpos.getStyle().setJustification(Justification.Center).setBold(true);
-    this.escpos.writeLF(StringUtils.padBoth(textBackgroundInverted, maxTicketWidth, pad));
-    this.escpos.getStyle().reset();
-    this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
   }
 }
