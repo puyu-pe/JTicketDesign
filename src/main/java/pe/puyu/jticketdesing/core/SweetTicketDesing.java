@@ -1,13 +1,7 @@
 package pe.puyu.jticketdesing.core;
 
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.text.DecimalFormat;
-
-import javax.imageio.ImageIO;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -16,16 +10,8 @@ import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
 import com.github.anastaciocintra.escpos.EscPos.CutMode;
 import com.github.anastaciocintra.escpos.EscPos.PinConnector;
-import com.github.anastaciocintra.escpos.EscPosConst.Justification;
 import com.github.anastaciocintra.escpos.Style.FontSize;
-import com.github.anastaciocintra.escpos.barcode.QRCode;
-import com.github.anastaciocintra.escpos.barcode.QRCode.QRErrorCorrectionLevel;
-import com.github.anastaciocintra.escpos.barcode.QRCode.QRModel;
 import com.github.anastaciocintra.escpos.image.BitonalOrderedDither;
-import com.github.anastaciocintra.escpos.image.BitonalThreshold;
-import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
-import com.github.anastaciocintra.escpos.image.EscPosImage;
-import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
 
 import pe.puyu.jticketdesing.util.QRCodeGenerator;
 import pe.puyu.jticketdesing.util.StringUtils;
@@ -136,50 +122,43 @@ public class SweetTicketDesing {
   private void header() throws Exception {
     if (typeTicket.equalsIgnoreCase("command"))
       return;
+    EscPosWrapper escPosWrapper = new EscPosWrapper(escpos, StyleWrapper.textBold());
     JSONObject business = this.ticket.getJSONObject("business");
     if (business.has("comercialDescription")) {
       var comercialDescription = business.getJSONObject("comercialDescription");
       String type = comercialDescription.getString("type");
       if (type.equalsIgnoreCase("text")) {
-        this.escpos.getStyle()
-            .setBold(true)
-            .setFontSize(FontSize._2, FontSize._2)
-            .setJustification(Justification.Center);
-        this.escpos.writeLF(comercialDescription.getString("value"));
-        this.escpos.getStyle().reset();
+        var lines = StringUtils.wrapText(comercialDescription.getString("value"), maxTicketWidth, 2);
+        for (var line : lines) {
+          escPosWrapper.toCenter(line, maxTicketWidth, FontSize._2);
+        }
       }
       if (type.equalsIgnoreCase("img") && this.metadata.has("logoPath")) {
-        RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
-        imageWrapper.setJustification(Justification.Center);
-        BufferedImage image = ImageIO.read(new File(this.metadata.getString("logoPath")));
-        int size = 290;
-        Image scaledImage = image.getScaledInstance(size, size, Image.SCALE_SMOOTH);
-        BufferedImage resizedImage = new BufferedImage(size, size, 2);
-        Graphics2D g = resizedImage.createGraphics();
-        g.drawImage(scaledImage, 0, 0, null);
-        g.dispose();
-        EscPosImage escPosImage = new EscPosImage(new CoffeeImageImpl(resizedImage), new BitonalThreshold());
-        escpos.write(imageWrapper, escPosImage);
+        escPosWrapper.bitImage(this.metadata.getString("logoPath"), 290);
       }
     }
     if (business.has("description")) {
-      this.escpos.getStyle().setJustification(Justification.Center);
-      this.escpos.writeLF(business.getString("description")).getStyle().reset();
+      escPosWrapper.removeStyleBold();
+      var lines = StringUtils.wrapText(business.getString("description"), maxTicketWidth, 1);
+      for (var line : lines) {
+        escPosWrapper.toCenter(line, maxTicketWidth);
+      }
     }
-    this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
   }
 
   private void businessAdditional() throws Exception {
+    var escPosWrapper = new EscPosWrapper(escpos);
     JSONObject business = this.ticket.getJSONObject("business");
     if (business.has("additional")) {
       JSONArray additional = business.getJSONArray("additional");
-      this.escpos.getStyle().setJustification(Justification.Center);
       for (Object item : additional) {
-        this.escpos.writeLF(item.toString());
+        var lines = StringUtils.wrapText(item.toString(), maxTicketWidth, 1);
+        for (var line : lines) {
+          escPosWrapper.toCenter(line, maxTicketWidth);
+        }
       }
-      this.escpos.getStyle().reset();
     }
-    this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
+    escPosWrapper.printLine(' ', 1);
   }
 
   private void documentLegal() throws Exception {
@@ -189,42 +168,47 @@ public class SweetTicketDesing {
     String text = "";
     if (!(documentObj instanceof String)) {
       var document = (JSONObject) documentObj;
-      if (document.has("identifier")) {
-        text = String.format("%s %s", document.getString("description"), document.get("identifier").toString());
-      } else {
+      if (this.typeTicket.equalsIgnoreCase("precount") || !document.has("identifier")) {
         text = document.getString("description");
+      } else {
+        text = String.format("%s %s", document.getString("description"), document.get("identifier").toString());
       }
     } else {
       text = String.format("%s", documentObj.toString());
     }
     var escPosWrapper = new EscPosWrapper(escpos, StyleWrapper.textBold());
+    FontSize fontWidth = FontSize._1, fontHeight = FontSize._1;
     switch (this.typeTicket) {
       case "command":
-        escPosWrapper.toCenter(text, this.maxTicketWidth, FontSize._2, FontSize._1);
-        break;
-      case "note":
-      case "invoice":
-        escPosWrapper.toCenter(text, this.maxTicketWidth);
-        escPosWrapper.printLine(' ', this.maxTicketWidth);
+        fontWidth = FontSize._2;
+        fontHeight = FontSize._1;
         break;
       case "precount":
-        var document = (JSONObject) documentObj;
-        escPosWrapper.toCenter(document.getString("description"), this.maxTicketWidth, FontSize._2);
-        escPosWrapper.printLine(' ', this.maxTicketWidth);
+        fontWidth = FontSize._2;
+        fontHeight = FontSize._2;
         break;
     }
+    var lines = StringUtils.wrapText(text, maxTicketWidth, StyleWrapper.valueFontSize(fontWidth));
+    for (var line : lines) {
+      escPosWrapper.toCenter(line, this.maxTicketWidth, fontWidth, fontHeight);
+    }
+    escPosWrapper.printLine(' ', 1);
   }
 
   private void customer() throws Exception {
+    var escPosWrapper = new EscPosWrapper(escpos);
     if (this.ticket.has("customer")) {
       JSONArray customer = this.ticket.getJSONArray("customer");
       for (var item : customer) {
-        this.escpos.writeLF(item.toString());
+        var lines = StringUtils.wrapText(item.toString(), maxTicketWidth, 1);
+        for (var line : lines) {
+          escPosWrapper.toLeft(line, maxTicketWidth);
+        }
       }
     } else {
-      this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
+      escPosWrapper.printLine('-', maxTicketWidth);
     }
-    this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
+    escPosWrapper.printLine(' ', 1);
   }
 
   private void additional() throws Exception {
@@ -247,7 +231,7 @@ public class SweetTicketDesing {
         }
       }
     }
-    escPosWrapper.printLine(' ', this.maxTicketWidth);
+    escPosWrapper.printLine(' ', 1);
   }
 
   private void items() throws Exception {
@@ -258,6 +242,7 @@ public class SweetTicketDesing {
     boolean isCommand = this.typeTicket.equalsIgnoreCase("command");
     int quantityWidth = 0;
     var fontSize = isCommand ? FontSize._2 : FontSize._1;
+    var valueFontSize = StyleWrapper.valueFontSize(fontSize);
     int totalWidth = isCommand ? 0 : Default.TOTAL_COLUMN_WIDTH;
     int descriptionWidth = this.maxTicketWidth;
     var price = new DecimalFormat("0.00");
@@ -283,10 +268,13 @@ public class SweetTicketDesing {
         var description = (JSONArray) descriptionObj;
         for (int j = 0; j < description.length(); ++j) {
           escPosWrapper.printLine(' ', quantityWidth, false);
-          if (isCommand)
-            escPosWrapper.toCenter(description.getString(j), descriptionWidth, fontSize, FontSize._1);
-          else
-            escPosWrapper.toLeft(description.getString(j), descriptionWidth, FontSize._1, j != 0);
+          var lines = StringUtils.wrapText(description.getString(j), descriptionWidth, valueFontSize);
+          for (var line : lines) {
+            if (isCommand)
+              escPosWrapper.toCenter(line, descriptionWidth, fontSize, FontSize._1);
+            else
+              escPosWrapper.toLeft(line, descriptionWidth, fontSize, j != 0);
+          }
           if (j == 0) {
             escPosWrapper.toRight(price.format(item.getBigDecimal("totalPrice")), totalWidth, true);
           }
@@ -315,12 +303,12 @@ public class SweetTicketDesing {
       if (item.has("commentary")) {
         escPosWrapper.removeStyleBold();
         var lines = StringUtils.wrapText(item.getString("commentary"), descriptionWidth, 1);
-        for (int j = 0; j < lines.size(); ++j) {
+        for (var line : lines) {
           escPosWrapper.printLine(' ', quantityWidth, false);
           if (isCommand)
-            escPosWrapper.toCenter(lines.get(j), descriptionWidth);
+            escPosWrapper.toCenter(line, descriptionWidth);
           else
-            escPosWrapper.toLeft(lines.get(j), descriptionWidth);
+            escPosWrapper.toLeft(line, descriptionWidth);
         }
       }
       escPosWrapper.printLine(' ', maxTicketWidth);
@@ -333,47 +321,50 @@ public class SweetTicketDesing {
   }
 
   private void amounts() throws Exception {
-    if (!this.ticket.has("amounts")) {
-      this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
-      return;
+    var escPosWrapper = new EscPosWrapper(escpos);
+    if (this.ticket.has("amounts")) {
+      var amounts = this.ticket.getJSONObject("amounts").toMap();
+      for (var amount : amounts.entrySet()) {
+        var text = String.format("%s: %s", amount.getKey(), amount.getValue().toString());
+        escPosWrapper.toRight(text, maxTicketWidth);
+      }
+      escPosWrapper.printLine('-', maxTicketWidth);
     }
-    var amounts = this.ticket.getJSONObject("amounts").toMap();
-    for (var amount : amounts.entrySet()) {
-      this.escpos.writeLF(
-          StringUtils.padLeft(String.format("%s: %s", amount.getKey(), amount.getValue().toString()),
-              this.maxTicketWidth, ' ', Default.MARGIN_RIGHT));
-    }
-    this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
-    this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
+    escPosWrapper.printLine(' ', 1);
   }
 
   private void additionalFooter() throws Exception {
-    if (!this.ticket.has("additionalFooter")) {
-      this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
-      return;
+    var escPosWrapper = new EscPosWrapper(escpos);
+    if (this.ticket.has("additionalFooter")) {
+      var additionalFooter = this.ticket.getJSONArray("additionalFooter");
+      for (Object item : additionalFooter) {
+        escPosWrapper.toLeft(item.toString(), maxTicketWidth);
+      }
+      escPosWrapper.printLine('-', this.maxTicketWidth);
     }
-    var additionalFooter = this.ticket.getJSONArray("additionalFooter");
-    for (Object item : additionalFooter) {
-      this.escpos.writeLF(StringUtils.padRight(item.toString(), this.maxTicketWidth, ' '));
-    }
-    this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
-    this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
+    escPosWrapper.printLine(' ', 1);
   }
 
   private void finalMessage() throws Exception {
+    var escPosWrapper = new EscPosWrapper(escpos);
     if (!this.ticket.has("finalMessage")) {
-      this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
+      escPosWrapper.printLine(' ', 1);
       return;
     }
-    var escposWrapper = new EscPosWrapper(escpos);
     Object finalMessageObj = this.ticket.get("finalMessage");
     if (finalMessageObj instanceof JSONArray) {
       var finalMessage = (JSONArray) finalMessageObj;
       for (var item : finalMessage) {
-        escposWrapper.toCenter(item.toString(), maxTicketWidth);
+        var lines = StringUtils.wrapText(item.toString(), maxTicketWidth, 1);
+        for (var line : lines) {
+          escPosWrapper.toCenter(line, maxTicketWidth);
+        }
       }
     } else {
-      escposWrapper.toCenter(finalMessageObj.toString(), maxTicketWidth);
+      var lines = StringUtils.wrapText(finalMessageObj.toString(), maxTicketWidth, 1);
+      for (var line : lines) {
+        escPosWrapper.toCenter(line, maxTicketWidth);
+      }
     }
   }
 
@@ -387,38 +378,25 @@ public class SweetTicketDesing {
     if (metadata.has("nativeQR") && !metadata.isNull("nativeQR")) {
       nativeQR = metadata.getBoolean("nativeQR");
     }
+    var escPosWrapper = new EscPosWrapper(this.escpos);
     if (!nativeQR) {
-      BufferedImage image = QRCodeGenerator.render(stringQr);
-      EscPosImage escposImage = new EscPosImage(new CoffeeImageImpl(image), new BitonalOrderedDither());
-      RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
-      imageWrapper.setJustification(Justification.Center);
-      this.escpos.write(imageWrapper, escposImage);
+      escPosWrapper.bitImage(QRCodeGenerator.render(stringQr), new BitonalOrderedDither());
     } else {
-      var qrCode = new QRCode();
-      qrCode
-          .setSize(4)
-          .setJustification(Justification.Center)
-          .setModel(QRModel._2)
-          .setErrorCorrectionLevel(QRErrorCorrectionLevel.QR_ECLEVEL_Q);
-      this.escpos.write(qrCode, stringQr);
+      escPosWrapper.standardQR(stringQr);
     }
   }
 
   private void titleExtra() throws Exception {
+    var escPosWrapper = new EscPosWrapper(escpos, StyleWrapper.textBold());
     if (!this.ticket.has("titleExtra")) {
-      this.escpos.writeLF(StringUtils.repeat('-', this.maxTicketWidth));
+      escPosWrapper.printLine('-', maxTicketWidth);
       return;
     }
     var titleExtra = this.ticket.getJSONObject("titleExtra");
-    this.escpos.getStyle()
-        .setJustification(Justification.Center)
-        .setBold(true)
-        .setFontSize(FontSize._2, FontSize._2);
-    this.escpos.writeLF(titleExtra.getString("title"));
-    this.escpos.getStyle().setBold(false);
-    this.escpos.writeLF(titleExtra.getString("subtitle"));
-    this.escpos.getStyle().reset();
-    this.escpos.writeLF(StringUtils.repeat(' ', this.maxTicketWidth));
+    escPosWrapper.toCenter(titleExtra.getString("title"), maxTicketWidth, FontSize._2);
+    escPosWrapper.removeStyleBold();
+    escPosWrapper.toCenter(titleExtra.getString("subtitle"), maxTicketWidth, FontSize._2);
+    escPosWrapper.printLine(' ', 1);
   }
 
   private void textBackgroudInverted() throws Exception {

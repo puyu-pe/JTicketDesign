@@ -56,18 +56,8 @@ public class StyleWrapper {
     return new Style().setColorMode(ColorMode.WhiteOnBlack).setBold(true);
   }
 
-  public static Style textSize(int size) {
-    var fontSize = toFontSize(size);
-    return new Style().setFontSize(fontSize, fontSize);
-  }
-
   public static Style textBold() {
     return new Style().setBold(true);
-  }
-
-  public static Style textBoldSize(int size) {
-    var fontSize = toFontSize(size);
-    return new Style().setFontSize(fontSize, fontSize).setBold(true);
   }
 
   public Style reset() {

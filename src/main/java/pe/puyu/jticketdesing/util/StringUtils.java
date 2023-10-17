@@ -1,9 +1,7 @@
 package pe.puyu.jticketdesing.util;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class StringUtils {
 
@@ -12,59 +10,6 @@ public class StringUtils {
     for (int i = 0; i < length; ++i)
       result.append(character);
     return result.toString();
-  }
-
-  public static String padRight(String str, int length, char pad) {
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < length; ++i) {
-      if (i < str.length()) {
-        result.append(str.charAt(i));
-      } else {
-        result.append(pad);
-      }
-    }
-    return result.toString();
-  }
-
-  public static String padLeft(String text, int length, char pad, int marginRight) {
-    String str = text + " ".repeat(marginRight);
-    if (length > str.length()) {
-      StringBuilder result = new StringBuilder();
-      int padLength = length - str.length();
-      for (int i = 0; i < length; ++i) {
-        if (i < padLength) {
-          result.append(pad);
-        } else {
-          result.append(str.charAt(i - padLength));
-        }
-      }
-      return result.toString();
-    }
-    return padRight(str, length, pad);
-  }
-
-  public static String padBoth(String text, int length, char pad) {
-    int start = (length / 2) - (text.length() / 2);
-    int end = start + text.length();
-    StringBuilder result = new StringBuilder();
-    for (int i = 0; i < length; ++i) {
-      if (i >= start && i < end) {
-        result.append(text.charAt(i - start));
-      } else {
-        result.append(pad);
-      }
-    }
-    return result.toString();
-  }
-
-  public static List<String> split(String text, int characterPerLine) {
-    List<String> paragraph = new ArrayList<>();
-    var pattern = Pattern.compile(String.format(".{1,%d}", characterPerLine));
-    var matcher = pattern.matcher(text);
-    while (matcher.find()) {
-      paragraph.add(matcher.group());
-    }
-    return paragraph;
   }
 
   public static String cutOverflow(String text, int widthCell, int fontsize) {

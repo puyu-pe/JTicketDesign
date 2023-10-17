@@ -1,9 +1,25 @@
 package pe.puyu.jticketdesing.util.escpos;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.Style;
+import com.github.anastaciocintra.escpos.EscPosConst.Justification;
 import com.github.anastaciocintra.escpos.Style.ColorMode;
 import com.github.anastaciocintra.escpos.Style.FontSize;
+import com.github.anastaciocintra.escpos.barcode.QRCode;
+import com.github.anastaciocintra.escpos.barcode.QRCode.QRErrorCorrectionLevel;
+import com.github.anastaciocintra.escpos.barcode.QRCode.QRModel;
+import com.github.anastaciocintra.escpos.image.Bitonal;
+import com.github.anastaciocintra.escpos.image.BitonalThreshold;
+import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
+import com.github.anastaciocintra.escpos.image.EscPosImage;
+import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
 
 import pe.puyu.jticketdesing.util.StringUtils;
 
@@ -209,22 +225,65 @@ public class EscPosWrapper {
   }
 
   public void printBoldLine(char pad, int maxWidth) throws Exception {
-    this.escPos.writeLF(StyleWrapper.textBoldSize(1), StringUtils.repeat(pad, maxWidth));
+    this.escPos.writeLF(style.fontSize(1).setBold(true), StringUtils.repeat(pad, maxWidth));
+    style.noBold();
   }
 
-  public void addStyleBold() {
+  public EscPosWrapper addStyleBold() {
     this.style.getStyle().setBold(true);
+    return this;
   }
 
-  public void removeStyleBold() {
+  public EscPosWrapper removeStyleBold() {
     this.style.getStyle().setBold(false);
+    return this;
   }
 
-  public void addStyleInverted(){
+  public EscPosWrapper addStyleInverted() {
     this.style.getStyle().setColorMode(ColorMode.WhiteOnBlack);
+    return this;
   }
 
-  public void removeStyleInverted(){
+  public EscPosWrapper removeStyleInverted() {
     this.style.getStyle().setColorMode(ColorMode.BlackOnWhite_Default);
+    return this;
+  }
+
+  public void bitImage(BufferedImage image, Bitonal algorithm) throws Exception {
+    bitImage(image, algorithm, 0);
+  }
+
+  public void bitImage(String pathToImage, int size) throws Exception {
+    bitImage(pathToImage, size, new BitonalThreshold());
+  }
+
+  public void bitImage(String pathToImage, int size, Bitonal algorithm) throws Exception {
+    BufferedImage image = ImageIO.read(new File(pathToImage));
+    bitImage(image, algorithm, size);
+  }
+
+  public void bitImage(BufferedImage image, Bitonal algorithm, int size) throws Exception {
+    EscPosImage escPosImage = new EscPosImage(new CoffeeImageImpl(image), algorithm);
+    RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
+    imageWrapper.setJustification(Justification.Center);
+    if (size > 50) {
+      Image scaledImage = image.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+      BufferedImage resizedImage = new BufferedImage(size, size, 2);
+      Graphics2D g = resizedImage.createGraphics();
+      g.drawImage(scaledImage, 0, 0, null);
+      g.dispose();
+      escPosImage = new EscPosImage(new CoffeeImageImpl(resizedImage), algorithm);
+    }
+    this.escPos.write(imageWrapper, escPosImage);
+  }
+
+  public void standardQR(String stringQr) throws Exception {
+    var qrCode = new QRCode();
+    qrCode
+        .setSize(4)
+        .setJustification(Justification.Center)
+        .setModel(QRModel._2)
+        .setErrorCorrectionLevel(QRErrorCorrectionLevel.QR_ECLEVEL_Q);
+    this.escPos.write(qrCode, stringQr);
   }
 }
