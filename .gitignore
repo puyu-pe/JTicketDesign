@@ -1,4 +1,5 @@
 # Maven build directory
+.vscode
 target/
 
 # Eclipse IDE files (if you're using Eclipse)
