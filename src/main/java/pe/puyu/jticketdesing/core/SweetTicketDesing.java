@@ -2,6 +2,8 @@ package pe.puyu.jticketdesing.core;
 
 import java.io.ByteArrayOutputStream;
 import java.text.DecimalFormat;
+import java.text.Normalizer;
+import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,11 +21,8 @@ import pe.puyu.jticketdesing.util.escpos.EscPosWrapper;
 import pe.puyu.jticketdesing.util.escpos.StyleWrapper;
 
 class Default {
-  public final static int TIMES = 1;
-  public final static int MAX_TICKET_WIDTH = 42;
   public final static int QUANTITY_COLUMN_WIDTH = 4;
-  public final static int MARGIN_RIGHT = 0;
-  public final static int TOTAL_COLUMN_WIDTH = 7 + MARGIN_RIGHT;
+  public final static int TOTAL_COLUMN_WIDTH = 7;
 }
 
 public class SweetTicketDesing {
@@ -114,7 +113,7 @@ public class SweetTicketDesing {
       if (type.equalsIgnoreCase("text")) {
         var lines = StringUtils.wrapText(comercialDescription.getString("value"), properties.width(), 2);
         for (var line : lines) {
-          escPosWrapper.toCenter(line, properties.width(), FontSize._2);
+          escPosWrapper.toCenter(normalize(line), properties.width(), FontSize._2);
         }
       }
       if (type.equalsIgnoreCase("img") && properties.logoPath().isPresent()) {
@@ -125,7 +124,7 @@ public class SweetTicketDesing {
       escPosWrapper.removeStyleBold();
       var lines = StringUtils.wrapText(business.getString("description"), properties.width(), 1);
       for (var line : lines) {
-        escPosWrapper.toCenter(line, properties.width());
+        escPosWrapper.toCenter(normalize(line), properties.width());
       }
     }
   }
@@ -138,7 +137,7 @@ public class SweetTicketDesing {
       for (Object item : additional) {
         var lines = StringUtils.wrapText(item.toString(), properties.width(), 1);
         for (var line : lines) {
-          escPosWrapper.toCenter(line, properties.width());
+          escPosWrapper.toCenter(normalize(line), properties.width());
         }
       }
     }
@@ -174,7 +173,7 @@ public class SweetTicketDesing {
     }
     var lines = StringUtils.wrapText(text, properties.width(), StyleWrapper.valueFontSize(fontWidth));
     for (var line : lines) {
-      escPosWrapper.toCenter(line, properties.width(), fontWidth, fontHeight);
+      escPosWrapper.toCenter(normalize(line), properties.width(), fontWidth, fontHeight);
     }
     escPosWrapper.printLine(' ', 1);
   }
@@ -186,7 +185,7 @@ public class SweetTicketDesing {
       for (var item : customer) {
         var lines = StringUtils.wrapText(item.toString(), properties.width(), 1);
         for (var line : lines) {
-          escPosWrapper.toLeft(line, properties.width());
+          escPosWrapper.toLeft(normalize(line), properties.width());
         }
       }
     } else {
@@ -207,9 +206,9 @@ public class SweetTicketDesing {
         var lines = StringUtils.wrapText(item.toString(), properties.width(), StyleWrapper.valueFontSize(fontSize));
         for (int i = 0; i < lines.size(); ++i) {
           if (isCommand) {
-            escPosWrapper.toCenter(lines.get(i), properties.width(), fontSize, FontSize._1);
+            escPosWrapper.toCenter(normalize(lines.get(i)), properties.width(), fontSize, FontSize._1);
           } else {
-            escPosWrapper.toLeft(lines.get(i), properties.width(), fontSize);
+            escPosWrapper.toLeft(normalize(lines.get(i)), properties.width(), fontSize);
           }
         }
       }
@@ -253,6 +252,7 @@ public class SweetTicketDesing {
           escPosWrapper.printLine(' ', quantityWidth, false);
           var lines = StringUtils.wrapText(description.getString(j), descriptionWidth, valueFontSize);
           for (var line : lines) {
+            line = normalize(line);
             if (isCommand)
               escPosWrapper.toCenter(line, descriptionWidth, fontSize, FontSize._1);
             else
@@ -272,9 +272,9 @@ public class SweetTicketDesing {
             escPosWrapper.printLine(' ', quantityWidth, false);
           }
           if (isCommand) {
-            escPosWrapper.toCenter(lines.get(j), descriptionWidth, fontSize, FontSize._1);
+            escPosWrapper.toCenter(normalize(lines.get(j)), descriptionWidth, fontSize, FontSize._1);
           } else {
-            escPosWrapper.toLeft(lines.get(j), descriptionWidth, !item.has("totalPrice"));
+            escPosWrapper.toLeft(normalize(lines.get(j)), descriptionWidth, !item.has("totalPrice"));
           }
           if (j == 0 && item.has("totalPrice")) {
             escPosWrapper.toRight(price.format(item.getBigDecimal("totalPrice")), totalWidth);
@@ -287,6 +287,7 @@ public class SweetTicketDesing {
         escPosWrapper.removeStyleBold();
         var lines = StringUtils.wrapText(item.getString("commentary"), descriptionWidth, 1);
         for (var line : lines) {
+          line = normalize(line);
           escPosWrapper.printLine(' ', quantityWidth, false);
           if (isCommand)
             escPosWrapper.toCenter(line, descriptionWidth);
@@ -321,7 +322,7 @@ public class SweetTicketDesing {
     if (this.data.has("additionalFooter")) {
       var additionalFooter = this.data.getJSONArray("additionalFooter");
       for (Object item : additionalFooter) {
-        escPosWrapper.toLeft(item.toString(), properties.width());
+        escPosWrapper.toLeft(normalize(item.toString()), properties.width());
       }
       escPosWrapper.printLine('-', properties.width());
     }
@@ -340,13 +341,13 @@ public class SweetTicketDesing {
       for (var item : finalMessage) {
         var lines = StringUtils.wrapText(item.toString(), properties.width(), 1);
         for (var line : lines) {
-          escPosWrapper.toCenter(line, properties.width());
+          escPosWrapper.toCenter(normalize(line), properties.width());
         }
       }
     } else {
       var lines = StringUtils.wrapText(finalMessageObj.toString(), properties.width(), 1);
       for (var line : lines) {
-        escPosWrapper.toCenter(line, properties.width());
+        escPosWrapper.toCenter(normalize(line), properties.width());
       }
     }
   }
@@ -372,9 +373,9 @@ public class SweetTicketDesing {
       return;
     }
     var titleExtra = this.data.getJSONObject("titleExtra");
-    escPosWrapper.toCenter(titleExtra.getString("title"), properties.width(), FontSize._2);
+    escPosWrapper.toCenter(normalize(titleExtra.getString("title")), properties.width(), FontSize._2);
     escPosWrapper.removeStyleBold();
-    escPosWrapper.toCenter(titleExtra.getString("subtitle"), properties.width(), FontSize._2);
+    escPosWrapper.toCenter(normalize(titleExtra.getString("subtitle")), properties.width(), FontSize._2);
     escPosWrapper.printLine(' ', 1);
   }
 
@@ -383,6 +384,7 @@ public class SweetTicketDesing {
       var escPosWrapper = new EscPosWrapper(escpos);
       boolean supportBackgroundInverted = properties.backgroundInverted();
       var text = String.format(" %s ", this.data.getString("textBackgroundInverted"));
+      text = normalize(text);
       var pad = '*';
       if (supportBackgroundInverted) {
         pad = ' ';
@@ -390,9 +392,19 @@ public class SweetTicketDesing {
       } else {
         escPosWrapper.addStyleBold();
       }
-      escPosWrapper.toCenter(text, properties.width(), pad);
+      escPosWrapper.toCenter(normalize(text), properties.width(), pad);
       escPosWrapper.removeStyleInverted();
       escPosWrapper.printLine(' ', properties.width());
     }
+  }
+
+  private String normalize(String text) {
+    if (!properties.textNormalize()) {
+      return text;
+    }
+    String normalized = Normalizer.normalize(text, Normalizer.Form.NFD);
+    return Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(normalized)
+        .replaceAll("")
+        .replaceAll("[^\\p{ASCII}]", "");
   }
 }
