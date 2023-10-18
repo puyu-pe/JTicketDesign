@@ -283,7 +283,7 @@ public class SweetTicketDesing {
           }
         }
       }
-      if (item.has("commentary")) {
+      if (item.has("commentary") && !item.isNull("commentary")) {
         escPosWrapper.removeStyleBold();
         var lines = StringUtils.wrapText(item.getString("commentary"), descriptionWidth, 1);
         for (var line : lines) {
