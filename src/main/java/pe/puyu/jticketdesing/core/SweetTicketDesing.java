@@ -39,6 +39,7 @@ public class SweetTicketDesing {
   private void initEscPos(ByteArrayOutputStream buffer) throws Exception {
     this.escpos = new EscPos(buffer);
     this.escpos.setCharacterCodeTable(this.properties.charCodeTable());
+		this.escpos.setCharsetName(properties.charSetName());
   }
 
   public byte[] getBytes() throws Exception {
@@ -223,7 +224,7 @@ public class SweetTicketDesing {
     var items = this.data.getJSONArray("items");
     boolean isCommand = properties.type().equalsIgnoreCase("command");
     int quantityWidth = 0;
-    var fontSize = isCommand ? FontSize._2 : FontSize._1;
+    var fontSize = isCommand ? properties.fontSizeCommand() : FontSize._1;
     var valueFontSize = StyleWrapper.valueFontSize(fontSize);
     int totalWidth = isCommand ? 0 : Default.TOTAL_COLUMN_WIDTH;
     int descriptionWidth = properties.width();
