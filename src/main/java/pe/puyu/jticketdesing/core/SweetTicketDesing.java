@@ -39,7 +39,6 @@ public class SweetTicketDesing {
 	private void initEscPos(ByteArrayOutputStream buffer) throws Exception {
 		this.escpos = new EscPos(buffer);
 		this.escpos.setCharacterCodeTable(this.properties.charCodeTable());
-		this.escpos.setCharsetName(properties.charSetName());
 	}
 
 	public byte[] getBytes() throws Exception {
