@@ -213,9 +213,9 @@ public class SweetTicketDesing {
         var lines = StringUtils.wrapText(item.toString(), properties.width(), StyleWrapper.valueFontSize(fontSize));
         for (int j = 0; j < lines.size(); ++j) {
           if (isCommand) {
-            escPosWrapper.toCenter(normalize(lines.get(i)), properties.width(), fontSize, FontSize._1);
+            escPosWrapper.toCenter(normalize(lines.get(j)), properties.width(), fontSize, FontSize._1);
           } else {
-            escPosWrapper.toLeft(normalize(lines.get(i)), properties.width(), fontSize);
+            escPosWrapper.toLeft(normalize(lines.get(j)), properties.width(), fontSize);
           }
         }
       }
