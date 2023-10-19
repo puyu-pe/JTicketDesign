@@ -1,36 +1,32 @@
 package pe.puyu.jticketdesing;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
+import com.github.anastaciocintra.escpos.EscPos.CutMode;
 import com.github.anastaciocintra.escpos.Style.FontSize;
-import com.github.anastaciocintra.output.TcpIpOutputStream;
-
-import pe.puyu.jticketdesing.util.StringUtils;
-import pe.puyu.jticketdesing.util.escpos.EscPosWrapper;
 
 public class Main {
-  public static void main(String[] args) throws InterruptedException {
-    Integer n = null;
-
-    System.out.println(Optional.ofNullable(n).orElse(42));
-    // try (var escpos = new EscPos(new TcpIpOutputStream("192.168.18.100", 9100)))
-    // {
-    // var escposUtil = new EscPosWrapper(escpos);
-    //
-    // escposUtil.toRight("1", 7, FontSize._2, false);
-    // escposUtil.toCenter("ARROZ CON LANGOSTINOS", 21, FontSize._2, false);
-    // escposUtil.toLeft("17.00", 14, FontSize._2, true);
-    // escpos.getStyle().reset();
-    //
-    // escpos.feed(4);
-    // escpos.cut(EscPos.CutMode.PART);
-    // escpos.close();
-    // } catch (Exception e) {
-    // e.printStackTrace();
-    // }
-  }
+	public static void main(String[] args) throws InterruptedException {
+		File smbFile = new File("\\\\192.168.1.53\\jpuka");
+		try (OutputStream outputStream = new FileOutputStream(smbFile)) {
+			var buffer = new ByteArrayOutputStream();
+			EscPos escPos = new EscPos(buffer);
+			escPos.setCharacterCodeTable(CharacterCodeTable.WPC1252);
+			escPos.setCharsetName(CharacterCodeTable.WPC1252.charsetName);
+			escPos.getStyle().setBold(true).setFontSize(FontSize._2,FontSize._1);
+			escPos.writeLF("N° áéíóúñ");
+			escPos.feed(4);
+			escPos.cut(CutMode.PART);
+			outputStream.write(buffer.toByteArray());
+			outputStream.close();
+			escPos.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
