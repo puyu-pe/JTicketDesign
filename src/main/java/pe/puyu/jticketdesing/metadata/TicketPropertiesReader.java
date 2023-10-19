@@ -33,17 +33,6 @@ public class TicketPropertiesReader {
 		}
 	}
 
-	public String charSetName() {
-		try {
-			if (properties.has("charSetName") && !properties.isNull("charSetName"))
-				return properties.getString("charSetName");
-			else
-				return CharacterCodeTable.CP437_USA_Standard_Europe.charsetName;
-		} catch (Exception e) {
-			return CharacterCodeTable.CP437_USA_Standard_Europe.charsetName;
-		}
-	}
-
 	public FontSize fontSizeCommand() {
 		if (properties.has("fontSizeCommand") && !properties.isNull("fontSizeCommand")) {
 			return StyleWrapper.toFontSize(properties.getInt("fontSizeCommand"));
