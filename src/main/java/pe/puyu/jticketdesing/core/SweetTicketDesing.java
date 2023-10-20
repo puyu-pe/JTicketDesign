@@ -13,8 +13,10 @@ import com.github.anastaciocintra.escpos.EscPos.CutMode;
 import com.github.anastaciocintra.escpos.EscPos.PinConnector;
 import com.github.anastaciocintra.escpos.Style.FontSize;
 import com.github.anastaciocintra.escpos.image.BitonalOrderedDither;
+import com.github.anastaciocintra.escpos.image.BitonalThreshold;
 
 import pe.puyu.jticketdesing.metadata.TicketPropertiesReader;
+import pe.puyu.jticketdesing.util.ImageUtil;
 import pe.puyu.jticketdesing.util.QRCodeGenerator;
 import pe.puyu.jticketdesing.util.StringUtils;
 import pe.puyu.jticketdesing.util.escpos.EscPosWrapper;
@@ -117,7 +119,11 @@ public class SweetTicketDesing {
         }
       }
       if (type.equalsIgnoreCase("img") && properties.logoPath().isPresent()) {
-        escPosWrapper.bitImage(properties.logoPath().get(), 290);
+        var imgSize = 290;
+        var image = ImageUtil.toBufferedImage(properties.logoPath().get());
+        var resizedImage = ImageUtil.resizeImage(image, imgSize);
+        var centerImage = ImageUtil.justifyImageToCenter(resizedImage, calcWidthPaperInPx(), imgSize);
+        escPosWrapper.bitImage(centerImage, new BitonalThreshold());
       }
     }
     if (business.has("description")) {
@@ -205,9 +211,10 @@ public class SweetTicketDesing {
       if (isCommand)
         escPosWrapper.addStyleBold();
       for (int i = 0; i < additional.length(); ++i) {
-        // NOTE: El siguiente if es para mantener la compatibilidad con puka-csharp, solo en comandas
+        // NOTE: El siguiente if es para mantener la compatibilidad con puka-csharp,
+        // solo en comandas
         // NOTE: Eliminarlo una vez puka-charp este completamente eliminado
-        if(i == 0 && isCommand)
+        if (i == 0 && isCommand)
           continue;
         var item = additional.get(i);
         var lines = StringUtils.wrapText(item.toString(), properties.width(), StyleWrapper.valueFontSize(fontSize));
@@ -366,7 +373,10 @@ public class SweetTicketDesing {
     var stringQr = this.data.get("stringQR").toString();
     var escPosWrapper = new EscPosWrapper(this.escpos);
     if (!properties.nativeQR()) {
-      escPosWrapper.bitImage(QRCodeGenerator.render(stringQr), new BitonalOrderedDither());
+      int sizeQR = 200;
+      var image = QRCodeGenerator.render(stringQr, sizeQR);
+      var centerImage = ImageUtil.justifyImageToCenter(image, calcWidthPaperInPx(), sizeQR);
+      escPosWrapper.bitImage(centerImage, new BitonalOrderedDither());
     } else {
       escPosWrapper.standardQR(stringQr);
     }
@@ -412,5 +422,13 @@ public class SweetTicketDesing {
     return Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(normalized)
         .replaceAll("")
         .replaceAll("[^\\p{ASCII}]", "");
+  }
+
+  // calcula el ancho del papel en pixeles
+  private int calcWidthPaperInPx() {
+    // 290 y 25 ,son valores referenciales ya que se vio que
+    // 25 caracteres son 290px aprox.
+    // Se aplica la regla de 3 simple 25 -> 290 => width = x;
+    return (290 * (properties.width() + 2)) / 25;
   }
 }

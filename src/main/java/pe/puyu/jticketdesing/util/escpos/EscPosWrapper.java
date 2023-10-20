@@ -1,11 +1,6 @@
 package pe.puyu.jticketdesing.util.escpos;
 
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.File;
-
-import javax.imageio.ImageIO;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.Style;
@@ -16,7 +11,6 @@ import com.github.anastaciocintra.escpos.barcode.QRCode;
 import com.github.anastaciocintra.escpos.barcode.QRCode.QRErrorCorrectionLevel;
 import com.github.anastaciocintra.escpos.barcode.QRCode.QRModel;
 import com.github.anastaciocintra.escpos.image.Bitonal;
-import com.github.anastaciocintra.escpos.image.BitonalThreshold;
 import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
 import com.github.anastaciocintra.escpos.image.EscPosImage;
 import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
@@ -250,30 +244,8 @@ public class EscPosWrapper {
   }
 
   public void bitImage(BufferedImage image, Bitonal algorithm) throws Exception {
-    bitImage(image, algorithm, 0);
-  }
-
-  public void bitImage(String pathToImage, int size) throws Exception {
-    bitImage(pathToImage, size, new BitonalThreshold());
-  }
-
-  public void bitImage(String pathToImage, int size, Bitonal algorithm) throws Exception {
-    BufferedImage image = ImageIO.read(new File(pathToImage));
-    bitImage(image, algorithm, size);
-  }
-
-  public void bitImage(BufferedImage image, Bitonal algorithm, int size) throws Exception {
     EscPosImage escPosImage = new EscPosImage(new CoffeeImageImpl(image), algorithm);
     RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
-    imageWrapper.setJustification(Justification.Center);
-    if (size > 50) {
-      Image scaledImage = image.getScaledInstance(size, size, Image.SCALE_SMOOTH);
-      BufferedImage resizedImage = new BufferedImage(size, size, 2);
-      Graphics2D g = resizedImage.createGraphics();
-      g.drawImage(scaledImage, 0, 0, null);
-      g.dispose();
-      escPosImage = new EscPosImage(new CoffeeImageImpl(resizedImage), algorithm);
-    }
     this.escPos.write(imageWrapper, escPosImage);
   }
 
