@@ -265,15 +265,15 @@ public class SweetTicketDesing {
         for (int j = 0; j < description.length(); ++j) {
           escPosWrapper.printLine(' ', quantityWidth, false);
           var lines = StringUtils.wrapText(description.getString(j), descriptionWidth, valueFontSize);
-          for (var line : lines) {
-            line = normalize(line);
+          for (int k = 0; k < lines.size(); ++k) {
+            var line = normalize(lines.get(k));
             if (isCommand)
               escPosWrapper.toCenter(line, descriptionWidth, fontSize, FontSize._1);
             else
-              escPosWrapper.toLeft(line, descriptionWidth, fontSize, j != 0);
-          }
-          if (j == 0) {
-            escPosWrapper.toRight(price.format(item.getBigDecimal("totalPrice")), totalWidth, true);
+              escPosWrapper.toLeft(line, descriptionWidth, fontSize, k != 0 || j != 0);
+            if (j == 0 && k == 0) {
+              escPosWrapper.toRight(price.format(item.getBigDecimal("totalPrice")), totalWidth, true);
+            }
           }
         }
       } else {
