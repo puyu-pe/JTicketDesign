@@ -13,10 +13,10 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 public class QRCodeGenerator {
 
-	public static BufferedImage render(String qrCodeData) throws Exception {
+	public static BufferedImage render(String qrCodeData, int sizeQR) throws Exception {
 		final String charset = "UTF-8";
-		final int qrCodeheight = 200;
-		final int qrCodewidth = 200;
+		final int qrCodeheight = sizeQR;
+		final int qrCodewidth = sizeQR;
 		Map<EncodeHintType, ErrorCorrectionLevel> hintMap = new HashMap<EncodeHintType, ErrorCorrectionLevel>();
 		hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.Q);
 		BitMatrix matrix = new MultiFormatWriter().encode(new String(qrCodeData.getBytes(charset), charset),
