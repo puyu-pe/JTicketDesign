@@ -27,13 +27,13 @@ class Default {
   public final static int TOTAL_COLUMN_WIDTH = 7;
 }
 
-public class SweetTicketDesing {
+public class SweetTicketDesign {
 
-  private JSONObject data;
-  private TicketPropertiesReader properties;
+  private final JSONObject data;
+  private final TicketPropertiesReader properties;
   private EscPos escpos;
 
-  public SweetTicketDesing(JSONObject ticket) throws Exception {
+  public SweetTicketDesign(JSONObject ticket) {
     this.data = ticket.getJSONObject("data");
     this.properties = new TicketPropertiesReader(ticket);
   }
@@ -48,17 +48,17 @@ public class SweetTicketDesing {
       var byteArrayOutputStream = new ByteArrayOutputStream();
       initEscPos(byteArrayOutputStream);
       for (int i = 0; i < properties.times(); ++i) {
-        desingLayout();
+        designLayout();
       }
       return byteArrayOutputStream.toByteArray();
     } catch (Exception e) {
-      throw new Exception(String.format("JTicketDesing Exception: %s", e.getMessage()));
+      throw new Exception(String.format("JTicketDesign Exception: %s", e.getMessage()));
     } finally {
       this.escpos.close();
     }
   }
 
-  private void desingLayout() throws Exception {
+  private void designLayout() throws Exception {
     this.header();
     switch (properties.type()) {
       case "invoice":
@@ -80,7 +80,7 @@ public class SweetTicketDesing {
         break;
       case "command":
         this.documentLegal();
-        this.textBackgroudInverted();
+        this.textBackgroundInverted();
         this.additional();
         this.items();
         this.finalMessage();
@@ -154,7 +154,7 @@ public class SweetTicketDesing {
     if (!this.data.has("document"))
       return;
     var documentObj = this.data.get("document");
-    String text = "";
+    String text;
     if (!(documentObj instanceof String)) {
       var document = (JSONObject) documentObj;
       if (properties.type().equalsIgnoreCase("precount") || !document.has("identifier")) {
@@ -163,14 +163,13 @@ public class SweetTicketDesing {
         text = String.format("%s %s", document.getString("description"), document.get("identifier").toString());
       }
     } else {
-      text = String.format("%s", documentObj.toString());
+      text = String.format("%s", documentObj);
     }
     var escPosWrapper = new EscPosWrapper(escpos, StyleWrapper.textBold());
     FontSize fontWidth = FontSize._1, fontHeight = FontSize._1;
     switch (properties.type()) {
       case "command":
         fontWidth = FontSize._2;
-        fontHeight = FontSize._1;
         break;
       case "precount":
         fontWidth = FontSize._2;
@@ -218,13 +217,13 @@ public class SweetTicketDesing {
           continue;
         var item = additional.get(i);
         var lines = StringUtils.wrapText(item.toString(), properties.width(), StyleWrapper.valueFontSize(fontSize));
-        for (int j = 0; j < lines.size(); ++j) {
-          if (isCommand) {
-            escPosWrapper.toCenter(normalize(lines.get(j)), properties.width(), fontSize, FontSize._1);
-          } else {
-            escPosWrapper.toLeft(normalize(lines.get(j)), properties.width(), fontSize);
-          }
-        }
+	      for (String line : lines) {
+		      if (isCommand) {
+			      escPosWrapper.toCenter(normalize(line), properties.width(), fontSize, FontSize._1);
+		      } else {
+			      escPosWrapper.toLeft(normalize(line), properties.width(), fontSize);
+		      }
+	      }
       }
     }
     escPosWrapper.printLine(' ', 1);
@@ -260,8 +259,7 @@ public class SweetTicketDesing {
         escPosWrapper.addStyleBold();
       var item = items.getJSONObject(i);
       var descriptionObj = item.get("description");
-      if (descriptionObj instanceof JSONArray) {
-        var description = (JSONArray) descriptionObj;
+      if (descriptionObj instanceof JSONArray description) {
         for (int j = 0; j < description.length(); ++j) {
           escPosWrapper.printLine(' ', quantityWidth, false);
           var lines = StringUtils.wrapText(description.getString(j), descriptionWidth, valueFontSize);
@@ -349,8 +347,7 @@ public class SweetTicketDesing {
       return;
     }
     Object finalMessageObj = this.data.get("finalMessage");
-    if (finalMessageObj instanceof JSONArray) {
-      var finalMessage = (JSONArray) finalMessageObj;
+    if (finalMessageObj instanceof JSONArray finalMessage) {
       for (var item : finalMessage) {
         var lines = StringUtils.wrapText(item.toString(), properties.width(), 1);
         for (var line : lines) {
@@ -395,7 +392,7 @@ public class SweetTicketDesing {
     escPosWrapper.printLine(' ', 1);
   }
 
-  private void textBackgroudInverted() throws Exception {
+  private void textBackgroundInverted() throws Exception {
     if (this.data.has("textBackgroundInverted") && !this.data.isNull("textBackgroundInverted")) {
       var escPosWrapper = new EscPosWrapper(escpos);
       boolean supportBackgroundInverted = properties.backgroundInverted();

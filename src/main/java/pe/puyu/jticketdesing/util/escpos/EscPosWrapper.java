@@ -19,7 +19,7 @@ import pe.puyu.jticketdesing.util.StringUtils;
 
 public class EscPosWrapper {
   private EscPos escPos;
-  private StyleWrapper style;
+  private final StyleWrapper style;
 
   public EscPosWrapper(EscPos escPos) {
     this(escPos, new Style());

@@ -5,4 +5,5 @@ module pe.puyu.jticketdesing{
   requires com.google.zxing;
   requires com.google.zxing.javase;
   exports pe.puyu.jticketdesing.core;
+  exports pe.puyu.jticketdesing.util;
 }

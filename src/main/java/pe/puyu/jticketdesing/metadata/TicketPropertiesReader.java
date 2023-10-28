@@ -11,7 +11,7 @@ import pe.puyu.jticketdesing.util.escpos.StyleWrapper;
 
 public class TicketPropertiesReader {
 	private JSONObject properties;
-	private JSONObject ticket;
+	private final JSONObject ticket;
 
 	public TicketPropertiesReader(JSONObject ticket) {
 		this.ticket = ticket;
