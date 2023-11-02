@@ -285,12 +285,13 @@ public class SweetTicketDesign {
           }
           if (isCommand) {
             escPosWrapper.toCenter(normalize(lines.get(j)), descriptionWidth, fontSize, FontSize._1);
+            continue;
           } else {
             escPosWrapper.toLeft(normalize(lines.get(j)), descriptionWidth, !item.has("totalPrice"));
           }
           if (j == 0 && item.has("totalPrice")) {
             escPosWrapper.toRight(price.format(item.getBigDecimal("totalPrice")), totalWidth);
-          } else if (!isCommand) {
+          } else {
             escPosWrapper.printLine(' ', totalWidth, true);
           }
         }
