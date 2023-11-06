@@ -15,13 +15,10 @@ public class QRCodeGenerator {
 
 	public static BufferedImage render(String qrCodeData, int sizeQR) throws Exception {
 		final String charset = "UTF-8";
-		final int qrCodeheight = sizeQR;
-		final int qrCodewidth = sizeQR;
-		Map<EncodeHintType, ErrorCorrectionLevel> hintMap = new HashMap<EncodeHintType, ErrorCorrectionLevel>();
+		Map<EncodeHintType, ErrorCorrectionLevel> hintMap = new HashMap<>();
 		hintMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.Q);
 		BitMatrix matrix = new MultiFormatWriter().encode(new String(qrCodeData.getBytes(charset), charset),
-				BarcodeFormat.QR_CODE, qrCodewidth, qrCodeheight, hintMap);
-		BufferedImage image = MatrixToImageWriter.toBufferedImage(matrix);
-		return image;
+				BarcodeFormat.QR_CODE, sizeQR, sizeQR, hintMap);
+		return MatrixToImageWriter.toBufferedImage(matrix);
 	}
 }
