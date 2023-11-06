@@ -210,11 +210,6 @@ public class SweetTicketDesign {
       if (isCommand)
         escPosWrapper.addStyleBold();
       for (int i = 0; i < additional.length(); ++i) {
-        // NOTE: El siguiente if es para mantener la compatibilidad con puka-csharp,
-        // solo en comandas
-        // NOTE: Eliminarlo una vez puka-charp este completamente eliminado
-        if (i == 0 && isCommand)
-          continue;
         var item = additional.get(i);
         var lines = StringUtils.wrapText(item.toString(), properties.width(), StyleWrapper.valueFontSize(fontSize));
 	      for (String line : lines) {
