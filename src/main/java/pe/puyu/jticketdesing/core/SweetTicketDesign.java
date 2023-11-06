@@ -302,6 +302,8 @@ public class SweetTicketDesign {
           else
             escPosWrapper.toLeft(line, descriptionWidth);
         }
+      }else if(isCommand){
+        escPosWrapper.printLine(' ',1);
       }
     }
     if (isCommand)
