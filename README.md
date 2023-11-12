@@ -19,7 +19,7 @@ para la generación de comandos escpos.
 2. [Uso](#uso)
 3. [Caracteristicas configurables](#caracteristicas-configurables)
 4. [Modelos de tickets soportados](#modelos-de-tickets-soportados)
-   1. [Estructura general](#estructura-generalbr)
+   1. [Estructura general](#estructura-general)
    2. [Ejemplos de json validos](#ejemplos-de-json-validos)
 5. [Considerar logo y QR en el diseño](#considerar-logo-yo-código-qr-en-el-diseño-de-boletas-y-facturas)
 
@@ -95,7 +95,7 @@ SweetTicketDesign tiene varios modelos de tickets establecidos: boletas, factura
 extras, encomienda, delivery, comandas para restaurante, extra para restaurante y precuentas.
 El modelo que se diseñara dependera del objeto json y su propiedad type.
 
-### Estructura general<br>
+### Estructura general
 
 Un objeto json ticket puede estar compuesta por varias propiedades, la mayoria de las propiedades
 son opcionales, Las propiedades que se tomaran en cuenta depende del
@@ -163,8 +163,8 @@ interface Ticket {
 ### Ejemplos de json validos
 
 1. [Boleta o factura](docs/printing-models.md#1-modelo-para-boleta-o-factura)
-2. [Extras](docs/printing-models.md#2-modelo-para-extras-)
-3. [Encomienda](docs/printing-models.md#3-modelo-para-encomienda-)
+2. [Extras](docs/printing-models.md#2-modelo-para-extras)
+3. [Encomienda](docs/printing-models.md#3-modelo-para-encomienda)
 4. [Comanda restaurante](docs/printing-models.md#4-comanda-restaurante)
 5. [Extras o delivery restaurante](docs/printing-models.md#5-modelo-de-extra-o-delivery-restaurante)
 6. [Precuenta restaurante](docs/printing-models.md#6-modelo-precuenta-restaurante)

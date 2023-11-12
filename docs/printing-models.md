@@ -1,7 +1,7 @@
 ### Ejemplos modelos de impresión
 1. [Boleta o factura](#1-modelo-para-boleta-o-factura)
-2. [Extras](#2-modelo-para-extras-)
-3. [Encomienda](#3-modelo-para-encomienda-)
+2. [Extras](#2-modelo-para-extras)
+3. [Encomienda](#3-modelo-para-encomienda)
 4. [Comanda restaurante](#4-comanda-restaurante)
 5. [Extras o delivery restaurante](#5-modelo-de-extra-o-delivery-restaurante)
 6. [Precuenta restaurante](#6-modelo-precuenta-restaurante)
@@ -81,7 +81,7 @@
   }
 }
 ```
-#### 2. Modelo para extras. 
+#### 2. Modelo para extras.
 * type: invoice, con caracteristicas por defecto:
 ```json
     {
@@ -126,7 +126,7 @@
   }
 }
 ```
-#### 3. Modelo para encomienda. 
+#### 3. Modelo para encomienda.
 * type: invoice, con ancho de ticket 30:
 ```json
 {
