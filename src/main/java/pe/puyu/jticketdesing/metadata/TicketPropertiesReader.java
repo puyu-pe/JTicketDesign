@@ -2,7 +2,7 @@ package pe.puyu.jticketdesing.metadata;
 
 import java.util.Optional;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
 import com.github.anastaciocintra.escpos.Style.FontSize;
@@ -10,22 +10,22 @@ import com.github.anastaciocintra.escpos.Style.FontSize;
 import pe.puyu.jticketdesing.util.escpos.StyleWrapper;
 
 public class TicketPropertiesReader {
-	private JSONObject properties;
-	private final JSONObject ticket;
+	private JsonObject properties;
+	private final JsonObject ticket;
 
-	public TicketPropertiesReader(JSONObject ticket) {
+	public TicketPropertiesReader(JsonObject ticket) {
 		this.ticket = ticket;
-		var printer = ticket.getJSONObject("printer");
-		properties = new JSONObject();
-		if (printer.has("properties") && !printer.isNull("properties")) {
-			properties = printer.getJSONObject("properties");
+		JsonObject printer = ticket.getAsJsonObject("printer");
+		properties = new JsonObject();
+		if (printer.has("properties") && !printer.get("properties").isJsonNull()) {
+			properties = printer.getAsJsonObject("properties");
 		}
 	}
 
 	public CharacterCodeTable charCodeTable() {
 		try {
-			if (properties.has("charCodeTable") && !properties.isNull("charCodeTable"))
-				return CharacterCodeTable.valueOf(properties.getString("charCodeTable"));
+			if (properties.has("charCodeTable") && !properties.get("charCodeTable").isJsonNull())
+				return CharacterCodeTable.valueOf(properties.get("charCodeTable").getAsString());
 			else
 				return CharacterCodeTable.WPC1252;
 		} catch (Exception e) {
@@ -34,8 +34,8 @@ public class TicketPropertiesReader {
 	}
 
 	public FontSize fontSizeCommand() {
-		if (properties.has("fontSizeCommand") && !properties.isNull("fontSizeCommand")) {
-			return StyleWrapper.toFontSize(properties.getInt("fontSizeCommand"));
+		if (properties.has("fontSizeCommand") && !properties.get("fontSizeCommand").isJsonNull()) {
+			return StyleWrapper.toFontSize(properties.get("fontSizeCommand").getAsInt());
 		} else {
 			return FontSize._2;
 		}
@@ -45,48 +45,48 @@ public class TicketPropertiesReader {
 		if (!ticket.has("metadata")) {
 			return Optional.empty();
 		}
-		var metadata = ticket.getJSONObject("metadata");
-		if (metadata.has("logoPath") && !metadata.isNull("logoPath"))
-			return Optional.ofNullable(metadata.getString("logoPath"));
+		JsonObject metadata = ticket.getAsJsonObject("metadata");
+		if (metadata.has("logoPath") && !metadata.get("logoPath").isJsonNull())
+			return Optional.ofNullable(metadata.get("logoPath").getAsString());
 		return Optional.empty();
 	}
 
 	public String type() {
-		if (ticket.has("type") && !ticket.isNull("type"))
-			return ticket.getString("type");
+		if (ticket.has("type") && !ticket.get("type").isJsonNull())
+			return ticket.get("type").getAsString();
 		return "tipo de documento desconocido";
 	}
 
 	public int times() {
-		if (ticket.has("times") && !ticket.isNull("times")) {
-			return ticket.getInt("times");
+		if (ticket.has("times") && !ticket.get("times").isJsonNull()) {
+			return ticket.get("times").getAsInt();
 		}
 		return 1;
 	}
 
 	public int width() {
-		if (properties.has("width") && !properties.isNull("width")) {
-			return properties.getInt("width");
+		if (properties.has("width") && !properties.get("width").isJsonNull()) {
+			return properties.get("width").getAsInt();
 		}
 		return 42;
 	}
 
 	public boolean backgroundInverted() {
-		if (properties.has("backgroundInverted") && !properties.isNull("backgroundInverted")) {
-			return properties.getBoolean("backgroundInverted");
+		if (properties.has("backgroundInverted") && !properties.get("backgroundInverted").isJsonNull()) {
+			return properties.get("backgroundInverted").getAsBoolean();
 		}
 		return true;
 	}
 
 	public boolean nativeQR() {
-		if (properties.has("nativeQR") && !properties.isNull("nativeQR"))
-			return properties.getBoolean("nativeQR");
+		if (properties.has("nativeQR") && !properties.get("nativeQR").isJsonNull())
+			return properties.get("nativeQR").getAsBoolean();
 		return false;
 	}
 
 	public boolean textNormalize() {
-		if (properties.has("textNormalize") && !properties.isNull("textNormalize")) {
-			return properties.getBoolean("textNormalize");
+		if (properties.has("textNormalize") && !properties.get("textNormalize").isJsonNull()) {
+			return properties.get("textNormalize").getAsBoolean();
 		}
 		return false;
 	}
