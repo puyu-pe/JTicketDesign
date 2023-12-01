@@ -1,5 +1,5 @@
 module pe.puyu.jticketdesing{
-  requires org.json;
+  requires com.google.gson;
   requires escpos.coffee;
   requires java.desktop;
   requires com.google.zxing;
