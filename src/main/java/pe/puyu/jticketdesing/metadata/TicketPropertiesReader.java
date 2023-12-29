@@ -91,4 +91,10 @@ public class TicketPropertiesReader {
 		return false;
 	}
 
+	public int blankLinesAfterItems() {
+		if (properties.has("blankLinesAfterItems") && !properties.get("blankLinesAfterItems").isJsonNull()) {
+			return properties.get("blankLinesAfterItems").getAsInt();
+		}
+		return 0;
+	}
 }

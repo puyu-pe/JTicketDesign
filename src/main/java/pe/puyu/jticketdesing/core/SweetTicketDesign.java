@@ -318,10 +318,13 @@ public class SweetTicketDesign {
 				escPosWrapper.printLine(' ', 1);
 			}
 		}
+		for (int i = 0; i < properties.blankLinesAfterItems(); ++i) {
+			escPosWrapper.printLine(' ', 1);
+		}
 		if (isCommand)
-			escPosWrapper.printLine(' ', properties.width());
+			escPosWrapper.printLine(' ', 1);
 		else {
-			escPosWrapper.printLine('-', properties.width());
+			escPosWrapper.printLine('-', 1);
 		}
 	}
 
@@ -358,7 +361,7 @@ public class SweetTicketDesign {
 		}
 		JsonElement finalMessageObj = this.data.get("finalMessage");
 		if (finalMessageObj.isJsonArray()) {
-		JsonArray finalMessage = finalMessageObj.getAsJsonArray();
+			JsonArray finalMessage = finalMessageObj.getAsJsonArray();
 			for (JsonElement item : finalMessage) {
 				List<String> lines = StringUtils.wrapText(item.getAsString(), properties.width(), 1);
 				for (String line : lines) {
@@ -386,7 +389,7 @@ public class SweetTicketDesign {
 			BufferedImage centerImage = ImageUtil.justifyImageToCenter(image, calcWidthPaperInPx(), sizeQR);
 			escPosWrapper.bitImage(centerImage, new BitonalOrderedDither());
 		} else {
-			escPosWrapper.printLine(' ',1);
+			escPosWrapper.printLine(' ', 1);
 			escPosWrapper.standardQR(stringQr);
 		}
 	}
