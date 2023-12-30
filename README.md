@@ -78,7 +78,7 @@ public class Main {
 
 ## Caracteristicas configurables
 
-Se puede personalizar 5 caracteristicas, las cuales estarán presentes en el json,
+Se puede personalizar 7 caracteristicas, las cuales estarán presentes en el json,
 [ver modelos de tickets soportados](#modelos-de-tickets-soportados) para ver como configurarlos.
 
 | Propiedad            | Tipo    | Por defecto | Descripción                                                                                                                                                                                                                                         |
