@@ -6,7 +6,7 @@
 
   <groupId>pe.puyu</groupId>
   <artifactId>JTicketDesing</artifactId>
-  <version>0.3.2</version>
+  <version>0.4.0</version>
   <name>JTicketDesing</name>
   <description>Una libreria para diseño de tickets, utilizando comandos escpos</description>
   <url>https://github.com/puyu-pe/JTicketDesign</url>
