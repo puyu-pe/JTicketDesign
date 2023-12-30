@@ -30,6 +30,7 @@ import pe.puyu.jticketdesing.util.escpos.StyleWrapper;
 class Default {
 	public final static int QUANTITY_COLUMN_WIDTH = 4;
 	public final static int TOTAL_COLUMN_WIDTH = 7;
+	public final static int UNIT_PRICE_WIDTH = 7;
 }
 
 public class SweetTicketDesign {
@@ -72,6 +73,15 @@ public class SweetTicketDesign {
 	private void designLayout() throws Exception {
 		this.header();
 		switch (properties.type()) {
+			case "proforma":
+				this.businessAdditional();
+				this.documentLegal();
+				this.customer();
+				this.additional();
+				this.items();
+				this.amounts();
+				this.additionalFooter();
+				break;
 			case "invoice":
 				this.businessAdditional();
 				this.documentLegal();
@@ -245,6 +255,7 @@ public class SweetTicketDesign {
 		FontSize fontSize = isCommand ? properties.fontSizeCommand() : FontSize._1;
 		int valueFontSize = StyleWrapper.valueFontSize(fontSize);
 		int totalWidth = isCommand ? 0 : Default.TOTAL_COLUMN_WIDTH;
+		int unitPriceWidth = properties.showUnitPrice() ? Default.UNIT_PRICE_WIDTH : 0;
 		int descriptionWidth = properties.width();
 		DecimalFormat price = new DecimalFormat("0.00");
 
@@ -255,9 +266,14 @@ public class SweetTicketDesign {
 			descriptionWidth -= totalWidth;
 		}
 
+		if (properties.showUnitPrice()) {
+			descriptionWidth -= unitPriceWidth;
+		}
+
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
 		escPosWrapper.toLeft("CAN", quantityWidth, false);
 		escPosWrapper.toCenter("DESCRIPCION", descriptionWidth, FontSize._1, false);
+		escPosWrapper.toRight("P/U ", unitPriceWidth, FontSize._1, false);
 		escPosWrapper.toRight("TOTAL", totalWidth, true);
 		escPosWrapper.printBoldLine('-', properties.width());
 		for (int i = 0; i < items.size(); ++i) {
@@ -277,6 +293,13 @@ public class SweetTicketDesign {
 						else
 							escPosWrapper.toLeft(line, descriptionWidth, fontSize, k != 0 || j != 0);
 						if (j == 0 && k == 0) {
+							if (properties.showUnitPrice()) {
+								if (item.has("unitPrice") && !item.get("unitPrice").isJsonNull()) {
+									escPosWrapper.toRight(price.format(item.get("unitPrice").getAsBigDecimal()).concat(" "), unitPriceWidth, false);
+								} else {
+									escPosWrapper.toRight("null", unitPriceWidth, false);
+								}
+							}
 							escPosWrapper.toRight(price.format(item.get("totalPrice").getAsBigDecimal()), totalWidth, true);
 						}
 					}
@@ -295,6 +318,14 @@ public class SweetTicketDesign {
 						continue;
 					} else {
 						escPosWrapper.toLeft(normalize(lines.get(j)), descriptionWidth, !item.has("totalPrice"));
+					}
+
+					if (j == 0 && properties.showUnitPrice()) {
+						if (item.has("unitPrice") && !item.get("unitPrice").isJsonNull()) {
+							escPosWrapper.toRight(price.format(item.get("unitPrice").getAsBigDecimal()).concat(" "), unitPriceWidth, false);
+						} else {
+							escPosWrapper.toRight("null", unitPriceWidth, false);
+						}
 					}
 					if (j == 0 && item.has("totalPrice")) {
 						escPosWrapper.toRight(price.format(item.get("totalPrice").getAsBigDecimal()), totalWidth);
@@ -324,7 +355,7 @@ public class SweetTicketDesign {
 		if (isCommand)
 			escPosWrapper.printLine(' ', 1);
 		else {
-			escPosWrapper.printLine('-', 1);
+			escPosWrapper.printLine('-', properties.width());
 		}
 	}
 
@@ -346,9 +377,14 @@ public class SweetTicketDesign {
 		if (this.data.has("additionalFooter")) {
 			JsonArray additionalFooter = this.data.get("additionalFooter").getAsJsonArray();
 			for (JsonElement item : additionalFooter) {
-				escPosWrapper.toLeft(normalize(item.getAsString()), properties.width());
+				List<String> lines = StringUtils.wrapText(item.getAsString(), properties.width(), 1);
+				for (String line : lines) {
+					escPosWrapper.toLeft(normalize(line), properties.width());
+				}
 			}
-			escPosWrapper.printLine('-', properties.width());
+			if (!properties.type().equals("proforma")) {
+				escPosWrapper.printLine('-', properties.width());
+			}
 		}
 		escPosWrapper.printLine(' ', 1);
 	}

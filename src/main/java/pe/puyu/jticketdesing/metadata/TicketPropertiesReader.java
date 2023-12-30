@@ -97,4 +97,11 @@ public class TicketPropertiesReader {
 		}
 		return 0;
 	}
+
+	public boolean showUnitPrice() {
+		if (properties.has("showUnitPrice") && !properties.get("showUnitPrice").isJsonNull()) {
+			return properties.get("showUnitPrice").getAsBoolean();
+		}
+		return false;
+	}
 }
