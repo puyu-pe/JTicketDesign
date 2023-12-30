@@ -81,13 +81,14 @@ public class Main {
 Se puede personalizar 5 caracteristicas, las cuales estarán presentes en el json,
 [ver modelos de tickets soportados](#modelos-de-tickets-soportados) para ver como configurarlos.
 
-| Propiedad          | Tipo    | Por defecto | Descripción                                                                                                                                                                                                                                         |
-|--------------------|---------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| width              | int     | 42          | Número de caracteres por linea, jugar con este valor segun el tamaño del ticket, por defecto para ticketeras de 80mm, 42 es la valor  deseado.                                                                                                      |
-| backgroundInverted | boolean | true        | Algunas ticketeras antiguas fallan al imprimir anulaciones de comandas, si es es el caso configurar esta propiedad a false.                                                                                                                         |
-| charCodeTable      | string  | WPC1252     | El tipo de codificación de caracteres según escpos coffee, [enum CharCodeTable, escpos coffee](https://github.com/anastaciocintra/escpos-coffee/blob/master/src/main/java/com/github/anastaciocintra/escpos/EscPos.java).                           |
-| fontSizeCommand    | int     | 2           | Representa el tamaño de fuente que tendran las comandas, por cuestiones de enfasis en los pedidos el valor por defecto es 2, pero se puede establecer en 1.                                                                                         |
-| nativeQR           | boolean | false       | Por defecto el qr es generado como imagen y tratado como tal, pero tambien se puede establecer a true para que escpos coffee sea quien genere el qr. Se recomienda el valor por defecto ya que no todas la ticketeras soportan qr nativo de escpos. |
+| Propiedad            | Tipo    | Por defecto | Descripción                                                                                                                                                                                                                                         |
+|----------------------|---------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| width                | int     | 42          | Número de caracteres por linea, jugar con este valor segun el tamaño del ticket, por defecto para ticketeras de 80mm, 42 es la valor  deseado.                                                                                                      |
+| backgroundInverted   | boolean | true        | Algunas ticketeras antiguas fallan al imprimir anulaciones de comandas, si es es el caso configurar esta propiedad a false.                                                                                                                         |
+| charCodeTable        | string  | WPC1252     | El tipo de codificación de caracteres según escpos coffee, [enum CharCodeTable, escpos coffee](https://github.com/anastaciocintra/escpos-coffee/blob/master/src/main/java/com/github/anastaciocintra/escpos/EscPos.java).                           |
+| fontSizeCommand      | int     | 2           | Representa el tamaño de fuente que tendran las comandas, por cuestiones de enfasis en los pedidos el valor por defecto es 2, pero se puede establecer en 1.                                                                                         |
+| nativeQR             | boolean | false       | Por defecto el qr es generado como imagen y tratado como tal, pero tambien se puede establecer a true para que escpos coffee sea quien genere el qr. Se recomienda el valor por defecto ya que no todas la ticketeras soportan qr nativo de escpos. |
+| blankLinesAfterItems | int     | 0           | Número de lineas en blanco despues de imprimir los items, por defecto 0. Util en proformas.                                                                                                                                                         |
 
 ## Modelos de tickets soportados
 
@@ -114,6 +115,7 @@ interface Ticket {
             charCodeTable: string;// Opcional, por defecto WP1252
             fontSizeCommand: int; // Opcional, por defecto 2
             nativeQR: boolean;// Opcional, por defecto false
+            blankLinesAfterItems: int; // opcional, por defecto 0
         }
     }
     data: {
@@ -131,28 +133,28 @@ interface Ticket {
             title: string;
             subtitle: string;
         }
-    }
-    productionArea: string // opcional, obligatorio en comandas;
-    textBackgroundInverted: string // opcional,obligatorio en comandas anulacion ;
-    document: { //opcional
-        description: string;
-        identifier: strign;
-    }
-    customer: string[];
-    additional: string[]; //Array de strings, opcional
-    items: [  // Array de objetos opcional
-        {
-            quantity: int, // opcional
-            description: string,
-            totalPrice: decimal,
-        }, //...
-    ]
-    amounts: {};// Objeto generico ver ejemplos, opcional
-    additionalFooter: string[] // opcional;
-    finalMessage: string | string[] // opcional;
-    stringQR: string;// opcional
-    metadata: { //opcional
-        logoPath: string; //opcional   
+        productionArea: string // opcional, obligatorio en comandas;
+        textBackgroundInverted: string // opcional,obligatorio en comandas anulacion ;
+        document: { //opcional
+            description: string;
+            identifier: string;
+        }
+        customer: string[];
+        additional: string[]; //Array de strings, opcional
+        items: [  // Array de objetos opcional
+            {
+                quantity: int, // opcional
+                description: string,
+                totalPrice: decimal,
+            }, //...
+        ]
+        amounts: {};// Objeto generico ver ejemplos, opcional
+        additionalFooter: string[] // opcional;
+        finalMessage: string | string[] // opcional;
+        stringQR: string;// opcional
+        metadata: { //opcional
+            logoPath: string; //opcional   
+        }
     }
 }
 ```
@@ -182,9 +184,9 @@ interface Ticket {
                 type: "img"; // obligatorio para el logo
             }
         }
+       //... las demas propiedaes van aqui
+       stringQR:"20450523381|01|F001|00000006|0|9.00|30/09/2019|6|sdfsdfsdf|"
     }
-    //... las demas propiedaes van aqui
-    stringQR:"20450523381|01|F001|00000006|0|9.00|30/09/2019|6|sdfsdfsdf|"
     metadata: {
         logoPath: "C:\\Imagenes\\logo.png"
     }

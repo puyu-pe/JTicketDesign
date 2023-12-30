@@ -91,4 +91,17 @@ public class TicketPropertiesReader {
 		return false;
 	}
 
+	public int blankLinesAfterItems() {
+		if (properties.has("blankLinesAfterItems") && !properties.get("blankLinesAfterItems").isJsonNull()) {
+			return properties.get("blankLinesAfterItems").getAsInt();
+		}
+		return 0;
+	}
+
+	public boolean showUnitPrice() {
+		if (properties.has("showUnitPrice") && !properties.get("showUnitPrice").isJsonNull()) {
+			return properties.get("showUnitPrice").getAsBoolean();
+		}
+		return false;
+	}
 }

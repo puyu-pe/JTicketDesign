@@ -322,11 +322,13 @@
 interface note {
     type: "note";
     //.. demas propiedades
-    document: {
-        description: string;
-        identifier: string;
+    data: {
+        document: {
+            description: string;
+            identifier: string;
+        }
+        customer: string[];
+        additional: string[];
     }
-    customer: string[];
-    additional: string[];
 }
 ```
