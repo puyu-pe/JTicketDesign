@@ -100,6 +100,7 @@ public class SweetTicketDesign {
 				this.additional();
 				break;
 			case "command":
+				this.productionArea();
 				this.documentLegal();
 				this.textBackgroundInverted();
 				this.additional();
@@ -123,6 +124,14 @@ public class SweetTicketDesign {
 		}
 		this.escpos.feed(4);
 		this.escpos.cut(CutMode.PART);
+	}
+
+	private void productionArea() throws Exception {
+		if (!this.data.has("productionArea") || !properties.showProductionArea())
+			return;
+		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos, StyleWrapper.textBold());
+		escPosWrapper.toCenter(this.data.get("productionArea").getAsString(), properties.width(), FontSize._2);
+		escPosWrapper.printLine(' ', 1);
 	}
 
 	private void header() throws Exception {

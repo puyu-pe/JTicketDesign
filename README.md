@@ -90,6 +90,7 @@ Se puede personalizar 7 caracteristicas, las cuales estarán presentes en el jso
 | nativeQR             | boolean | false       | Por defecto el qr es generado como imagen y tratado como tal, pero tambien se puede establecer a true para que escpos coffee sea quien genere el qr. Se recomienda el valor por defecto ya que no todas la ticketeras soportan qr nativo de escpos. |
 | blankLinesAfterItems | int     | 0           | Número de lineas en blanco despues de imprimir los items, por defecto 0. Util en proformas.                                                                                                                                                         |
 | showUnitPrice        | boolean | false       | Indica si se debe mostrar el precio unitario en la tabla items, y cada item debe tener una propiedad "unitPrice".   Por defecto false.                                                                                                              |
+| showProductionArea   | boolean | false       | Afecta al diseño de las comandas, indica si se quiere mostrar el area de producción. Por defecto false.                                                                                                                                             |
 
 ## Modelos de tickets soportados
 

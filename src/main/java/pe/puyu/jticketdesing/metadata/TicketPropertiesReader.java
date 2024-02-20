@@ -104,4 +104,11 @@ public class TicketPropertiesReader {
 		}
 		return false;
 	}
+
+	public boolean showProductionArea() {
+		if (properties.has("showProductionArea") && !properties.get("showProductionArea").isJsonNull()) {
+			return properties.get("showProductionArea").getAsBoolean();
+		}
+		return false;
+	}
 }
