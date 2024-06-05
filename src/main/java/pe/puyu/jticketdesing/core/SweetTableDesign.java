@@ -5,6 +5,7 @@ import com.github.anastaciocintra.escpos.Style.FontSize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import pe.puyu.jticketdesing.metadata.PrinterPropertiesReader;
 import pe.puyu.jticketdesing.util.JsonUtil;
 import pe.puyu.jticketdesing.util.StringUtils;
@@ -12,9 +13,7 @@ import pe.puyu.jticketdesing.util.escpos.EscPosWrapper;
 import pe.puyu.jticketdesing.util.escpos.StyleWrapper;
 
 import java.io.ByteArrayOutputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class SweetTableDesign {
 
@@ -136,37 +135,88 @@ public class SweetTableDesign {
 	}
 
 	private void headersTableLayout(JsonArray headers, int numberOfColumns) {
+		if (numberOfColumns <= 0) {
+			return;
+		}
+		headers = fillMissingColumns(headers, numberOfColumns, getDefaultHeaderProperties());
+		var rowStrings = JsonUtil.map(headers, element -> {
+			JsonObject jsonObject = element.getAsJsonObject();
+			return new JsonPrimitive(jsonObject.get("text").getAsString());
+		});
+		List<List<String>> row = wrapRow(rowStrings);
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos, StyleWrapper.textBold());
+		for (int j = 0; j < row.get(0).size(); j++) {
+			for (int i = 0; i < row.size(); i++) {
+				JsonObject header = headers.get(i).getAsJsonObject();
+				String splitText = row.get(i).get(j);
 
-
-		for (JsonElement element : headers) {
-			JsonObject header = element.getAsJsonObject();
+			}
 		}
 	}
 
+	private void bodyTableLayout(JsonArray body, JsonArray headers, int numberOfColumns) {
+
+	}
+
+	private void footerTableLayout(JsonArray footer, int numberOfColumns) {
+
+	}
+
+	// important!! rowString -> Array JsonPrimitives
+	private List<List<String>> wrapRow(JsonArray rowStrings) {
+		List<List<String>> rows = new LinkedList<>();
+		int maxColumns = -1;
+		for (JsonElement element : rowStrings) {
+			List<String> wrapCell = StringUtils.wrapText(element.getAsString(), properties.width(), 1);
+			rows.add(wrapCell);
+			if (wrapCell.size() > maxColumns) {
+				maxColumns = wrapCell.size();
+			}
+		}
+		List<List<String>> result = new LinkedList<>();
+		for (List<String> row : rows) {
+			List<String> normalizeRow = new LinkedList<>(row);
+			int missing = 0;
+			if (normalizeRow.size() < maxColumns) {
+				missing = Math.max(maxColumns - row.size(), 0);
+			}
+			for (int i = 0; i < missing; ++i) {
+				normalizeRow.add("");
+			}
+			result.add(normalizeRow);
+		}
+		return result;
+	}
+
 	private JsonArray normalizeHeaders(JsonArray headers) {
-		JsonObject defaults = new JsonObject();
-		defaults.addProperty("align", "center");
-		defaults.addProperty("text", ""); // default value
-		defaults.addProperty("bodyAlign", "left");
-		headers = JsonUtil.map(headers, element -> JsonUtil.normalizeToJsonObject(element, "text", "", defaults));
-		final int notSetWidth = JsonUtil.filter(headers,
+		headers = JsonUtil.map(headers, element -> JsonUtil.normalizeToJsonObject(element, "text", "", getDefaultHeaderProperties()));
+		final int notSetWidthPercentage = JsonUtil.filter(headers,
 			element -> {
 				JsonObject header = element.getAsJsonObject();
 				return !header.has("widthPercentage") || header.get("widthPercentage").isJsonNull();
 			}).size();
 
 		final int sizeHeaders = headers.size();
-		if (notSetWidth > 0) {
+		if (notSetWidthPercentage > 0) {
 			headers = JsonUtil.map(headers, element -> {
 				JsonObject header = element.getAsJsonObject();
 				if (!header.has("widthPercentage") || header.get("widthPercentage").isJsonNull()) {
-					header.addProperty("widthPercentage", sizeHeaders / notSetWidth);
+					header.addProperty("widthPercentage", sizeHeaders / notSetWidthPercentage);
 				}
 				return header;
 			});
 		}
 		return headers;
+	}
+
+	private JsonArray fillMissingColumns(JsonArray array, int maxColumns, JsonElement defaultValue) {
+		JsonArray result = new JsonArray();
+		array.forEach(result::add);
+		int missing = Math.max(maxColumns - result.size(), 0);
+		for (int i = 0; i < missing; ++i) {
+			result.add(defaultValue);
+		}
+		return result;
 	}
 
 	// calculate characters per line (width) for each header
@@ -206,25 +256,25 @@ public class SweetTableDesign {
 					return jsonObject;
 				});
 		} else {
-			int overWidth = properties.width() - accumulatedWidth;
+			int overWidth = Math.max(properties.width() - accumulatedWidth, 0);
 			return JsonUtil.findOneAndApply(
 				headers,
 				element -> element.getAsJsonObject().get("width").getAsInt() == maxWidth,
 				element -> {
 					JsonObject jsonObject = element.getAsJsonObject();
 					int currentWidth = jsonObject.get("width").getAsInt();
-					jsonObject.addProperty("width", currentWidth - overWidth);
+					jsonObject.addProperty("width", Math.max(currentWidth - overWidth, 0));
 					return jsonObject;
 				});
 		}
 	}
 
-	private void bodyTableLayout(JsonArray body, JsonArray headers, int numberOfColumns) {
-
-	}
-
-	private void footerTableLayout(JsonArray footer, int numberOfColumns) {
-
+	private JsonObject getDefaultHeaderProperties() {
+		JsonObject defaults = new JsonObject();
+		defaults.addProperty("align", "center");
+		defaults.addProperty("text", ""); // default value
+		defaults.addProperty("bodyAlign", "left");
+		return defaults;
 	}
 
 	private void printLine() {
