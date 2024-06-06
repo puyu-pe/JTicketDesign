@@ -9,6 +9,7 @@ import com.google.gson.JsonPrimitive;
 import pe.puyu.jticketdesing.metadata.PrinterPropertiesReader;
 import pe.puyu.jticketdesing.util.JsonUtil;
 import pe.puyu.jticketdesing.util.StringUtils;
+import pe.puyu.jticketdesing.util.escpos.JustifyAlign;
 import pe.puyu.jticketdesing.util.escpos.EscPosWrapper;
 import pe.puyu.jticketdesing.util.escpos.StyleWrapper;
 
@@ -116,7 +117,7 @@ public class SweetTableDesign {
 		defaults.addProperty("fontSize", 1);
 		JsonObject title = JsonUtil.normalizeToJsonObject(table.get("title"), "text", "", defaults);
 
-		CellAlign align = CellAlign.fromValue(title.get("align").getAsString()); // on error fromValue return LEFT
+		JustifyAlign align = JustifyAlign.fromValue(title.get("align").getAsString()); // on error fromValue return LEFT
 		FontSize fontSize = StyleWrapper.toFontSize(title.get("fontSize").getAsInt()); // on error toFontSize return 1
 		String text = title.get("text").getAsString();
 
@@ -287,27 +288,3 @@ public class SweetTableDesign {
 }
 
 
-enum CellAlign {
-	CENTER("CENTER"),
-	LEFT("LEFT"),
-	RIGHT("RIGHT");
-
-	private final String value;
-
-	CellAlign(String value) {
-		this.value = value;
-	}
-
-	public String getValue() {
-		return this.value;
-	}
-
-	public static CellAlign fromValue(String value) {
-		for (CellAlign type : CellAlign.values()) {
-			if (type.value.equalsIgnoreCase(value)) {
-				return type;
-			}
-		}
-		return LEFT;
-	}
-}

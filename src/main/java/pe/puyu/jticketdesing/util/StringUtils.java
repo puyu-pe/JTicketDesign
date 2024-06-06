@@ -1,7 +1,9 @@
 package pe.puyu.jticketdesing.util;
 
+import java.text.Normalizer;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class StringUtils {
 
@@ -46,5 +48,12 @@ public class StringUtils {
       }
     }
     return wrapText;
+  }
+
+  public static String normalize(String text){
+    String normalized = Normalizer.normalize(text, Normalizer.Form.NFD);
+    return Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(normalized)
+      .replaceAll("")
+      .replaceAll("[^\\p{ASCII}]", "");
   }
 }
