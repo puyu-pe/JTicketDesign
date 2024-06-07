@@ -69,7 +69,7 @@ public class SweetTableDesign {
 	}
 
 	private void titleAndDetailsLayout() throws Exception {
-		EscPosWrapper escPosWrapper = new EscPosWrapper(this.escpos, StyleWrapper.textBold());
+/*		EscPosWrapper escPosWrapper = new EscPosWrapper(this.escpos, StyleWrapper.textBold());
 		if (this.data.has("title") && !this.data.get("title").isJsonNull()) {
 			JsonElement value = this.data.get("title");
 			JsonArray values = JsonUtil.normalizeToJsonArray(value);
@@ -92,7 +92,7 @@ public class SweetTableDesign {
 				}
 			}
 		}
-		escPosWrapper.printLine(' ', 1);
+		escPosWrapper.printLine(' ', 1);*/
 	}
 
 	private int calcNumberOfColumns(JsonObject table) {
@@ -108,7 +108,7 @@ public class SweetTableDesign {
 	}
 
 	private void titleTableLayout(JsonObject table) throws Exception {
-		if (!table.has("title")) {
+/*		if (!table.has("title")) {
 			return;
 		}
 		JsonObject defaults = new JsonObject();
@@ -132,11 +132,11 @@ public class SweetTableDesign {
 				break;
 			default: // LEFT or others
 				escPosWrapper.toLeft(text, properties.width(), fontSize);
-		}
+		}*/
 	}
 
 	private void headersTableLayout(JsonArray headers, int numberOfColumns) {
-		if (numberOfColumns <= 0) {
+/*		if (numberOfColumns <= 0) {
 			return;
 		}
 		headers = fillMissingColumns(headers, numberOfColumns, getDefaultHeaderProperties());
@@ -152,7 +152,7 @@ public class SweetTableDesign {
 				String splitText = row.get(i).get(j);
 
 			}
-		}
+		}*/
 	}
 
 	private void bodyTableLayout(JsonArray body, JsonArray headers, int numberOfColumns) {

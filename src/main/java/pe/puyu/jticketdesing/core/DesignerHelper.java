@@ -12,12 +12,12 @@ public class DesignerHelper<T extends  PrinterPropertiesReader> {
 	}
 
 	// se considera el hecho de que el texto deba estar normalizado.
-	public StyleTextBuilder styleBuilder(){
+	public StyleTextBuilder styleNormalizeBuilder(){
 		return StyleText.builder().normalize(propertiesReader.textNormalize());
 	}
 
-	public StyleTextBuilder noFeed(){
-		return styleBuilder().feed(false);
+	public StyleTextBuilder noFeedBuilder(){
+		return styleNormalizeBuilder().feed(false);
 	}
 
 	public T properties(){

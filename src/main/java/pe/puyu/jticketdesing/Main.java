@@ -16,7 +16,7 @@ import pe.puyu.jticketdesing.core.SweetTableDesign;
 
 public class Main {
 	public static void main(String[] args) throws InterruptedException {
-		testTableDesign();
+//		testTableDesign();
 	}
 
 

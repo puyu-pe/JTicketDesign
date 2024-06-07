@@ -125,7 +125,7 @@ public class SweetTicketDesign {
 		if (!this.data.has("productionArea") || !helper.properties().showProductionArea())
 			return;
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
-		StyleText styleText = helper.styleBuilder()
+		StyleText styleText = helper.styleNormalizeBuilder()
 			.align(JustifyAlign.CENTER)
 			.bold(true)
 			.fontSize(2)
@@ -145,7 +145,7 @@ public class SweetTicketDesign {
 			if (type.equalsIgnoreCase("text")) {
 				String commercialDescriptionText = commercialDescription.get("text").getAsString();
 				var lines = StringUtils.wrapText(commercialDescriptionText, helper.properties().width(), 2);
-				StyleText commercialDescriptionStyle = helper.styleBuilder()
+				StyleText commercialDescriptionStyle = helper.styleNormalizeBuilder()
 					.align(JustifyAlign.CENTER)
 					.fontSize(FontSize._2)
 					.bold(true)
@@ -165,7 +165,7 @@ public class SweetTicketDesign {
 		if (business.has("description")) {
 			String descriptionText = business.get("description").getAsString();
 			var lines = StringUtils.wrapText(descriptionText, helper.properties().width(), 1);
-			StyleText descriptionStyle = helper.styleBuilder().build();
+			StyleText descriptionStyle = helper.styleNormalizeBuilder().build();
 			for (var line : lines) {
 				escPosWrapper.printText(line, helper.properties().width(), descriptionStyle);
 			}
@@ -175,7 +175,7 @@ public class SweetTicketDesign {
 	private void businessAdditional() throws Exception {
 		var escPosWrapper = new EscPosWrapper(escpos);
 		JsonObject business = this.data.getAsJsonObject("business");
-		StyleText styleText = helper.styleBuilder().align(JustifyAlign.CENTER).build();
+		StyleText styleText = helper.styleNormalizeBuilder().align(JustifyAlign.CENTER).build();
 		if (business.has("additional")) {
 			JsonArray additional = business.get("additional").getAsJsonArray();
 			for (JsonElement item : additional) {
@@ -214,7 +214,7 @@ public class SweetTicketDesign {
 				break;
 		}
 		var lines = StringUtils.wrapText(text, helper.properties().width(), StyleWrapper.valueFontSize(fontWidth));
-		StyleText styleText = helper.styleBuilder()
+		StyleText styleText = helper.styleNormalizeBuilder()
 			.align(JustifyAlign.CENTER)
 			.bold(true)
 			.fontWidth(fontWidth)
@@ -231,7 +231,7 @@ public class SweetTicketDesign {
 
 	private void customer() throws Exception {
 		var escPosWrapper = new EscPosWrapper(escpos);
-		StyleText styleText = helper.styleBuilder()
+		StyleText styleText = helper.styleNormalizeBuilder()
 			.align(JustifyAlign.LEFT)
 			.build();
 		if (this.data.has("customer")) {
@@ -254,22 +254,21 @@ public class SweetTicketDesign {
 			JsonArray additional = this.data.get("additional").getAsJsonArray();
 			boolean isCommand = helper.properties().type().equalsIgnoreCase("command");
 			FontSize fontSize = isCommand ? FontSize._2 : FontSize._1;
-			StyleTextBuilder styleBuilder = helper.styleBuilder().bold(isCommand);
 			for (int i = 0; i < additional.size(); ++i) {
 				JsonElement item = additional.get(i);
 				List<String> lines = StringUtils.wrapText(item.getAsString(), helper.properties().width(), StyleWrapper.valueFontSize(fontSize));
 				for (String line : lines) {
+					StyleTextBuilder styleBuilder = helper.styleNormalizeBuilder();
 					if (isCommand) {
-						var style = styleBuilder
+						styleBuilder
+							.bold(true)
 							.fontHeight(1)
 							.fontWidth(fontSize)
-							.align(JustifyAlign.CENTER)
-							.build();
-						escPosWrapper.printText(line, helper.properties().width(), style);
+							.align(JustifyAlign.CENTER);
 					} else {
-						var style = styleBuilder.fontSize(fontSize).build();
-						escPosWrapper.printText(line, helper.properties().width(), style);
+						styleBuilder.align(JustifyAlign.LEFT).fontSize(fontSize);
 					}
+					escPosWrapper.printText(line, helper.properties().width(), styleBuilder.build());
 				}
 			}
 		}
@@ -284,7 +283,7 @@ public class SweetTicketDesign {
 		boolean isCommand = helper.properties().type().equalsIgnoreCase("command");
 		int quantityWidth = 0;
 		FontSize fontSize = isCommand ? helper.properties().fontSizeCommand() : FontSize._1;
-		int valueFontSize = StyleWrapper.valueFontSize(fontSize);
+		int valueFontSize = StyleEscPosUtil.valueFontSize(fontSize);
 		int totalWidth = isCommand ? 0 : Default.TOTAL_COLUMN_WIDTH;
 		int unitPriceWidth = helper.properties().showUnitPrice() ? Default.UNIT_PRICE_WIDTH : 0;
 		int descriptionWidth = helper.properties().width();
@@ -302,11 +301,32 @@ public class SweetTicketDesign {
 		}
 
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
-		StyleText quantityStyle = helper.styleBuilder().align(JustifyAlign.LEFT).feed(false).build();
-		StyleText descriptionStyle = helper.styleBuilder().align(JustifyAlign.CENTER).fontSize(1).feed(false).build();
-		StyleText unitPriceStyle = helper.styleBuilder().align(JustifyAlign.RIGHT).fontSize(1).feed(false).build();
-		StyleText totalStyle = helper.styleBuilder().align(JustifyAlign.RIGHT).feed(true).build();
-
+		StyleText quantityStyle = helper.styleNormalizeBuilder().align(JustifyAlign.LEFT).feed(false).build();
+		StyleText descriptionStyle = helper.styleNormalizeBuilder().align(JustifyAlign.CENTER).fontSize(1).feed(false).build();
+		StyleText unitPriceStyle = helper.styleNormalizeBuilder().align(JustifyAlign.RIGHT).fontSize(1).feed(false).build();
+		StyleText totalStyle = helper.styleNormalizeBuilder().align(JustifyAlign.RIGHT).feed(true).build();
+		StyleText lineStyle = helper.styleNormalizeBuilder().bold(isCommand).feed(false).build();
+		StyleText unitPriceItemStyle = helper.styleNormalizeBuilder()
+			.align(JustifyAlign.RIGHT)
+			.bold(isCommand)
+			.feed(false)
+			.build();
+		StyleText totalPriceItemStyle = helper.styleNormalizeBuilder()
+			.feed(true)
+			.align(JustifyAlign.RIGHT)
+			.bold(isCommand)
+			.build();
+		StyleText quantityItemStyle = helper.styleNormalizeBuilder()
+			.bold(isCommand)
+			.align(JustifyAlign.LEFT)
+			.feed(false)
+			.fontWidth(fontSize)
+			.fontHeight(1)
+			.build();
+		StyleText commentaryItemStyle = helper.styleNormalizeBuilder()
+			.align(isCommand ? JustifyAlign.CENTER : JustifyAlign.LEFT)
+			.feed(true)
+			.build();
 
 		escPosWrapper.printText("CAN", quantityWidth, quantityStyle);
 		escPosWrapper.printText("DESCRIPCIÓN", descriptionWidth, descriptionStyle);
@@ -314,106 +334,98 @@ public class SweetTicketDesign {
 		escPosWrapper.printText("TOTAL", totalWidth, totalStyle);
 		escPosWrapper.printBoldLine('-', helper.properties().width());
 
-		StyleTextBuilder styleBuilderItems = helper.styleBuilder().bold(isCommand);
 		for (int i = 0; i < items.size(); ++i) {
-			if (isCommand)
-				escPosWrapper.addStyleBold();
 			JsonObject item = items.get(i).getAsJsonObject();
 			JsonElement descriptionObj = item.get("description");
 			if (descriptionObj.isJsonArray()) {
 				JsonArray description = descriptionObj.getAsJsonArray();
 				for (int j = 0; j < description.size(); ++j) {
-					escPosWrapper.printLine(' ', quantityWidth, helper.noFeed().build());
+					escPosWrapper.printLine(' ', quantityWidth, lineStyle);
 					List<String> lines = StringUtils.wrapText(description.get(j).getAsString(), descriptionWidth, valueFontSize);
 					for (int k = 0; k < lines.size(); ++k) {
 						String line = lines.get(k);
-						if (isCommand){
-							StyleText styleText = styleBuilderItems.fontWidth(fontSize).align(JustifyAlign.CENTER).fontHeight(1).build();
-							escPosWrapper.printText(line, descriptionWidth, styleText);
+						StyleTextBuilder itemDescriptionStyleBuilder = helper.styleNormalizeBuilder();
+						if (isCommand) {
+							itemDescriptionStyleBuilder.bold(true).align(JustifyAlign.CENTER).fontWidth(fontSize).fontHeight(1);
+						} else {
+							itemDescriptionStyleBuilder.align(JustifyAlign.LEFT).feed(k != 0 || j != 0).fontSize(fontSize);
 						}
-						else{
-							StyleText styleText = styleBuilderItems.fontSize(fontSize).feed(k != 0 || j != 0).align(JustifyAlign.LEFT).build();
-							escPosWrapper.printText(line, descriptionWidth, styleText);
-						}
+						escPosWrapper.printText(line, descriptionWidth, itemDescriptionStyleBuilder.build());
 						if (j == 0 && k == 0) {
 							if (helper.properties().showUnitPrice()) {
-								StyleText styleText = styleBuilderItems.align(JustifyAlign.RIGHT).feed(false).build();
+								String unitPriceText = "null"; // default
 								if (item.has("unitPrice") && !item.get("unitPrice").isJsonNull()) {
-									String unitPriceText = price.format(item.get("unitPrice").getAsBigDecimal()).concat(" ");
-									escPosWrapper.printText(unitPriceText, unitPriceWidth, styleText);
-								} else {
-									escPosWrapper.printText("null", unitPriceWidth, styleText);
+									unitPriceText = price.format(item.get("unitPrice").getAsBigDecimal()).concat(" ");
 								}
+								escPosWrapper.printText(unitPriceText, unitPriceWidth, unitPriceItemStyle);
 							}
-							StyleText styleText = styleBuilderItems.align(JustifyAlign.RIGHT).feed(true).build();
-							escPosWrapper.printText(price.format(item.get("totalPrice").getAsBigDecimal()), totalWidth, styleText);
+							String totalPriceItemText = price.format(item.get("totalPrice").getAsBigDecimal());
+							escPosWrapper.printText(totalPriceItemText, totalWidth, totalPriceItemStyle);
 						}
 					}
 				}
 			} else {
 				List<String> lines = StringUtils.wrapText(descriptionObj.getAsString(), descriptionWidth,
-					StyleWrapper.valueFontSize(fontSize));
+					StyleEscPosUtil.valueFontSize(fontSize));
 				for (int j = 0; j < lines.size(); ++j) {
 					if (j == 0) {
-						escPosWrapper.toLeft(item.get("quantity").getAsString(), quantityWidth, fontSize, FontSize._1, false);
+						escPosWrapper.printText(item.get("quantity").getAsString(), quantityWidth, quantityItemStyle);
 					} else {
-						escPosWrapper.printLine(' ', quantityWidth, false);
+						escPosWrapper.printLine(' ', quantityWidth, helper.noFeedBuilder().build());
 					}
+					StyleTextBuilder descriptionItemStyleBuilder = helper.styleNormalizeBuilder().bold(isCommand);
 					if (isCommand) {
-						escPosWrapper.toCenter(normalize(lines.get(j)), descriptionWidth, fontSize, FontSize._1);
+						descriptionItemStyleBuilder.feed(true).fontWidth(fontSize).fontHeight(1).align(JustifyAlign.CENTER);
+						escPosWrapper.printText(lines.get(j), descriptionWidth, descriptionItemStyleBuilder.build());
 						continue;
 					} else {
-						escPosWrapper.toLeft(normalize(lines.get(j)), descriptionWidth, !item.has("totalPrice"));
+						descriptionItemStyleBuilder.feed(!item.has("totalPrice")).align(JustifyAlign.LEFT);
+						escPosWrapper.printText(lines.get(j), descriptionWidth, descriptionItemStyleBuilder.build());
 					}
-
-					if (j == 0 && properties.showUnitPrice()) {
+					if (j == 0 && helper.properties().showUnitPrice()) {
+						String unitPriceText = "null"; // default
 						if (item.has("unitPrice") && !item.get("unitPrice").isJsonNull()) {
-							escPosWrapper.toRight(price.format(item.get("unitPrice").getAsBigDecimal()).concat(" "), unitPriceWidth, false);
-						} else {
-							escPosWrapper.toRight("null", unitPriceWidth, false);
+							unitPriceText = price.format(item.get("unitPrice").getAsBigDecimal()).concat(" ");
 						}
+						escPosWrapper.printText(unitPriceText, unitPriceWidth, unitPriceItemStyle);
 					}
 					if (j == 0 && item.has("totalPrice")) {
-						escPosWrapper.toRight(price.format(item.get("totalPrice").getAsBigDecimal()), totalWidth);
+						escPosWrapper.printText(price.format(item.get("totalPrice").getAsBigDecimal()), totalWidth, totalPriceItemStyle);
 					} else {
-						escPosWrapper.printLine(' ', totalWidth, true);
+						escPosWrapper.printLine(' ', totalWidth, helper.noFeedBuilder().build());
 					}
 				}
 			}
 			if (item.has("commentary") && !item.get("commentary").isJsonNull()) {
-				escPosWrapper.removeStyleBold();
 				List<String> lines = StringUtils.wrapText(item.get("commentary").getAsString(), descriptionWidth, 1);
 				for (String line : lines) {
-					line = normalize(line);
-					escPosWrapper.printLine(' ', quantityWidth, false);
-					if (isCommand)
-						escPosWrapper.toCenter(line, descriptionWidth);
-					else
-						escPosWrapper.toLeft(line, descriptionWidth);
+					escPosWrapper.printLine(' ', quantityWidth, helper.noFeedBuilder().build());
+					escPosWrapper.printText(line, descriptionWidth, commentaryItemStyle);
 				}
 			} else if (isCommand) {
 				escPosWrapper.printLine(' ', 1);
 			}
 		}
-		for (int i = 0; i < properties.blankLinesAfterItems(); ++i) {
+		for (int i = 0; i < helper.properties().blankLinesAfterItems(); ++i) {
 			escPosWrapper.printLine(' ', 1);
 		}
 		if (isCommand)
 			escPosWrapper.printLine(' ', 1);
 		else {
-			escPosWrapper.printLine('-', properties.width());
+			escPosWrapper.printLine('-', helper.properties().width());
 		}
 	}
 
 	private void amounts() throws Exception {
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
+		StyleText amountsStyle = helper.styleNormalizeBuilder().align(JustifyAlign.RIGHT).build();
 		if (this.data.has("amounts")) {
 			Map<String, JsonElement> amounts = this.data.getAsJsonObject("amounts").asMap();
 			for (Map.Entry<String, JsonElement> amount : amounts.entrySet()) {
 				String text = String.format("%s: %s", amount.getKey(), amount.getValue().getAsString());
-				escPosWrapper.toRight(text, properties.width());
+				escPosWrapper.printText(text, helper.properties().width(), amountsStyle);
 			}
-			escPosWrapper.printLine('-', properties.width());
+			escPosWrapper.printLine('-', helper.properties().width());
 		}
 		escPosWrapper.printLine(' ', 1);
 	}
@@ -423,13 +435,13 @@ public class SweetTicketDesign {
 		if (this.data.has("additionalFooter")) {
 			JsonArray additionalFooter = this.data.get("additionalFooter").getAsJsonArray();
 			for (JsonElement item : additionalFooter) {
-				List<String> lines = StringUtils.wrapText(item.getAsString(), properties.width(), 1);
+				List<String> lines = StringUtils.wrapText(item.getAsString(), helper.properties().width(), 1);
 				for (String line : lines) {
-					escPosWrapper.toLeft(normalize(line), properties.width());
+					escPosWrapper.printText(line, helper.properties().width());
 				}
 			}
-			if (!properties.type().equals("proforma")) {
-				escPosWrapper.printLine('-', properties.width());
+			if (!helper.properties().type().equals("proforma")) {
+				escPosWrapper.printLine('-', helper.properties().width());
 			}
 		}
 		escPosWrapper.printLine(' ', 1);
@@ -442,33 +454,34 @@ public class SweetTicketDesign {
 			return;
 		}
 		JsonElement finalMessageObj = this.data.get("finalMessage");
+		StyleText finalMessageStyle = helper.styleNormalizeBuilder().align(JustifyAlign.CENTER).build();
 		if (finalMessageObj.isJsonArray()) {
 			JsonArray finalMessage = finalMessageObj.getAsJsonArray();
 			for (JsonElement item : finalMessage) {
-				List<String> lines = StringUtils.wrapText(item.getAsString(), properties.width(), 1);
+				List<String> lines = StringUtils.wrapText(item.getAsString(), helper.properties().width(), 1);
 				for (String line : lines) {
-					escPosWrapper.toCenter(normalize(line), properties.width());
+					escPosWrapper.printText(line, helper.properties().width(), finalMessageStyle);
 				}
 			}
 		} else {
-			List<String> lines = StringUtils.wrapText(finalMessageObj.getAsString(), properties.width(), 1);
+			List<String> lines = StringUtils.wrapText(finalMessageObj.getAsString(), helper.properties().width(), 1);
 			for (String line : lines) {
-				escPosWrapper.toCenter(normalize(line), properties.width());
+				escPosWrapper.printText(line, helper.properties().width());
 			}
 		}
 	}
 
 	private void stringQR() throws Exception {
 		if (!this.data.has("stringQR") || this.data.get("stringQR").isJsonNull()) {
-			this.escpos.writeLF(StringUtils.repeat('-', properties.width()));
+			this.escpos.writeLF(StringUtils.repeat('-', helper.properties().width()));
 			return;
 		}
 		String stringQr = this.data.get("stringQR").toString();
 		EscPosWrapper escPosWrapper = new EscPosWrapper(this.escpos);
-		if (!properties.nativeQR()) {
+		if (!helper.properties().nativeQR()) {
 			int sizeQR = 200;
 			BufferedImage image = QRCodeGenerator.render(stringQr, sizeQR);
-			BufferedImage centerImage = ImageUtil.justifyImageToCenter(image, calcWidthPaperInPx(), sizeQR);
+			BufferedImage centerImage = ImageUtil.justifyImageToCenter(image, helper.calcWidthPaperInPx(), sizeQR);
 			escPosWrapper.bitImage(centerImage, new BitonalOrderedDither());
 		} else {
 			escPosWrapper.printLine(' ', 1);
@@ -477,34 +490,30 @@ public class SweetTicketDesign {
 	}
 
 	private void titleExtra() throws Exception {
-		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos, StyleWrapper.textBold());
+		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
 		if (!this.data.has("titleExtra")) {
-			escPosWrapper.printLine('-', properties.width());
+			escPosWrapper.printLine('-', helper.properties().width());
 			return;
 		}
 		JsonObject titleExtra = this.data.getAsJsonObject("titleExtra");
-		escPosWrapper.toCenter(normalize(titleExtra.get("title").getAsString()), properties.width(), FontSize._2);
-		escPosWrapper.removeStyleBold();
-		escPosWrapper.toCenter(normalize(titleExtra.get("subtitle").getAsString()), properties.width(), FontSize._2);
+		StyleTextBuilder titleStyleBuilder = helper.styleNormalizeBuilder().align(JustifyAlign.CENTER).fontSize(2).bold(true);
+		escPosWrapper.printText(titleExtra.get("title").getAsString(), helper.properties().width(), titleStyleBuilder.build());
+		escPosWrapper.printText(titleExtra.get("subtitle").getAsString(), helper.properties().width(), titleStyleBuilder.bold(false).build());
 		escPosWrapper.printLine(' ', 1);
 	}
 
 	private void textBackgroundInverted() throws Exception {
 		if (this.data.has("textBackgroundInverted") && !this.data.get("textBackgroundInverted").isJsonNull()) {
 			EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
-			boolean supportBackgroundInverted = properties.backgroundInverted();
+			boolean supportBackgroundInverted = helper.properties().backgroundInverted();
 			String text = String.format(" %s ", this.data.get("textBackgroundInverted").getAsString());
-			text = normalize(text);
-			char pad = '*';
-			if (supportBackgroundInverted) {
-				pad = ' ';
-				escPosWrapper.addStyleInverted();
-			} else {
-				escPosWrapper.addStyleBold();
-			}
-			escPosWrapper.toCenter(normalize(text), properties.width(), pad);
-			escPosWrapper.removeStyleInverted();
-			escPosWrapper.printLine(' ', properties.width());
+			StyleText styleText = helper.styleNormalizeBuilder()
+				.align(JustifyAlign.CENTER)
+				.bold(!supportBackgroundInverted)
+				.pad(supportBackgroundInverted ? '*' : ' ')
+				.build();
+			escPosWrapper.printText(text, helper.properties().width(), styleText);
+			escPosWrapper.printLine(' ', helper.properties().width());
 		}
 	}
 }
