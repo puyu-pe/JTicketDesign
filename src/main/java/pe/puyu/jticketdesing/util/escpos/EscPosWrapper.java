@@ -1,8 +1,6 @@
 package pe.puyu.jticketdesing.util.escpos;
 
 import java.awt.image.BufferedImage;
-import java.text.Normalizer;
-import java.util.regex.Pattern;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.Style;
@@ -25,8 +23,8 @@ public class EscPosWrapper {
   }
 
   public void printText(String text,  int maxWidth, StyleText styleText) throws Exception {
-    text = StringUtils.cutOverflow(text, maxWidth, StyleWrapper.valueFontSize(styleText.getFontWidth()));
-    int spacesAvailable = maxWidth - (text.length() * StyleWrapper.valueFontSize(styleText.getFontWidth()));
+    text = StringUtils.cutOverflow(text, maxWidth, StyleEscPosUtil.valueFontSize(styleText.getFontWidth()));
+    int spacesAvailable = maxWidth - (text.length() * StyleEscPosUtil.valueFontSize(styleText.getFontWidth()));
     int startSpaces = spacesAvailable / 2;
     int endSpaces = spacesAvailable - startSpaces;
 

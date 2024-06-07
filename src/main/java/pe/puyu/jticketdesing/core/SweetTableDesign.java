@@ -1,17 +1,13 @@
 package pe.puyu.jticketdesing.core;
 
 import com.github.anastaciocintra.escpos.EscPos;
-import com.github.anastaciocintra.escpos.Style.FontSize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import pe.puyu.jticketdesing.metadata.PrinterPropertiesReader;
 import pe.puyu.jticketdesing.util.JsonUtil;
 import pe.puyu.jticketdesing.util.StringUtils;
-import pe.puyu.jticketdesing.util.escpos.JustifyAlign;
 import pe.puyu.jticketdesing.util.escpos.EscPosWrapper;
-import pe.puyu.jticketdesing.util.escpos.StyleWrapper;
 
 import java.io.ByteArrayOutputStream;
 import java.util.*;

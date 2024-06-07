@@ -213,7 +213,7 @@ public class SweetTicketDesign {
 				fontHeight = FontSize._2;
 				break;
 		}
-		var lines = StringUtils.wrapText(text, helper.properties().width(), StyleWrapper.valueFontSize(fontWidth));
+		var lines = StringUtils.wrapText(text, helper.properties().width(), StyleEscPosUtil.valueFontSize(fontWidth));
 		StyleText styleText = helper.styleNormalizeBuilder()
 			.align(JustifyAlign.CENTER)
 			.bold(true)
@@ -256,7 +256,7 @@ public class SweetTicketDesign {
 			FontSize fontSize = isCommand ? FontSize._2 : FontSize._1;
 			for (int i = 0; i < additional.size(); ++i) {
 				JsonElement item = additional.get(i);
-				List<String> lines = StringUtils.wrapText(item.getAsString(), helper.properties().width(), StyleWrapper.valueFontSize(fontSize));
+				List<String> lines = StringUtils.wrapText(item.getAsString(), helper.properties().width(), StyleEscPosUtil.valueFontSize(fontSize));
 				for (String line : lines) {
 					StyleTextBuilder styleBuilder = helper.styleNormalizeBuilder();
 					if (isCommand) {
@@ -290,7 +290,7 @@ public class SweetTicketDesign {
 		DecimalFormat price = new DecimalFormat("0.00");
 
 		if (items.get(0).getAsJsonObject().has("quantity")) {
-			quantityWidth = Default.QUANTITY_COLUMN_WIDTH * StyleWrapper.valueFontSize(fontSize);
+			quantityWidth = Default.QUANTITY_COLUMN_WIDTH * StyleEscPosUtil.valueFontSize(fontSize);
 			descriptionWidth -= (quantityWidth + totalWidth);
 		} else {
 			descriptionWidth -= totalWidth;

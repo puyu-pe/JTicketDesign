@@ -3,7 +3,7 @@ package pe.puyu.jticketdesing.metadata;
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.Style;
 import com.google.gson.JsonObject;
-import pe.puyu.jticketdesing.util.escpos.StyleWrapper;
+import pe.puyu.jticketdesing.util.escpos.StyleEscPosUtil;
 
 public class PrinterPropertiesReader {
 	protected JsonObject properties;
@@ -31,7 +31,7 @@ public class PrinterPropertiesReader {
 
 	public Style.FontSize fontSizeCommand() {
 		if (properties.has("fontSizeCommand") && !properties.get("fontSizeCommand").isJsonNull()) {
-			return StyleWrapper.toFontSize(properties.get("fontSizeCommand").getAsInt());
+			return StyleEscPosUtil.toFontSize(properties.get("fontSizeCommand").getAsInt());
 		} else {
 			return Style.FontSize._2;
 		}
