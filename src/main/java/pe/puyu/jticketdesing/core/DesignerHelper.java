@@ -16,6 +16,10 @@ public class DesignerHelper<T extends  PrinterPropertiesReader> {
 		return StyleText.builder().normalize(propertiesReader.textNormalize());
 	}
 
+	public StyleTextBuilder noFeed(){
+		return styleBuilder().feed(false);
+	}
+
 	public T properties(){
 		return propertiesReader;
 	}

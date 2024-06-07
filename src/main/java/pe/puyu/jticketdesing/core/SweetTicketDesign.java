@@ -267,8 +267,8 @@ public class SweetTicketDesign {
 							.build();
 						escPosWrapper.printText(line, helper.properties().width(), style);
 					} else {
-						var style = styleBuilder.fontSize(fontSize);
-						escPosWrapper.toLeft(normalize(line), properties.width(), fontSize);
+						var style = styleBuilder.fontSize(fontSize).build();
+						escPosWrapper.printText(line, helper.properties().width(), style);
 					}
 				}
 			}
@@ -281,13 +281,13 @@ public class SweetTicketDesign {
 			return;
 
 		JsonArray items = this.data.get("items").getAsJsonArray();
-		boolean isCommand = properties.type().equalsIgnoreCase("command");
+		boolean isCommand = helper.properties().type().equalsIgnoreCase("command");
 		int quantityWidth = 0;
-		FontSize fontSize = isCommand ? properties.fontSizeCommand() : FontSize._1;
+		FontSize fontSize = isCommand ? helper.properties().fontSizeCommand() : FontSize._1;
 		int valueFontSize = StyleWrapper.valueFontSize(fontSize);
 		int totalWidth = isCommand ? 0 : Default.TOTAL_COLUMN_WIDTH;
-		int unitPriceWidth = properties.showUnitPrice() ? Default.UNIT_PRICE_WIDTH : 0;
-		int descriptionWidth = properties.width();
+		int unitPriceWidth = helper.properties().showUnitPrice() ? Default.UNIT_PRICE_WIDTH : 0;
+		int descriptionWidth = helper.properties().width();
 		DecimalFormat price = new DecimalFormat("0.00");
 
 		if (items.get(0).getAsJsonObject().has("quantity")) {
@@ -297,16 +297,24 @@ public class SweetTicketDesign {
 			descriptionWidth -= totalWidth;
 		}
 
-		if (properties.showUnitPrice()) {
+		if (helper.properties().showUnitPrice()) {
 			descriptionWidth -= unitPriceWidth;
 		}
 
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
-		escPosWrapper.toLeft("CAN", quantityWidth, false);
-		escPosWrapper.toCenter("DESCRIPCION", descriptionWidth, FontSize._1, false);
-		escPosWrapper.toRight("P/U ", unitPriceWidth, FontSize._1, false);
-		escPosWrapper.toRight("TOTAL", totalWidth, true);
-		escPosWrapper.printBoldLine('-', properties.width());
+		StyleText quantityStyle = helper.styleBuilder().align(JustifyAlign.LEFT).feed(false).build();
+		StyleText descriptionStyle = helper.styleBuilder().align(JustifyAlign.CENTER).fontSize(1).feed(false).build();
+		StyleText unitPriceStyle = helper.styleBuilder().align(JustifyAlign.RIGHT).fontSize(1).feed(false).build();
+		StyleText totalStyle = helper.styleBuilder().align(JustifyAlign.RIGHT).feed(true).build();
+
+
+		escPosWrapper.printText("CAN", quantityWidth, quantityStyle);
+		escPosWrapper.printText("DESCRIPCIÓN", descriptionWidth, descriptionStyle);
+		escPosWrapper.printText("P/U", unitPriceWidth, unitPriceStyle);
+		escPosWrapper.printText("TOTAL", totalWidth, totalStyle);
+		escPosWrapper.printBoldLine('-', helper.properties().width());
+
+		StyleTextBuilder styleBuilderItems = helper.styleBuilder().bold(isCommand);
 		for (int i = 0; i < items.size(); ++i) {
 			if (isCommand)
 				escPosWrapper.addStyleBold();
@@ -315,23 +323,30 @@ public class SweetTicketDesign {
 			if (descriptionObj.isJsonArray()) {
 				JsonArray description = descriptionObj.getAsJsonArray();
 				for (int j = 0; j < description.size(); ++j) {
-					escPosWrapper.printLine(' ', quantityWidth, false);
+					escPosWrapper.printLine(' ', quantityWidth, helper.noFeed().build());
 					List<String> lines = StringUtils.wrapText(description.get(j).getAsString(), descriptionWidth, valueFontSize);
 					for (int k = 0; k < lines.size(); ++k) {
-						String line = normalize(lines.get(k));
-						if (isCommand)
-							escPosWrapper.toCenter(line, descriptionWidth, fontSize, FontSize._1);
-						else
-							escPosWrapper.toLeft(line, descriptionWidth, fontSize, k != 0 || j != 0);
+						String line = lines.get(k);
+						if (isCommand){
+							StyleText styleText = styleBuilderItems.fontWidth(fontSize).align(JustifyAlign.CENTER).fontHeight(1).build();
+							escPosWrapper.printText(line, descriptionWidth, styleText);
+						}
+						else{
+							StyleText styleText = styleBuilderItems.fontSize(fontSize).feed(k != 0 || j != 0).align(JustifyAlign.LEFT).build();
+							escPosWrapper.printText(line, descriptionWidth, styleText);
+						}
 						if (j == 0 && k == 0) {
-							if (properties.showUnitPrice()) {
+							if (helper.properties().showUnitPrice()) {
+								StyleText styleText = styleBuilderItems.align(JustifyAlign.RIGHT).feed(false).build();
 								if (item.has("unitPrice") && !item.get("unitPrice").isJsonNull()) {
-									escPosWrapper.toRight(price.format(item.get("unitPrice").getAsBigDecimal()).concat(" "), unitPriceWidth, false);
+									String unitPriceText = price.format(item.get("unitPrice").getAsBigDecimal()).concat(" ");
+									escPosWrapper.printText(unitPriceText, unitPriceWidth, styleText);
 								} else {
-									escPosWrapper.toRight("null", unitPriceWidth, false);
+									escPosWrapper.printText("null", unitPriceWidth, styleText);
 								}
 							}
-							escPosWrapper.toRight(price.format(item.get("totalPrice").getAsBigDecimal()), totalWidth, true);
+							StyleText styleText = styleBuilderItems.align(JustifyAlign.RIGHT).feed(true).build();
+							escPosWrapper.printText(price.format(item.get("totalPrice").getAsBigDecimal()), totalWidth, styleText);
 						}
 					}
 				}
