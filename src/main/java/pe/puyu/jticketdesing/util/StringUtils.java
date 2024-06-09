@@ -31,8 +31,8 @@ public class StringUtils {
     for (int i = 0; i < words.length; ++i) {
       int accum = 0;
       List<String> row = new LinkedList<>();
-      String word = (i == (words.length - 1)) ? words[i] : words[i] + " ";
-      while (accum + (word.length() * fontsize) <= widthCell) {
+      String word = (i == (words.length - 1)) ? words[i] : words[i] + " "; // agregar espacios intermedios
+      while (accum + (word.length() * fontsize) <= widthCell) { // mientras la palabra no cubra el ancho de la celda
         row.add(word);
         accum += (word.length() * fontsize);
         ++i;

@@ -20,16 +20,20 @@ public class StyleText {
 	}
 
 	public static StyleTextBuilder builder(StyleText otherStyle){
+		return new StyleTextBuilder(otherStyle.copy());
+	}
+
+	public StyleText copy(){
 		StyleText newStyle = new StyleText();
-		newStyle.fontWidth = otherStyle.getFontWidth();
-		newStyle.fontHeight = otherStyle.getFontHeight();
-		newStyle.feed = otherStyle.feed;
-		newStyle.bold = otherStyle.bold;
-		newStyle.normalize = otherStyle.normalize;
-		newStyle.bgInverted = otherStyle.bgInverted;
-		newStyle.pad = otherStyle.pad;
-		newStyle.align = otherStyle.align;
-		return new StyleTextBuilder(newStyle);
+		newStyle.fontWidth = this.fontWidth;
+		newStyle.fontHeight = this.fontHeight;
+		newStyle.feed = this.feed;
+		newStyle.bold = this.bold;
+		newStyle.normalize = this.normalize;
+		newStyle.bgInverted = this.bgInverted;
+		newStyle.pad = this.pad;
+		newStyle.align = this.align;
+		return  newStyle;
 	}
 
 	public Style toEscPosStyle(){

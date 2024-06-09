@@ -26,4 +26,4 @@ out/
 Thumbs.db
 
 # sonatype settings xml example
-settings.xml.example
+settings.xml
