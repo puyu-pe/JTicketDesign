@@ -10,18 +10,13 @@ import pe.puyu.jticketdesing.core.DesignerHelper;
 import pe.puyu.jticketdesing.metadata.PrinterPropertiesReader;
 import pe.puyu.jticketdesing.util.JsonUtil;
 import pe.puyu.jticketdesing.util.StringUtils;
-import pe.puyu.jticketdesing.util.escpos.EscPosWrapper;
-import pe.puyu.jticketdesing.util.escpos.JustifyAlign;
-import pe.puyu.jticketdesing.util.escpos.StyleEscPosUtil;
-import pe.puyu.jticketdesing.util.escpos.StyleText;
+import pe.puyu.jticketdesing.util.escpos.*;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class SweetTableDesign {
 
@@ -48,13 +43,12 @@ public class SweetTableDesign {
 
 	private void designTable() throws Exception {
 		JsonArray tables = this.data.get("tables").getAsJsonArray();
-
 		titleAndDetailsLayout();
-
 		for (JsonElement table : tables) {
 			JsonObject tableObject = table.getAsJsonObject();
 			int numberOfColumns = calcNumberOfColumns(tableObject);
 
+			// ##### calcular los anchos de celda #########
 			JsonArray widthPercents = new JsonArray();
 			if (tableObject.has("widthPercents") && tableObject.get("widthPercents").isJsonArray()) {
 				widthPercents = tableObject.get("widthPercents").getAsJsonArray();
@@ -64,22 +58,18 @@ public class SweetTableDesign {
 			List<Integer> cellWidths = calculateCellWidths(listWidthPercents);
 
 			JsonArray headers = Optional.ofNullable(tableObject.get("headers")).orElseGet(JsonArray::new).getAsJsonArray();
-			JsonArray body = Optional.ofNullable(tableObject.get("body")).orElseGet(JsonArray::new).getAsJsonArray();
 			JsonArray footer = Optional.ofNullable(tableObject.get("footer")).orElseGet(JsonArray::new).getAsJsonArray();
 
-			// layers for headers
-			headers = fillMissingColumns(headers, numberOfColumns, getDefaultHeaderProperties());
+			// ##### normalizar encabezados por capas #########
+			headers = fillMissingColumns(headers, cellWidths.size(), getDefaultHeaderProperties());
 			headers = normalizeHeaders(headers);      // standard objects
-
-			// layers for body
-			body = normalizeBody(body); //normalize to list of standard objects or json array
 
 			titleTableLayout(tableObject);
 			headersTableLayout(headers, cellWidths);
-			bodyTableLayout(body, cellWidths);
-			printLine();
+			bodyTableLayout(tableObject, cellWidths);
 			footerTableLayout(footer, numberOfColumns);
 		}
+		helper.paperCut(escpos);
 	}
 
 	private void titleAndDetailsLayout() throws Exception {
@@ -148,11 +138,13 @@ public class SweetTableDesign {
 		});
 		// imprimir la fila de table cells
 		printRow(row);
-		if(!row.isEmpty())
+		if (!row.isEmpty())
 			printLine();
 	}
 
-	private void bodyTableLayout(JsonArray body, List<Integer> cellWidths) throws Exception {
+	private void bodyTableLayout(JsonObject tableObject, List<Integer> cellWidths) throws Exception {
+		JsonArray body = Optional.ofNullable(tableObject.get("body")).orElseGet(JsonArray::new).getAsJsonArray();
+		body = normalizeBody(body); //normalize to list of standard objects or json array
 		if (cellWidths.isEmpty()) return;
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
 		for (int i = 0; i < body.size(); ++i) {
@@ -168,10 +160,15 @@ public class SweetTableDesign {
 				JsonArray row = element.getAsJsonArray();
 				row = fillMissingColumns(row, cellWidths.size(), new JsonPrimitive(""));
 				List<TableCell> cells = JsonUtil.mapToList(row, (currentIndex, currentItem) -> {
-					String text = currentItem.getAsString();
+					JsonObject defaultItem = new JsonObject();
+					defaultItem.addProperty("text", "");
+					JsonObject item = JsonUtil.normalizeToJsonObject(currentItem, "text", "", defaultItem);
+					String text = item.get("text").getAsString();
+					StyleText styleText = getCellBodyStyle(tableObject, currentIndex);
+					if(item.has("align") && item.get("align").isJsonPrimitive()){
+						styleText = StyleText.builder(styleText).align(item.get("align").getAsString()).build();
+					}
 					int width = cellWidths.get(currentIndex);
-					String align = "left"; // TODO: modficaar urgente
-					StyleText styleText = helper.styleNormalizeBuilder().align(align).build();
 					return new TableCell(text, width, styleText);
 				});
 				printRow(cells);
@@ -179,8 +176,15 @@ public class SweetTableDesign {
 		}
 	}
 
-	private void footerTableLayout(JsonArray footer, int numberOfColumns) {
-
+	private void footerTableLayout(JsonArray footer, int numberOfColumns) throws Exception {
+		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
+		if (footer.isEmpty()) {
+			escPosWrapper.printLine(' ', helper.properties().width());
+			return;
+		}
+		printLine();
+		// print footer
+		escPosWrapper.printLine(' ', helper.properties().width());
 	}
 
 	private JsonArray normalizeHeaders(JsonArray headers) {
@@ -249,22 +253,45 @@ public class SweetTableDesign {
 
 	private List<Integer> calculateCellWidths(List<Integer> widthPercentsArray) {
 		int paperWidth = helper.properties().width();
-		List<Integer> cellWidths =  widthPercentsArray.stream()
+		List<Integer> cellWidths = widthPercentsArray.stream()
 			.map(widthPercent -> paperWidth * widthPercent / 100)
 			.toList();
 		final int totalCoveredWidth = cellWidths.stream().reduce(0, Integer::sum);
 		final int maxWidth = cellWidths.stream().max(Integer::compare).orElse(0);
 		boolean hasModify = false;
 		List<Integer> result = new ArrayList<>();
-		for(int width : cellWidths){
-			if(width == maxWidth && !hasModify){
+		for (int width : cellWidths) {
+			if (width == maxWidth && !hasModify) {
 				result.add(width + (paperWidth - totalCoveredWidth));
 				hasModify = true;
-			}else{
+			} else {
 				result.add(width);
 			}
 		}
 		return result;
+	}
+
+	private StyleText getCellBodyStyle(JsonObject tableObject, int index) {
+		JsonObject defaultCellBodyStyle = new JsonObject();
+		defaultCellBodyStyle.addProperty("align", "left");
+		defaultCellBodyStyle.addProperty("bold", false);
+		StyleTextBuilder defaultStyle = helper.styleNormalizeBuilder()
+			.bold(defaultCellBodyStyle.get("bold").getAsBoolean())
+			.align(defaultCellBodyStyle.get("align").getAsString());
+		if (!tableObject.has("cellBodyStyles")) {
+			return defaultStyle.build();
+		}
+		JsonObject cellBodyStyles = tableObject.get("cellBodyStyles").getAsJsonObject();
+		String key = String.valueOf(Math.max(index, 0));
+		if (!cellBodyStyles.has(key)) {
+			return defaultStyle.build();
+		}
+		JsonElement cellBodyStyle = cellBodyStyles.get(key);
+		JsonObject styleObject = JsonUtil.normalizeToJsonObject(cellBodyStyle, "align", "left", defaultCellBodyStyle);
+		return defaultStyle
+			.align(styleObject.get("align").getAsString())
+			.bold(styleObject.get("bold").getAsBoolean())
+			.build();
 	}
 
 	private void printRow(List<TableCell> row) throws Exception {

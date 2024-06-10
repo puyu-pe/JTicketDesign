@@ -15,7 +15,7 @@ public class Main {
 
 
 	private static void testTableDesign() {
-		try (OutputStream outputStream = new TcpIpOutputStream("192.168.18.39", 9100)) {
+		try (OutputStream outputStream = new TcpIpOutputStream("192.168.1.41", 9100)) {
 			String pathToFile = "/home/socamaru/Documentos/projects/puka-http/src/main/resources/pe/puyu/pukahttp/testPrinter/report.json";
 			FileReader reader = new FileReader(pathToFile);
 			JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();

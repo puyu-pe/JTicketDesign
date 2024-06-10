@@ -117,8 +117,7 @@ public class SweetTicketDesign {
 			default:
 				throw new Exception(String.format("No se pudo imprimir el diseño tipo de documento %s", helper.properties().type()));
 		}
-		this.escpos.feed(4);
-		this.escpos.cut(CutMode.PART);
+		helper.paperCut(escpos);
 	}
 
 	private void productionArea() throws Exception {
