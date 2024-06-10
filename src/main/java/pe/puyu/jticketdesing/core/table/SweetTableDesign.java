@@ -67,7 +67,7 @@ public class SweetTableDesign {
 			titleTableLayout(tableObject);
 			headersTableLayout(headers, cellWidths);
 			bodyTableLayout(tableObject, cellWidths);
-			footerTableLayout(footer, numberOfColumns);
+			footerTableLayout(footer, cellWidths);
 		}
 		helper.paperCut(escpos);
 	}
@@ -124,9 +124,9 @@ public class SweetTableDesign {
 			.align(align)
 			.bold(true)
 			.build();
-		escPosWrapper.printLine('*', helper.properties().width(), StyleText.builder().bold(true).build());
+		printBoldLine();
 		escPosWrapper.printText(text, helper.properties().width(), styleText);
-		escPosWrapper.printLine('*', helper.properties().width(), StyleText.builder().bold(true).build());
+		printBoldLine();
 	}
 
 	private void headersTableLayout(JsonArray headers, List<Integer> cellWidths) throws Exception {
@@ -182,11 +182,30 @@ public class SweetTableDesign {
 		}
 	}
 
-	private void footerTableLayout(JsonArray footer, int numberOfColumns) throws Exception {
-		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
+	private void footerTableLayout(JsonArray footer, List<Integer> cellWidths) throws Exception {
 		printLine();
-		// print footer
-		escPosWrapper.printLine(' ', helper.properties().width());
+		if(footer.isEmpty() || cellWidths.isEmpty()){
+			return;
+		}
+		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
+		int startCell = 0;
+		List<TableCell> row = new LinkedList<>();
+		for(int i = 0 ; i < footer.size(); ++i){
+			JsonElement element = footer.get(i);
+			JsonObject footerItem = JsonUtil.normalizeToJsonObject(element, "text", "", getDefaultFooterProperties());
+			int span = footerItem.get("span").getAsInt();
+			int endCell = Math.min(startCell + span, cellWidths.size());
+			int width = cellWidths.subList(startCell, endCell).stream().reduce(0, Integer::sum);
+			String text = footerItem.get("text").getAsString();
+			StyleText styleText = helper.styleNormalizeBuilder()
+				.bold(footerItem.get("bold").getAsBoolean())
+				.align(footerItem.get("align").getAsString())
+				.build();
+			row.add(new TableCell(text, width, styleText));
+			startCell = endCell;
+		}
+		printRow(row);
+		printBoldLine('-');
 		escPosWrapper.printLine(' ', helper.properties().width());
 	}
 
@@ -217,6 +236,14 @@ public class SweetTableDesign {
 			result.add(defaultValue);
 		}
 		return result;
+	}
+
+	private JsonObject getDefaultFooterProperties(){
+		JsonObject defaults = new JsonObject();
+		defaults.addProperty("align", "left");
+		defaults.addProperty("bold", false);
+		defaults.addProperty("span", 1);
+		return defaults;
 	}
 
 	private JsonObject getDefaultHeaderProperties() {
@@ -337,6 +364,17 @@ public class SweetTableDesign {
 		EscPosWrapper wrapper = new EscPosWrapper(escpos);
 		try {
 			wrapper.printLine('-', helper.properties().width());
+		} catch (Exception ignored) {
+		}
+	}
+
+	private void printBoldLine(){
+		printBoldLine('*');
+	}
+	private void printBoldLine(char pad){
+		EscPosWrapper wrapper = new EscPosWrapper(escpos);
+		try {
+			wrapper.printLine(pad, helper.properties().width(), StyleText.builder().bold(true).build());
 		} catch (Exception ignored) {
 		}
 	}

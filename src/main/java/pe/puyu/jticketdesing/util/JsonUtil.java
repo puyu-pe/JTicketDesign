@@ -87,18 +87,4 @@ public class JsonUtil {
 		}
 		return reduceValue;
 	}
-
-	public static JsonArray findOneAndApply(JsonArray target, Predicate<JsonElement> predicate, Function<JsonElement, JsonElement> apply) {
-		JsonArray result = new JsonArray();
-		boolean isApplied = false;
-		for (JsonElement element : target) {
-			if (predicate.test(element) && !isApplied) {
-				result.add(apply.apply(element));
-				isApplied = true;
-			} else {
-				result.add(element);
-			}
-		}
-		return result;
-	}
 }
