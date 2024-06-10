@@ -4,7 +4,6 @@ import java.io.FileReader;
 import java.io.OutputStream;
 
 import com.github.anastaciocintra.output.TcpIpOutputStream;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import pe.puyu.jticketdesing.core.table.SweetTableDesign;

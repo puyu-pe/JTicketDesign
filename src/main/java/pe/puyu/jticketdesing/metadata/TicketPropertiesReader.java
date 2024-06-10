@@ -2,7 +2,9 @@ package pe.puyu.jticketdesing.metadata;
 
 import java.util.Optional;
 
+import com.github.anastaciocintra.escpos.Style;
 import com.google.gson.JsonObject;
+import pe.puyu.jticketdesing.util.escpos.StyleEscPosUtil;
 
 public class TicketPropertiesReader extends PrinterPropertiesReader {
 
@@ -18,6 +20,14 @@ public class TicketPropertiesReader extends PrinterPropertiesReader {
 		if (metadata.has("logoPath") && !metadata.get("logoPath").isJsonNull())
 			return Optional.ofNullable(metadata.get("logoPath").getAsString());
 		return Optional.empty();
+	}
+
+	public Style.FontSize fontSizeCommand() {
+		if (properties.has("fontSizeCommand") && !properties.get("fontSizeCommand").isJsonNull()) {
+			return StyleEscPosUtil.toFontSize(properties.get("fontSizeCommand").getAsInt());
+		} else {
+			return Style.FontSize._2;
+		}
 	}
 
 	public String type() {

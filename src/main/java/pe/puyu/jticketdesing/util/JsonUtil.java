@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -59,9 +58,14 @@ public class JsonUtil {
 	}
 
 	public static <T> List<T> mapToList(JsonArray target, Function<JsonElement, T> mapper) {
+		return mapToList(target, (ignored, currentElement) -> mapper.apply(currentElement));
+	}
+
+	public static <T> List<T> mapToList(JsonArray target, BiFunction<Integer, JsonElement, T> mapper) {
 		List<T> result = new LinkedList<>();
-		for (JsonElement jsonElement : target) {
-			result.add(mapper.apply(jsonElement));
+		for (int i = 0; i < target.size(); ++i) {
+			JsonElement jsonElement = target.get(i);
+			result.add(mapper.apply(i, jsonElement));
 		}
 		return result;
 	}

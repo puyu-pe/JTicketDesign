@@ -29,14 +29,6 @@ public class PrinterPropertiesReader {
 		}
 	}
 
-	public Style.FontSize fontSizeCommand() {
-		if (properties.has("fontSizeCommand") && !properties.get("fontSizeCommand").isJsonNull()) {
-			return StyleEscPosUtil.toFontSize(properties.get("fontSizeCommand").getAsInt());
-		} else {
-			return Style.FontSize._2;
-		}
-	}
-
 	public int width() {
 		if (properties.has("width") && !properties.get("width").isJsonNull()) {
 			return properties.get("width").getAsInt();
