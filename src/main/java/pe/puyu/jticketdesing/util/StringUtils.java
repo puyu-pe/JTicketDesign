@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 public class StringUtils {
 
   public static String repeat(char character, int length) {
+    length = Math.max(length, 0);
     StringBuilder result = new StringBuilder(length);
     for (int i = 0; i < length; ++i)
       result.append(character);

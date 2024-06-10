@@ -96,6 +96,7 @@ public class SweetTableDesign {
 	private int calcNumberOfColumns(JsonObject table) {
 		JsonArray headers = Optional.ofNullable(table.get("headers")).orElseGet(JsonArray::new).getAsJsonArray();
 		JsonArray body = Optional.ofNullable(table.get("body")).orElseGet(JsonArray::new).getAsJsonArray();
+		body = JsonUtil.filter(body, JsonElement::isJsonArray);
 		int max = headers.getAsJsonArray().size();
 		for (JsonElement element : body) {
 			JsonArray row = element.getAsJsonArray();
@@ -123,7 +124,9 @@ public class SweetTableDesign {
 			.align(align)
 			.bold(true)
 			.build();
+		escPosWrapper.printLine('*', helper.properties().width(), StyleText.builder().bold(true).build());
 		escPosWrapper.printText(text, helper.properties().width(), styleText);
+		escPosWrapper.printLine('*', helper.properties().width(), StyleText.builder().bold(true).build());
 	}
 
 	private void headersTableLayout(JsonArray headers, List<Integer> cellWidths) throws Exception {
@@ -138,8 +141,7 @@ public class SweetTableDesign {
 		});
 		// imprimir la fila de table cells
 		printRow(row);
-		if (!row.isEmpty())
-			printLine();
+		printLine();
 	}
 
 	private void bodyTableLayout(JsonObject tableObject, List<Integer> cellWidths) throws Exception {
@@ -155,6 +157,10 @@ public class SweetTableDesign {
 				String align = subtitle.get("align").getAsString();
 				boolean bold = subtitle.get("bold").getAsBoolean();
 				StyleText styleText = helper.styleNormalizeBuilder().align(align).bold(bold).build();
+				if(text.length() == 1){
+					escPosWrapper.printLine(text.charAt(0), helper.properties().width(), styleText);
+					continue;
+				}
 				escPosWrapper.printText(text, helper.properties().width(), styleText);
 			} else if (element.isJsonArray()) {
 				JsonArray row = element.getAsJsonArray();
@@ -178,12 +184,9 @@ public class SweetTableDesign {
 
 	private void footerTableLayout(JsonArray footer, int numberOfColumns) throws Exception {
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
-		if (footer.isEmpty()) {
-			escPosWrapper.printLine(' ', helper.properties().width());
-			return;
-		}
 		printLine();
 		// print footer
+		escPosWrapper.printLine(' ', helper.properties().width());
 		escPosWrapper.printLine(' ', helper.properties().width());
 	}
 
