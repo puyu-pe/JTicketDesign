@@ -131,6 +131,8 @@ public class SweetTableDesign {
 
 	private void headersTableLayout(JsonArray headers, List<Integer> cellWidths) throws Exception {
 		// construyendo los table cell
+		if (headers.isEmpty())
+			return;
 		List<TableCell> row = JsonUtil.mapToList(headers, (currentIndex, currentElement) -> {
 			JsonObject header = currentElement.getAsJsonObject();
 			String text = header.get("text").getAsString();
@@ -157,7 +159,7 @@ public class SweetTableDesign {
 				String align = subtitle.get("align").getAsString();
 				boolean bold = subtitle.get("bold").getAsBoolean();
 				StyleText styleText = helper.styleNormalizeBuilder().align(align).bold(bold).build();
-				if(text.length() == 1){
+				if (text.length() == 1) {
 					escPosWrapper.printLine(text.charAt(0), helper.properties().width(), styleText);
 					continue;
 				}
@@ -171,7 +173,7 @@ public class SweetTableDesign {
 					JsonObject item = JsonUtil.normalizeToJsonObject(currentItem, "text", "", defaultItem);
 					String text = item.get("text").getAsString();
 					StyleText styleText = getCellBodyStyle(tableObject, currentIndex);
-					if(item.has("align") && item.get("align").isJsonPrimitive()){
+					if (item.has("align") && item.get("align").isJsonPrimitive()) {
 						styleText = StyleText.builder(styleText).align(item.get("align").getAsString()).build();
 					}
 					int width = cellWidths.get(currentIndex);
@@ -183,14 +185,11 @@ public class SweetTableDesign {
 	}
 
 	private void footerTableLayout(JsonArray footer, List<Integer> cellWidths) throws Exception {
-		printLine();
-		if(footer.isEmpty() || cellWidths.isEmpty()){
-			return;
-		}
+		printBoldLine('-');
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
 		int startCell = 0;
 		List<TableCell> row = new LinkedList<>();
-		for(int i = 0 ; i < footer.size(); ++i){
+		for (int i = 0; i < footer.size(); ++i) {
 			JsonElement element = footer.get(i);
 			JsonObject footerItem = JsonUtil.normalizeToJsonObject(element, "text", "", getDefaultFooterProperties());
 			int span = footerItem.get("span").getAsInt();
@@ -205,7 +204,6 @@ public class SweetTableDesign {
 			startCell = endCell;
 		}
 		printRow(row);
-		printBoldLine('-');
 		escPosWrapper.printLine(' ', helper.properties().width());
 	}
 
@@ -238,7 +236,7 @@ public class SweetTableDesign {
 		return result;
 	}
 
-	private JsonObject getDefaultFooterProperties(){
+	private JsonObject getDefaultFooterProperties() {
 		JsonObject defaults = new JsonObject();
 		defaults.addProperty("align", "left");
 		defaults.addProperty("bold", false);
@@ -354,7 +352,8 @@ public class SweetTableDesign {
 					.build();
 				escPosWrapper.printText(text, width, styleText);
 				if (!isLastRow) {
-					escPosWrapper.printText(" ", 1, helper.noFeedBuilder().build()); // imprimir espacio intermedio
+					String separator = text.isEmpty() ? " " : "|";
+					escPosWrapper.printText(separator, 1, helper.noFeedBuilder().build()); // imprimir espacio intermedio
 				}
 			}
 		}
@@ -368,10 +367,11 @@ public class SweetTableDesign {
 		}
 	}
 
-	private void printBoldLine(){
+	private void printBoldLine() {
 		printBoldLine('*');
 	}
-	private void printBoldLine(char pad){
+
+	private void printBoldLine(char pad) {
 		EscPosWrapper wrapper = new EscPosWrapper(escpos);
 		try {
 			wrapper.printLine(pad, helper.properties().width(), StyleText.builder().bold(true).build());
