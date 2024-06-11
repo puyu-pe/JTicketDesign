@@ -1,12 +1,18 @@
 package pe.puyu.jticketdesing;
 
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.OutputStream;
 
+import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import pe.puyu.jticketdesing.core.table.SweetTableDesign;
+import pe.puyu.jticketdesing.metadata.PrinterPropertiesReader;
+
+import javax.print.PrintService;
 
 public class Main {
 	public static void main(String[] args) throws InterruptedException {
@@ -14,7 +20,8 @@ public class Main {
 	}
 
 	private static void testTableDesign() {
-		try (OutputStream outputStream = new TcpIpOutputStream("192.168.18.39", 9100)) {
+		PrintService printService = PrinterOutputStream.getPrintServiceByName("BIXOLON_SRP-E300");
+		try (PrinterOutputStream outputStream = new PrinterOutputStream(printService)) {
 			String pathToFile = "/home/socamaru/Documentos/projects/puka-http/src/main/resources/pe/puyu/pukahttp/testPrinter/report.json";
 			FileReader reader = new FileReader(pathToFile);
 			JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
