@@ -69,6 +69,7 @@ public class SweetTableDesign {
 			bodyTableLayout(tableObject, cellWidths);
 			footerTableLayout(footer, cellWidths);
 		}
+		finalDetailsLayout();
 		helper.paperCut(escpos);
 	}
 
@@ -205,6 +206,26 @@ public class SweetTableDesign {
 		}
 		printRow(row);
 		escPosWrapper.printLine(' ', helper.properties().width());
+	}
+
+	private void finalDetailsLayout() throws Exception {
+		if (!this.data.has("finalDetails") || !this.data.get("finalDetails").isJsonArray())
+			return;
+		JsonArray finalDetails = this.data.getAsJsonArray("finalDetails");
+		JsonObject defaultFinalDetail = new JsonObject();
+		defaultFinalDetail.addProperty("align", "center");
+		defaultFinalDetail.addProperty("bold", false);
+		defaultFinalDetail.addProperty("text", "");
+		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
+		for (JsonElement element : finalDetails) {
+			JsonObject finalDetail = JsonUtil.normalizeToJsonObject(element, "text", "", defaultFinalDetail);
+			String text = finalDetail.get("text").getAsString();
+			StyleText styleText = helper.styleNormalizeBuilder()
+				.align(finalDetail.get("align").getAsString())
+				.bold(finalDetail.get("bold").getAsBoolean())
+				.build();
+			escPosWrapper.printText(text, helper.properties().width(), styleText);
+		}
 	}
 
 	private JsonArray normalizeHeaders(JsonArray headers) {
