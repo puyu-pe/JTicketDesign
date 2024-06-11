@@ -19,4 +19,7 @@
       </properties>
     </profile>
   </profiles>
+  <activeProfiles>
+    <activeProfile>oss-repository</activeProfile>
+  </activeProfiles>
 </settings>
