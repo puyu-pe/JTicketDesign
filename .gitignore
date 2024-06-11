@@ -24,3 +24,6 @@ out/
 # OS-specific files
 .DS_Store
 Thumbs.db
+
+# sonatype settings xml example
+settings.xml

@@ -1,29 +1,32 @@
 package pe.puyu.jticketdesing;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.OutputStream;
 
-import com.github.anastaciocintra.escpos.EscPos;
-import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
-import com.github.anastaciocintra.escpos.EscPos.CutMode;
-import com.github.anastaciocintra.escpos.Style.FontSize;
+import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import pe.puyu.jticketdesing.core.table.SweetTableDesign;
+import pe.puyu.jticketdesing.metadata.PrinterPropertiesReader;
+
+import javax.print.PrintService;
 
 public class Main {
 	public static void main(String[] args) throws InterruptedException {
-		try (OutputStream outputStream = new TcpIpOutputStream("192.168.18.39",9100)) {
-			var buffer = new ByteArrayOutputStream();
-			EscPos escPos = new EscPos(buffer);
-			escPos.setCharacterCodeTable(CharacterCodeTable.WPC1252);
-			escPos.getStyle().setBold(true).setFontSize(FontSize._2,FontSize._1);
-			escPos.writeLF("N° áéíóúÑ");
-			escPos.feed(4);
-			escPos.cut(CutMode.PART);
-			outputStream.write(buffer.toByteArray());
-			outputStream.close();
-			escPos.close();
+		testTableDesign();
+	}
+
+	private static void testTableDesign() {
+		PrintService printService = PrinterOutputStream.getPrintServiceByName("BIXOLON_SRP-E300");
+		try (PrinterOutputStream outputStream = new PrinterOutputStream(printService)) {
+			String pathToFile = "/home/socamaru/Documentos/projects/puka-http/src/main/resources/pe/puyu/pukahttp/testPrinter/report.json";
+			FileReader reader = new FileReader(pathToFile);
+			JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
+			SweetTableDesign tableDesign = new SweetTableDesign(jsonObject);
+			outputStream.write(tableDesign.getBytes());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
