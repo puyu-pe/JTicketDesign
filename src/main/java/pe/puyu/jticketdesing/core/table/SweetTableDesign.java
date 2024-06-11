@@ -65,9 +65,10 @@ public class SweetTableDesign {
 			headers = normalizeHeaders(headers);      // standard objects
 
 			titleTableLayout(tableObject);
-			headersTableLayout(headers, cellWidths);
-			bodyTableLayout(tableObject, cellWidths);
-			footerTableLayout(footer, cellWidths);
+			char separatorCell = getSeparator(tableObject);
+			headersTableLayout(headers, cellWidths, separatorCell);
+			bodyTableLayout(tableObject, cellWidths, separatorCell);
+			footerTableLayout(footer, cellWidths, separatorCell);
 		}
 		finalDetailsLayout();
 		helper.paperCut(escpos);
@@ -115,22 +116,25 @@ public class SweetTableDesign {
 		defaults.addProperty("align", "center");
 		defaults.addProperty("text", ""); // default value
 		defaults.addProperty("fontSize", 1);
+		defaults.addProperty("decorator", "-");
 		JsonObject title = JsonUtil.normalizeToJsonObject(table.get("title"), "text", "", defaults);
 		JustifyAlign align = JustifyAlign.fromValue(title.get("align").getAsString()); // on error fromValue return LEFT
 		FontSize fontSize = StyleEscPosUtil.toFontSize(title.get("fontSize").getAsInt()); // on error toFontSize return 1
 		String text = title.get("text").getAsString();
+		String decorator = title.get("decorator").getAsString();
+		char borderCharDecorator = decorator.isEmpty() ? defaults.get("decorator").getAsString().charAt(0) : decorator.charAt(0);
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
 		StyleText styleText = helper.styleNormalizeBuilder()
 			.fontSize(fontSize)
 			.align(align)
 			.bold(true)
 			.build();
-		printBoldLine();
+		printBoldLine(borderCharDecorator);
 		escPosWrapper.printText(text, helper.properties().width(), styleText);
-		printBoldLine();
+		printBoldLine(borderCharDecorator);
 	}
 
-	private void headersTableLayout(JsonArray headers, List<Integer> cellWidths) throws Exception {
+	private void headersTableLayout(JsonArray headers, List<Integer> cellWidths, char separator) throws Exception {
 		// construyendo los table cell
 		if (headers.isEmpty())
 			return;
@@ -143,11 +147,11 @@ public class SweetTableDesign {
 			return new TableCell(text, width, styleText);
 		});
 		// imprimir la fila de table cells
-		printRow(row);
+		printRow(row, separator);
 		printLine();
 	}
 
-	private void bodyTableLayout(JsonObject tableObject, List<Integer> cellWidths) throws Exception {
+	private void bodyTableLayout(JsonObject tableObject, List<Integer> cellWidths, char separator) throws Exception {
 		JsonArray body = Optional.ofNullable(tableObject.get("body")).orElseGet(JsonArray::new).getAsJsonArray();
 		body = normalizeBody(body); //normalize to list of standard objects or json array
 		if (cellWidths.isEmpty()) return;
@@ -180,12 +184,12 @@ public class SweetTableDesign {
 					int width = cellWidths.get(currentIndex);
 					return new TableCell(text, width, styleText);
 				});
-				printRow(cells);
+				printRow(cells, separator);
 			}
 		}
 	}
 
-	private void footerTableLayout(JsonArray footer, List<Integer> cellWidths) throws Exception {
+	private void footerTableLayout(JsonArray footer, List<Integer> cellWidths, char separator) throws Exception {
 		printBoldLine('-');
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
 		int startCell = 0;
@@ -204,7 +208,7 @@ public class SweetTableDesign {
 			row.add(new TableCell(text, width, styleText));
 			startCell = endCell;
 		}
-		printRow(row);
+		printRow(row, separator);
 		escPosWrapper.printLine(' ', helper.properties().width());
 	}
 
@@ -343,7 +347,14 @@ public class SweetTableDesign {
 			.build();
 	}
 
-	private void printRow(List<TableCell> row) throws Exception {
+	private char getSeparator(JsonObject tableObject){
+		if(!tableObject.has("separator") || !tableObject.get("separator").isJsonPrimitive()){
+			return ' ';
+		}
+		return tableObject.get("separator").getAsString().charAt(0);
+	}
+
+	private void printRow(List<TableCell> row, char separatorChar) throws Exception {
 		List<List<TableCell>> matrix = new LinkedList<>();
 		int maxNumberOfCuts = -1;
 		for (int i = 0; i < row.size(); ++i) {
@@ -373,8 +384,8 @@ public class SweetTableDesign {
 					.build();
 				escPosWrapper.printText(text, width, styleText);
 				if (!isLastRow) {
-					String separator = text.isEmpty() ? " " : "|";
-					escPosWrapper.printText(separator, 1, helper.noFeedBuilder().build()); // imprimir espacio intermedio
+					String separator = text.isEmpty() ? " " : String.valueOf(separatorChar);
+					escPosWrapper.printText(separator, 1, helper.noFeedBuilder().build()); // imprimir el separator
 				}
 			}
 		}
