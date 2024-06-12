@@ -15,16 +15,16 @@ apartir de un objeto json, [vea Modelos de tickets soportados](#modelos-de-ticke
 la libreria [escpos coffee](https://github.com/anastaciocintra/escpos-coffee)
 para la generación de comandos escpos.
 
-1. [¿Comó empezar?](#-comó-empezar)
-2. [Uso basico](#-uso-basico)
-4. [Propiedades de impresión](#️-propiedades-de-impresión)
+1. [Empezando](#✨empezando)
+2. [Uso basico](#📚uso-basico)
+4. [Propiedades de diseño](#️🛠️propiedades-de-diseño)
 5. [Modelos de tickets soportados](#-modelos-de-tickets-soportados)
    1. [Estructura general](#estructura-general)
-   2. [Ejemplos de json validos](#ejemplos-de-json-validos)
+   2. [Ejemplos de formato json para el diseño de tickets](#ejemplos-de-formato-json-para-el-diseño-de-tickets)
 6. [Considerar logo y QR en el diseño de tickets (boleta y facturas)](#-considerar-logo-yo-código-qr-en-el-diseño-de-boletas-y-facturas)
 7. [¿Como usar JTicketDesign como servicio de impresión?]()
 
-## ✨ ¿Comó empezar?
+## ✨Empezando
 
 JTicketDesign esta disponible como dependencia en Maven Central.
 Agrega lo siguiente a tu pom.xml
@@ -41,7 +41,7 @@ Agrega lo siguiente a tu pom.xml
 > Ultima
 > versión: [![Maven Central](https://img.shields.io/maven-central/v/pe.puyu/JTicketDesing.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/pe.puyu/JTicketDesing)
 
-## 📚 Uso Basico
+## 📚Uso Basico
 
 JTicketDesing ofrece dos clases de diseño, SweetTicketDesign (apartir de v 0.1.0) para diseño de tickets de punto de venta (POS)
 y SweetTableDesing (apartir de v 1.0.0) para diseño de tablas responsive ideal para reportes. Ambas clases tienen el mismo comportamiento de instanciación. 
@@ -87,21 +87,26 @@ public class Main {
 }
 ```
 
-## 🛠️ Propiedades de impresión
+## 🛠️Propiedades de diseño
+Se puede personalizar 4 caracteristicas o propiedades de impresión. Adicionalmente a ello existen otras 5 propiedades
+mas propias para el diseño de tickets.
+Estas propiedades se pueden indicar en la propiedad "printer.properties" del json. 
 
-Se puede personalizar 7 caracteristicas, las cuales estarán presentes en el json,
-[ver modelos de tickets soportados](#modelos-de-tickets-soportados) para ver como configurarlos.
+[Ver ejemplos json para tickets](#-modelos-de-tickets-soportados)  
+<!-- TODO: Complete here tables examples -->
+[Ver ejemplos json para tablas](#)  
 
-| Propiedad            | Tipo    | Por defecto | Descripción                                                                                                                                                                                                                                         |
-|----------------------|---------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| width                | int     | 42          | Número de caracteres por linea, jugar con este valor segun el tamaño del ticket, por defecto para ticketeras de 80mm, 42 es la valor  deseado.                                                                                                      |
-| backgroundInverted   | boolean | true        | Algunas ticketeras antiguas fallan al imprimir anulaciones de comandas, si es es el caso configurar esta propiedad a false.                                                                                                                         |
-| charCodeTable        | string  | WPC1252     | El tipo de codificación de caracteres según escpos coffee, [enum CharCodeTable, escpos coffee](https://github.com/anastaciocintra/escpos-coffee/blob/master/src/main/java/com/github/anastaciocintra/escpos/EscPos.java).                           |
-| fontSizeCommand      | int     | 2           | Representa el tamaño de fuente que tendran las comandas, por cuestiones de enfasis en los pedidos el valor por defecto es 2, pero se puede establecer en 1.                                                                                         |
-| nativeQR             | boolean | false       | Por defecto el qr es generado como imagen y tratado como tal, pero tambien se puede establecer a true para que escpos coffee sea quien genere el qr. Se recomienda el valor por defecto ya que no todas la ticketeras soportan qr nativo de escpos. |
-| blankLinesAfterItems | int     | 0           | Número de lineas en blanco despues de imprimir los items, por defecto 0. Util en proformas.                                                                                                                                                         |
-| showUnitPrice        | boolean | false       | Indica si se debe mostrar el precio unitario en la tabla items, y cada item debe tener una propiedad "unitPrice".   Por defecto false.                                                                                                              |
-| showProductionArea   | boolean | false       | Afecta al diseño de las comandas, indica si se quiere mostrar el area de producción. Por defecto false.                                                                                                                                             |
+| Propiedad            |Tipo de diseño             | Tipo    | Por defecto | Descripción                                                                                                                                                                                                                                         |
+|----------------------|---------------------------|---------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| width                |General(tickets y tablas)  | int     | 42          | Número de caracteres por linea, jugar con este valor segun el tamaño del ticket, por defecto para ticketeras de 80mm, 42 es la valor  deseado.                                                                                                      |
+| backgroundInverted   |General(tickets y tablas)  | boolean | true        | Algunas ticketeras antiguas no soportan color de fondo invertido (oscuro) de ser el caso, esta propiedad debe configurarse con el valor false, por defecto es true.                                                                                                                         |
+| charCodeTable        |General(tickets y tablas)  | string  | WPC1252     | El tipo de codificación de caracteres según escpos coffee, [enum CharCodeTable, escpos coffee](https://github.com/anastaciocintra/escpos-coffee/blob/master/src/main/java/com/github/anastaciocintra/escpos/EscPos.java).                           |
+| textNormalize        |General(tickets y tablas)  | boolean | false       | Ciertas ticketeras no soportan caracteres como: 'áéíóú´d'. Si se establece en true entonces los textos se normalizan  a caracteres basicos. ejm: á -> a.                        |
+| fontSizeCommand      |Solo tickets               | int     | 2           | Representa el tamaño de fuente que tendran las comandas, por cuestiones de enfasis en los pedidos el valor por defecto es 2, pero se puede establecer en 1.                                                                                         |
+| nativeQR             |Solo tickets               | boolean | false       | Por defecto el qr es generado como imagen y tratado como tal, pero tambien se puede establecer a true para que escpos coffee sea quien genere el qr. Se recomienda el valor por defecto ya que no todas la ticketeras soportan qr nativo de escpos. |
+| blankLinesAfterItems |Solo tickets               | int     | 0           | Número de lineas en blanco despues de imprimir los items, por defecto 0. Util en proformas.                                                                                                                                                         |
+| showUnitPrice        |Solo tickets               | boolean | false       | Indica si se debe mostrar el precio unitario en la tabla items, y cada item debe tener una propiedad "unitPrice".   Por defecto false.                                                                                                              |
+| showProductionArea   |Solo tickets               | boolean | false       | Afecta al diseño de las comandas, indica si se quiere mostrar el area de producción. Por defecto false.                                                                                                                                             |
 
 ## 🔎 Modelos de tickets soportados
 
@@ -113,7 +118,7 @@ El modelo que se diseñara dependera del objeto json y su propiedad type.
 
 Un objeto json ticket puede estar compuesta por varias propiedades, la mayoria de las propiedades
 son opcionales, Las propiedades que se tomaran en cuenta depende del
-tipo de ticket a diseñar (type). [ver ejemplos de json validos](#ejemplos-de-json-validos).
+tipo de ticket a diseñar (type). [ver ejemplos de json validos](#ejemplos-de-formato-json-para-el-diseño-de-tickets).
 
 #### Interfaz del ticket
 
@@ -173,9 +178,9 @@ interface Ticket {
 ```
 
 > Nota: Lo anterior solo es una especificación de que propiedades tendria
-> que contener los objetos json, ver [ejemplos](#ejemplos-de-json-validos) a continuación.
+> que contener los objetos json, ver [ejemplos](#ejemplos-de-formato-json-para-el-diseño-de-tickets) a continuación.
 
-### Ejemplos de json validos
+### Ejemplos, de formato json para el diseño de tickets.
 
 1. [Boleta o factura](docs/printing-models.md#1-modelo-para-boleta-o-factura)
 2. [Extras](docs/printing-models.md#2-modelo-para-extras)
