@@ -10,20 +10,21 @@
 ```
 
 [![Maven Central](https://img.shields.io/maven-central/v/pe.puyu/JTicketDesing.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/pe.puyu/JTicketDesing)<br>
-JTicketDesing genera varios tipos de diseño de tickets para puntos de venta
+JTicketDesing genera varios tipos de diseño para tickets que se imprimiran en una ticketera termica,
 apartir de un objeto json, [vea Modelos de tickets soportados](#modelos-de-tickets-soportados), Se apoya en
 la libreria [escpos coffee](https://github.com/anastaciocintra/escpos-coffee)
 para la generación de comandos escpos.
 
-1. [¿Cómo agrego a mi proyecto?](#como-agregó-a-mi-proyecto)
-2. [Uso](#uso)
-3. [Caracteristicas configurables](#caracteristicas-configurables)
-4. [Modelos de tickets soportados](#modelos-de-tickets-soportados)
+1. [¿Comó empezar?](#-comó-empezar)
+2. [Uso basico](#-uso-basico)
+4. [Propiedades de impresión](#️-propiedades-de-impresión)
+5. [Modelos de tickets soportados](#-modelos-de-tickets-soportados)
    1. [Estructura general](#estructura-general)
    2. [Ejemplos de json validos](#ejemplos-de-json-validos)
-5. [Considerar logo y QR en el diseño](#considerar-logo-yo-código-qr-en-el-diseño-de-boletas-y-facturas)
+6. [Considerar logo y QR en el diseño de tickets (boleta y facturas)](#-considerar-logo-yo-código-qr-en-el-diseño-de-boletas-y-facturas)
+7. [¿Como usar JTicketDesign como servicio de impresión?]()
 
-## ¿Como agregó a mi proyecto?
+## ✨ ¿Comó empezar?
 
 JTicketDesign esta disponible como dependencia en Maven Central.
 Agrega lo siguiente a tu pom.xml
@@ -40,11 +41,13 @@ Agrega lo siguiente a tu pom.xml
 > Ultima
 > versión: [![Maven Central](https://img.shields.io/maven-central/v/pe.puyu/JTicketDesing.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/pe.puyu/JTicketDesing)
 
-## Uso
+## 📚 Uso Basico
 
-1. JTicketDesign espera como parametro un JSONObject, que es la representación
-   del ticket en formato json. [vea Modelos de tickets soportados](#modelos-de-tickets-soportados).
-2. El diseño del ticket sera devuelto en bytes de comandos escpos con la
+JTicketDesing ofrece dos clases de diseño, SweetTicketDesign (apartir de v 0.1.0) para diseño de tickets de punto de venta (POS)
+y SweetTableDesing (apartir de v 1.0.0) para diseño de tablas responsive ideal para reportes. Ambas clases tienen el mismo comportamiento de instanciación. 
+
+1. Ambas clases tiene constructores para aceptar un JsonObject de [gson](https://github.com/google/gson) o un String (formato json).
+2. El diseño sera devuelto en bytes de comandos escpos con la
    llamada al metodo getBytes().
 3. Los bytes escpos ahora pueden ser escritos en cualquier objeto que sea
    instancia de clases que hereden de la clase abstracta OutputStream.
@@ -59,7 +62,7 @@ Agrega lo siguiente a tu pom.xml
 
 ```java
 import com.github.anastaciocintra.output.TcpIpOutputStream;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 import pe.puyu.jticketdesing.core.SweetTicketDesign;
 
 import java.io.OutputStream;
@@ -67,16 +70,24 @@ import java.io.OutputStream;
 public class Main {
 	public static void main(String[] args) {
 		try (OutputStream outputStream = new TcpIpOutputStream("192.168.1.100", 9100)) {
-			String jsonString = any.getTicket();
-			JSONObject ticket = new JSONObject(jsonString);
-			var desing = new SweetTicketDesign(ticket);
-			outputStream.write(desing.getBytes());
+			// Diseño de tickets desde version 0.1.0
+			String jsonTicket = anyService.getTicket();
+			var designTicket = new SweetTicketDesign(jsonTicket);
+
+			outputStream.write(designTicket.getBytes());
+
+			// Diseño de tablas apartir de la versión 1.0.0
+			String jsonReport = anyService.getReport();
+			var designReport = new SweetTableDesign(jsonReport);
+
+			outputStream.write(designReport.getBytes());
+
 		}
 	}
 }
 ```
 
-## Caracteristicas configurables
+## 🛠️ Propiedades de impresión
 
 Se puede personalizar 7 caracteristicas, las cuales estarán presentes en el json,
 [ver modelos de tickets soportados](#modelos-de-tickets-soportados) para ver como configurarlos.
@@ -92,7 +103,7 @@ Se puede personalizar 7 caracteristicas, las cuales estarán presentes en el jso
 | showUnitPrice        | boolean | false       | Indica si se debe mostrar el precio unitario en la tabla items, y cada item debe tener una propiedad "unitPrice".   Por defecto false.                                                                                                              |
 | showProductionArea   | boolean | false       | Afecta al diseño de las comandas, indica si se quiere mostrar el area de producción. Por defecto false.                                                                                                                                             |
 
-## Modelos de tickets soportados
+## 🔎 Modelos de tickets soportados
 
 SweetTicketDesign tiene varios modelos de tickets establecidos: boletas, facturas
 extras, encomienda, delivery, comandas para restaurante, extra para restaurante y precuentas.
@@ -174,7 +185,7 @@ interface Ticket {
 6. [Precuenta restaurante](docs/printing-models.md#6-modelo-precuenta-restaurante)
 7. [Notas de venta](docs/printing-models.md#7-notas-de-venta)
 
-### Considerar logo y/o código QR en el diseño de boletas y facturas.
+### 📁 Considerar logo y/o código QR en el diseño de boletas y facturas.
 
 ```javascript
 {

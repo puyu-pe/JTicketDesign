@@ -5,6 +5,7 @@ import com.github.anastaciocintra.escpos.Style.FontSize;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import pe.puyu.jticketdesing.core.DesignerHelper;
 import pe.puyu.jticketdesing.metadata.PrinterPropertiesReader;
@@ -24,6 +25,10 @@ public class SweetTableDesign {
 	public SweetTableDesign(JsonObject data) {
 		this.data = data;
 		this.helper = new DesignerHelper<>(new PrinterPropertiesReader(data));
+	}
+
+	public SweetTableDesign(String jsonString) {
+		this(JsonParser.parseString(jsonString).getAsJsonObject());
 	}
 
 	public byte[] getBytes() {
