@@ -13,10 +13,7 @@ import pe.puyu.jticketdesing.util.StringUtils;
 import pe.puyu.jticketdesing.util.escpos.*;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class SweetTableDesign {
 
@@ -37,12 +34,12 @@ public class SweetTableDesign {
 			designTable();
 			return buffer.toByteArray();
 		} catch (Exception e) {
-			throw new RuntimeException("SweetTableDesign Exception.", e);
+			throw new RuntimeException(String.format("SweetTableDesign exception with message: %s", e.getMessage()), e);
 		}
 	}
 
 	private void designTable() throws Exception {
-		JsonArray tables = this.data.get("tables").getAsJsonArray();
+		JsonArray tables = Optional.ofNullable(this.data.get("tables")).orElseGet(JsonArray::new).getAsJsonArray();
 		titleAndDetailsLayout();
 		for (JsonElement table : tables) {
 			JsonObject tableObject = table.getAsJsonObject();
@@ -81,7 +78,7 @@ public class SweetTableDesign {
 		String[] fields = {"title", "details"};
 		for (String field : fields) {
 			StyleText style = field.equalsIgnoreCase("title") ? titleStyle : detailsStyle;
-			if (this.data.has(field) && !this.data.get(field).isJsonNull()) {
+			if (this.data.has(field) && !this.data.get(field).isJsonNull() && !this.data.get(field).isJsonObject()) {
 				JsonElement value = this.data.get(field);
 				JsonArray values = JsonUtil.normalizeToJsonArray(value);
 				for (JsonElement element : values) {
@@ -122,7 +119,7 @@ public class SweetTableDesign {
 		FontSize fontSize = StyleEscPosUtil.toFontSize(title.get("fontSize").getAsInt()); // on error toFontSize return 1
 		String text = title.get("text").getAsString();
 		String decorator = title.get("decorator").getAsString();
-		char borderCharDecorator = decorator.isEmpty() ? defaults.get("decorator").getAsString().charAt(0) : decorator.charAt(0);
+		char borderCharDecorator = decorator.isEmpty() ? ' ' : decorator.charAt(0);
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
 		StyleText styleText = helper.styleNormalizeBuilder()
 			.fontSize(fontSize)
@@ -347,8 +344,8 @@ public class SweetTableDesign {
 			.build();
 	}
 
-	private char getSeparator(JsonObject tableObject){
-		if(!tableObject.has("separator") || !tableObject.get("separator").isJsonPrimitive()){
+	private char getSeparator(JsonObject tableObject) {
+		if (!tableObject.has("separator") || !tableObject.get("separator").isJsonPrimitive()) {
 			return ' ';
 		}
 		return tableObject.get("separator").getAsString().charAt(0);
@@ -399,11 +396,9 @@ public class SweetTableDesign {
 		}
 	}
 
-	private void printBoldLine() {
-		printBoldLine('*');
-	}
-
 	private void printBoldLine(char pad) {
+		if(pad == ' ')
+			return;
 		EscPosWrapper wrapper = new EscPosWrapper(escpos);
 		try {
 			wrapper.printLine(pad, helper.properties().width(), StyleText.builder().bold(true).build());

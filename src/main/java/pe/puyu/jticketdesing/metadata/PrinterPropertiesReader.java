@@ -9,9 +9,12 @@ public class PrinterPropertiesReader {
 	protected JsonObject properties;
 	protected final JsonObject ticket;
 
-	public PrinterPropertiesReader(JsonObject ticket){
+	public PrinterPropertiesReader(JsonObject ticket) {
 		this.ticket = ticket;
-		JsonObject printer = ticket.getAsJsonObject("printer");
+		JsonObject printer = new JsonObject();
+		if (ticket.has("printer") && ticket.get("printer").isJsonObject()) {
+			printer = ticket.getAsJsonObject("printer");
+		}
 		properties = new JsonObject();
 		if (printer.has("properties") && !printer.get("properties").isJsonNull()) {
 			properties = printer.getAsJsonObject("properties");

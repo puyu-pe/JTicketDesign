@@ -142,7 +142,7 @@ public class SweetTicketDesign {
 			JsonObject commercialDescription = business.getAsJsonObject("comercialDescription");
 			String type = commercialDescription.get("type").getAsString();
 			if (type.equalsIgnoreCase("text")) {
-				String commercialDescriptionText = commercialDescription.get("text").getAsString();
+				String commercialDescriptionText = commercialDescription.get("value").getAsString();
 				var lines = StringUtils.wrapText(commercialDescriptionText, helper.properties().width(), 2);
 				StyleText commercialDescriptionStyle = helper.styleNormalizeBuilder()
 					.align(JustifyAlign.CENTER)
@@ -164,7 +164,7 @@ public class SweetTicketDesign {
 		if (business.has("description")) {
 			String descriptionText = business.get("description").getAsString();
 			var lines = StringUtils.wrapText(descriptionText, helper.properties().width(), 1);
-			StyleText descriptionStyle = helper.styleNormalizeBuilder().build();
+			StyleText descriptionStyle = helper.styleNormalizeBuilder().align(JustifyAlign.CENTER).build();
 			for (var line : lines) {
 				escPosWrapper.printText(line, helper.properties().width(), descriptionStyle);
 			}
