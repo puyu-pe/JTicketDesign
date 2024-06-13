@@ -17,14 +17,15 @@ para la generación de comandos escpos.
 
 1. [Empezando](#empezando)
 2. [Uso basico](#uso-basico)
-4. [Propiedades de diseño](#️🛠️propiedades-de-diseño)
-5. [Modelos de tickets soportados](#-modelos-de-tickets-soportados)
+3. [Propiedades de diseño](#propiedades-disenio)
+4. [Modelos de tickets soportados](#modelos-ticket-soportados)
    1. [Estructura general](#estructura-general)
-   2. [Ejemplos de formato json para el diseño de tickets](#ejemplos-de-formato-json-para-el-diseño-de-tickets)
-6. [Considerar logo y QR en el diseño de tickets (boleta y facturas)](#-considerar-logo-yo-código-qr-en-el-diseño-de-boletas-y-facturas)
-7. [¿Como usar JTicketDesign como servicio de impresión?]()
+   2. [Ejemplos de formato json para el diseño de tickets](#ejemplos-disenio-ticket)
+5. [Considerar logo y QR en el diseño de tickets (boleta y facturas)](#codigo-qr-ticket)
+6. [Diseño de tablas, a partir de la versión 1.0.0](#disenio-tablas)
+7. [Extra: Utilidad de impresión](#referencia-puka)
 
-## ✨Empezando <a id="empezando"></a>
+<h2 id="empezando">✨Empezando</h2>
 
 JTicketDesign esta disponible como dependencia en Maven Central.
 Agrega lo siguiente a tu pom.xml
@@ -41,7 +42,7 @@ Agrega lo siguiente a tu pom.xml
 > Ultima
 > versión: [![Maven Central](https://img.shields.io/maven-central/v/pe.puyu/JTicketDesing.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/pe.puyu/JTicketDesing)
 
-## 📚 Uso Basico <a id="uso-basico"></a>
+<h2 id="uso-basico">📚 Uso Basico</h2>
 
 JTicketDesing ofrece dos clases de diseño, SweetTicketDesign (apartir de v 0.1.0) para diseño de tickets de punto de venta (POS)
 y SweetTableDesing (apartir de v 1.0.0) para diseño de tablas responsive ideal para reportes. Ambas clases tienen el mismo comportamiento de instanciación. 
@@ -58,7 +59,7 @@ y SweetTableDesing (apartir de v 1.0.0) para diseño de tablas responsive ideal 
    escpos tienen que ser enviados a un OutputStream asociado a una ticketera con
    soporte de comandos EscPos.
 
-### Ejemplo
+<h3> Ejemplo</h3>
 
 ```java
 import com.github.anastaciocintra.output.TcpIpOutputStream;
@@ -87,12 +88,12 @@ public class Main {
 }
 ```
 
-## 🛠️Propiedades de diseño
+<h2 id="propiedades-disenio">🛠️Propiedades de diseño</h2>
 Se puede personalizar 4 caracteristicas o propiedades de impresión. Adicionalmente a ello existen otras 5 propiedades
 mas propias para el diseño de tickets.
 Estas propiedades se pueden indicar en la propiedad "printer.properties" del json. 
 
-[Ver ejemplos json para tickets](#-modelos-de-tickets-soportados)  
+[Ver ejemplos json para tickets](#modelos-ticket-soportados)  
 <!-- TODO: Complete here tables examples -->
 [Ver ejemplos json para tablas](#)  
 
@@ -108,13 +109,13 @@ Estas propiedades se pueden indicar en la propiedad "printer.properties" del jso
 | showUnitPrice        |Solo tickets               | boolean | false       | Indica si se debe mostrar el precio unitario en la tabla items, y cada item debe tener una propiedad "unitPrice".   Por defecto false.                                                                                                              |
 | showProductionArea   |Solo tickets               | boolean | false       | Afecta al diseño de las comandas, indica si se quiere mostrar el area de producción. Por defecto false.                                                                                                                                             |
 
-## 🔎 Modelos de tickets soportados
+<h2 id="modelos-ticket-soportados">🔎 Modelos de tickets soportados</h2> 
 
 SweetTicketDesign tiene varios modelos de tickets establecidos: boletas, facturas
 extras, encomienda, delivery, comandas para restaurante, extra para restaurante y precuentas.
 El modelo que se diseñara dependera del objeto json y su propiedad type.
 
-### Estructura general
+<h3 id="estructura-general">Estructura general</h3>
 
 Un objeto json ticket puede estar compuesta por varias propiedades, la mayoria de las propiedades
 son opcionales, Las propiedades que se tomaran en cuenta depende del
@@ -178,9 +179,9 @@ interface Ticket {
 ```
 
 > Nota: Lo anterior solo es una especificación de que propiedades tendria
-> que contener los objetos json, ver [ejemplos](#ejemplos-de-formato-json-para-el-diseño-de-tickets) a continuación.
+> que contener los objetos json, ver [ejemplos](#ejemplos-disenio-ticket) a continuación.
 
-### Ejemplos, de formato json para el diseño de tickets.
+<h3 id="ejemplos-disenio-ticket">Ejemplos, de formato json para el diseño de tickets.</h3>
 
 1. [Boleta o factura](docs/printing-models.md#1-modelo-para-boleta-o-factura)
 2. [Extras](docs/printing-models.md#2-modelo-para-extras)
@@ -190,7 +191,7 @@ interface Ticket {
 6. [Precuenta restaurante](docs/printing-models.md#6-modelo-precuenta-restaurante)
 7. [Notas de venta](docs/printing-models.md#7-notas-de-venta)
 
-### 📁 Considerar logo y/o código QR en el diseño de boletas y facturas.
+<h3 id="codigo-qr-ticket">📁 Considerar logo y/o código QR en el diseño de boletas y facturas.</h3>
 
 ```javascript
 {
@@ -210,4 +211,10 @@ interface Ticket {
     }
 }
 ```
+
+<h2 id="disenio-tablas">🚀 Diseño de tablas, a partir de la versión 1.0.0 </h2>
+
+
+
+<h2 id="referencia-puka">📦 Utilidad de impresión: Puka-http </h2>
 
