@@ -507,8 +507,9 @@ public class SweetTicketDesign {
 			String text = String.format(" %s ", this.data.get("textBackgroundInverted").getAsString());
 			StyleText styleText = helper.styleNormalizeBuilder()
 				.align(JustifyAlign.CENTER)
+				.bgInverted(supportBackgroundInverted)
 				.bold(!supportBackgroundInverted)
-				.pad(supportBackgroundInverted ? '*' : ' ')
+				.pad(supportBackgroundInverted ? ' ' : '*')
 				.build();
 			escPosWrapper.printText(text, helper.properties().width(), styleText);
 			escPosWrapper.printLine(' ', helper.properties().width());
