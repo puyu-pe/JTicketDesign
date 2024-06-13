@@ -267,6 +267,7 @@ public class SweetTableDesign {
 		JsonObject defaults = new JsonObject();
 		defaults.addProperty("align", "left");
 		defaults.addProperty("bold", false);
+		defaults.addProperty("text", "");
 		defaults.addProperty("span", 1);
 		return defaults;
 	}

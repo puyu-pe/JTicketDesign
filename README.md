@@ -93,9 +93,9 @@ Se puede personalizar 4 caracteristicas o propiedades de impresión. Adicionalme
 mas propias para el diseño de tickets.
 Estas propiedades se pueden indicar en la propiedad "printer.properties" del json. 
 
-[Ver ejemplos json para tickets](#modelos-ticket-soportados)  
+- [Ver ejemplos json para tickets](#modelos-ticket-soportados)  
 <!-- TODO: Complete here tables examples -->
-[Ver ejemplos json para tablas](#)  
+- [Ver ejemplos json para tablas](#)  
 
 | Propiedad            |Tipo de diseño             | Tipo    | Por defecto | Descripción                                                                                                                                                                                                                                         |
 |----------------------|---------------------------|---------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -132,9 +132,12 @@ interface Ticket {
             width: int // Opcional, por defecto 42
             backgroundInverted: boolean;// Opcional, por defecto true
             charCodeTable: string;// Opcional, por defecto WP1252
+						textNormalize: boolean; // opcional por defecto false
             fontSizeCommand: int; // Opcional, por defecto 2
             nativeQR: boolean;// Opcional, por defecto false
             blankLinesAfterItems: int; // opcional, por defecto 0
+						showUnitPrice: boolean; // opcional, por defecto false
+						showProductionArea: boolean; // opcional por defecto false
         }
     }
     data: {
@@ -214,7 +217,137 @@ interface Ticket {
 
 <h2 id="disenio-tablas">🚀 Diseño de tablas, a partir de la versión 1.0.0 </h2>
 
+Con SweetTableDesign se puede diseñar distintos tipos de tablas con diferentes diseños y personalizaciones.
+<!-- TODO: Referenciar a los ejemplos  aqui-->
 
+<h3>Estructura General</h3>
+
+La información a imprimir y sus estilos se describen el objeto json que espera como parametro el constructor
+de SweetTableDesign [a continuación](#esquema-tablas) se describe todas las propiedades configurables del json.
+La mayoria de propiedades es opcional y tienen valores por defecto.
+
+<h4 id="esquema-tablas">Esquema del objecto json para SweetTableDesign</h4>
+
+El siguiente esquema se representó usando la sintaxis de TypeScrypt
+
+```typescript
+
+type Justification = "center" | "right" | "left"
+
+// ##### ESQUEMA PRINCIPAL  #####
+interface Report{
+	printer: {
+		properties: { // opcional
+			width: int // Opcional, por defecto 42
+			backgroundInverted: boolean;// Opcional, por defecto true, no se usa en el diseño de tablas de momento
+			charCodeTable: string;// Opcional, por defecto WP1252
+			textNormalize: boolean; // opcional por defecto false
+		}
+		title: string | string[]; // opcional, por defecto es un array vacio
+		details: string | string[]; // opcional, por defecto es un array vacio
+		tables: Table[]; // por defecto un array vacio
+		finalDetails: (string | FinalDetail)[]; // opcional, por defecto un array vacio
+	}
+}
+
+interface FinalDetail{
+	text: string; // el texto a imprimir, por defecto -> ""
+	align: Justification; //  por defecto -> center
+	bold: boolean; // aplicar negrita, por defecto false
+}
+
+// #### ESQUEMA DE UN OBJECTO TABLE ####
+
+interface Table{
+
+	// representa el caracter que se imprimirá para separar las columnas
+	// por defecto un espacio vacio -> ' '
+	// si se envia un string, solo se tomara en cuenta el primer caracter del string
+	separator: char; 
+
+	// un array de enteros del 0 al 100, por defecto un array vacio
+	// el indice '0' del array le corresponde a la columna 1, el indice '1' a la columna 2, sucesivamente...
+	// si uno de los elementos tiene valor 0 entonces su ancho se calcula de forma automatica en funcion del porcentage restante.
+	// algunos ejemplos a continuación suponiendo una tabla de 3 columnas:
+	// si se envia [80] se convierte en -> [80, 0, 0] -> [80, 10, 10].
+	// si se envia [] se convierte en -> [0, 0, 0] -> [33, 33, 33].
+	// si se envia [40, 0, 20] se convierte en -> [40, 60, 20].
+	widthPercents: int[]; 
+
+	// cellBodyStyles, es aplicable solo al body, es un objeto que tiene como propiedades los indices de las columnas 
+	// la propiedad '0' le corresponde a la columna 1 y asi sucevivamente.
+	// por defecto todos los indices tienen el valor CellBodyStyle por defecto, 
+	cellBodyStyles: {
+		'0': Justification | CellBodyStyle,
+		'1': Justification | CellBodyStyle,
+		'4': Justification | CellBodyStyle
+	};
+	title: string | TitleTable;
+	headers: (string | HeaderTable)[] // por defecto un array vacio
+
+	// body representa las filas
+	// body se comporta un matriz, cada elemento puede ser un array de strings (una fila)
+	// algunos elementos pueden ser un Subtitle object (ver la interfaz declarada mas abajo)
+	// algunos elementos pueden ser string, se imprimiran con los estilos de un Subtitle por defecto
+	
+	body: Array< (string | BodyCell)[] | Subtitle | string >; // por defecto es un array vacio y no se imprime
+	footer: (string | FooterItem)[]; // por defecto un array vacio
+}
+
+interface FooterItem{
+	text: string; // por defecto un string vacio
+
+	// cuantas columnas debe ocupar, segun el maximo numero de columnas entre los headers y el body
+	span: int;  // por defecto 1
+	align: Justification; // por defecto left
+	bold: boolean; // pintar en negrita el texto, por defecto false
+}
+
+interface BodyCell(){
+	text: string; // por defecto un string vacio
+	align: Justification; // por defecto left
+}
+
+interface Subtitle{
+	text: string; // por defecto un string vacio
+	align: Justification; // por defecto center
+	bold: boolean; // pintar el texto en negrita, por defecto false
+}
+
+interface HeaderTable{
+	text: string; // por defecto un string vacio
+	align: Justification; // por defecto center
+}
+
+interface TitleTable{
+	text: string; // por defecto false
+	align: Justification; // por defecto center
+	fontSize: int; // número entero del 1 al 7, por defecto 1
+
+  // caracter decorador que envuelve al titulo
+	// Si se envia un string solo se toma en cuenta el primer elemento
+	// Si no se quiere un decorador se tiene que enviar un string vacio el valor ""
+	decorator: char; // por defecto '-'
+}
+
+interface CellBodyStyle{
+	align: Justification; // por defecto left
+	bold: boolean; // pintar en negrita, por defecto false
+}
+
+
+```
 
 <h2 id="referencia-puka">📦 Utilidad de impresión: Puka-http </h2>
 
+La API de SweetTicketDesign y SweetTableDesign son muy simples y solo consiste en llamar a su constructor con el json y luego getBytes().
+Toda la complejidad esta en armar el objeto json, y en enviar esto a una ticketera correspondiente. Conectarse con diferentes tipos de ticketeras es 
+algo que **no** ofrece JTicketDesing, para ello existe otra herramienta 
+
+<h3>Puka HTTP</h3>
+
+Puka http es una herramienta multiplataforma que actua como servicio de impresión local e implementa una **API http** para trabajos de impresión de tickets y reportes.
+PukaHTTP usa por debajo JTicketDesign para emitir los comandos EscPOS. Asi mismo soporta diferentes interfaces de conexión a ticketeras como 
+ethernet, usb, samba , samba nativo, cups, linux-usb, etc. Para mas detalles en su [repositorio de github](https://github.com/puyu-pe/puka-http).
+
+Se puede descargar el instalador multiplataforma desde [su pagina de descarga.](https://www.jdeploy.com/gh/puyu-pe/puka-http).
