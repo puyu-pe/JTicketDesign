@@ -15,8 +15,8 @@ apartir de un objeto json, [vea Modelos de tickets soportados](#modelos-de-ticke
 la libreria [escpos coffee](https://github.com/anastaciocintra/escpos-coffee)
 para la generación de comandos escpos.
 
-1. [Empezando](#✨empezando)
-2. [Uso basico](#📚uso-basico)
+1. [Empezando](#empezando)
+2. [Uso basico](#uso-basico)
 4. [Propiedades de diseño](#️🛠️propiedades-de-diseño)
 5. [Modelos de tickets soportados](#-modelos-de-tickets-soportados)
    1. [Estructura general](#estructura-general)
@@ -24,7 +24,7 @@ para la generación de comandos escpos.
 6. [Considerar logo y QR en el diseño de tickets (boleta y facturas)](#-considerar-logo-yo-código-qr-en-el-diseño-de-boletas-y-facturas)
 7. [¿Como usar JTicketDesign como servicio de impresión?]()
 
-## ✨Empezando
+## ✨Empezando <a id="empezando"></a>
 
 JTicketDesign esta disponible como dependencia en Maven Central.
 Agrega lo siguiente a tu pom.xml
@@ -41,7 +41,7 @@ Agrega lo siguiente a tu pom.xml
 > Ultima
 > versión: [![Maven Central](https://img.shields.io/maven-central/v/pe.puyu/JTicketDesing.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/pe.puyu/JTicketDesing)
 
-## 📚Uso Basico
+## 📚 Uso Basico <a id="uso-basico"></a>
 
 JTicketDesing ofrece dos clases de diseño, SweetTicketDesign (apartir de v 0.1.0) para diseño de tickets de punto de venta (POS)
 y SweetTableDesing (apartir de v 1.0.0) para diseño de tablas responsive ideal para reportes. Ambas clases tienen el mismo comportamiento de instanciación. 
