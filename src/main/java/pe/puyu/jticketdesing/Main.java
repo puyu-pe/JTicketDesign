@@ -21,7 +21,7 @@ import javax.print.PrintService;
 
 public class Main {
 	public static void main(String[] args) throws InterruptedException {
-		try (OutputStream outputStream = ip("192.168.18.39")) {
+		try (OutputStream outputStream = bixonSrpE300()) {
 			testTableDesign(outputStream);
 		} catch (Exception e) {
 			e.printStackTrace();
