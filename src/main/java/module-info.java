@@ -7,4 +7,6 @@ module pe.puyu.jticketdesing{
   exports pe.puyu.jticketdesing.core;
   exports pe.puyu.jticketdesing.util.escpos;
   exports pe.puyu.jticketdesing.util;
+	exports pe.puyu.jticketdesing.metadata;
+	exports pe.puyu.jticketdesing.core.table;
 }

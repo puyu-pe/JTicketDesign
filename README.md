@@ -10,20 +10,22 @@
 ```
 
 [![Maven Central](https://img.shields.io/maven-central/v/pe.puyu/JTicketDesing.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/pe.puyu/JTicketDesing)<br>
-JTicketDesing genera varios tipos de diseño de tickets para puntos de venta
+JTicketDesing genera varios tipos de diseño para tickets que se imprimiran en una ticketera termica,
 apartir de un objeto json, [vea Modelos de tickets soportados](#modelos-de-tickets-soportados), Se apoya en
 la libreria [escpos coffee](https://github.com/anastaciocintra/escpos-coffee)
 para la generación de comandos escpos.
 
-1. [¿Cómo agrego a mi proyecto?](#como-agregó-a-mi-proyecto)
-2. [Uso](#uso)
-3. [Caracteristicas configurables](#caracteristicas-configurables)
-4. [Modelos de tickets soportados](#modelos-de-tickets-soportados)
+1. [Empezando](#empezando)
+2. [Uso basico](#uso-basico)
+3. [Propiedades de diseño](#propiedades-disenio)
+4. [Modelos de tickets soportados](#modelos-ticket-soportados)
    1. [Estructura general](#estructura-general)
-   2. [Ejemplos de json validos](#ejemplos-de-json-validos)
-5. [Considerar logo y QR en el diseño](#considerar-logo-yo-código-qr-en-el-diseño-de-boletas-y-facturas)
+   2. [Ejemplos de formato json para el diseño de tickets](#ejemplos-disenio-ticket)
+5. [Considerar logo y QR en el diseño de tickets (boleta y facturas)](#codigo-qr-ticket)
+6. [Diseño de tablas, a partir de la versión 1.0.0](#disenio-tablas)
+7. [Extra: Utilidad de impresión](#referencia-puka)
 
-## ¿Como agregó a mi proyecto?
+<h2 id="empezando">✨Empezando</h2>
 
 JTicketDesign esta disponible como dependencia en Maven Central.
 Agrega lo siguiente a tu pom.xml
@@ -40,11 +42,13 @@ Agrega lo siguiente a tu pom.xml
 > Ultima
 > versión: [![Maven Central](https://img.shields.io/maven-central/v/pe.puyu/JTicketDesing.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/pe.puyu/JTicketDesing)
 
-## Uso
+<h2 id="uso-basico">📚 Uso Basico</h2>
 
-1. JTicketDesign espera como parametro un JSONObject, que es la representación
-   del ticket en formato json. [vea Modelos de tickets soportados](#modelos-de-tickets-soportados).
-2. El diseño del ticket sera devuelto en bytes de comandos escpos con la
+JTicketDesing ofrece dos clases de diseño, SweetTicketDesign (apartir de v 0.1.0) para diseño de tickets de punto de venta (POS)
+y SweetTableDesing (apartir de v 1.0.0) para diseño de tablas responsive ideal para reportes. Ambas clases tienen el mismo comportamiento de instanciación. 
+
+1. Ambas clases tiene constructores para aceptar un JsonObject de [gson](https://github.com/google/gson) o un String (formato json).
+2. El diseño sera devuelto en bytes de comandos escpos con la
    llamada al metodo getBytes().
 3. Los bytes escpos ahora pueden ser escritos en cualquier objeto que sea
    instancia de clases que hereden de la clase abstracta OutputStream.
@@ -55,11 +59,11 @@ Agrega lo siguiente a tu pom.xml
    escpos tienen que ser enviados a un OutputStream asociado a una ticketera con
    soporte de comandos EscPos.
 
-### Ejemplo
+<h3> Ejemplo</h3>
 
 ```java
 import com.github.anastaciocintra.output.TcpIpOutputStream;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 import pe.puyu.jticketdesing.core.SweetTicketDesign;
 
 import java.io.OutputStream;
@@ -67,42 +71,55 @@ import java.io.OutputStream;
 public class Main {
 	public static void main(String[] args) {
 		try (OutputStream outputStream = new TcpIpOutputStream("192.168.1.100", 9100)) {
-			String jsonString = any.getTicket();
-			JSONObject ticket = new JSONObject(jsonString);
-			var desing = new SweetTicketDesign(ticket);
-			outputStream.write(desing.getBytes());
+			// Diseño de tickets desde version 0.1.0
+			String jsonTicket = anyService.getTicket();
+			var designTicket = new SweetTicketDesign(jsonTicket);
+
+			outputStream.write(designTicket.getBytes());
+
+			// Diseño de tablas apartir de la versión 1.0.0
+			String jsonReport = anyService.getReport();
+			var designReport = new SweetTableDesign(jsonReport);
+
+			outputStream.write(designReport.getBytes());
+
 		}
 	}
 }
 ```
 
-## Caracteristicas configurables
+<h2 id="propiedades-disenio">🛠️Propiedades de diseño</h2>
+Se puede personalizar 4 caracteristicas o propiedades de impresión. Adicionalmente a ello existen otras 5 propiedades
+mas propias para el diseño de tickets.
+Estas propiedades se pueden indicar en la propiedad "printer.properties" del json. 
 
-Se puede personalizar 7 caracteristicas, las cuales estarán presentes en el json,
-[ver modelos de tickets soportados](#modelos-de-tickets-soportados) para ver como configurarlos.
+- [Ver ejemplos json para tickets](#modelos-ticket-soportados)  
+<!-- TODO: Complete here tables examples -->
+- [Ver ejemplos json para tablas](#)  
 
-| Propiedad            | Tipo    | Por defecto | Descripción                                                                                                                                                                                                                                         |
-|----------------------|---------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| width                | int     | 42          | Número de caracteres por linea, jugar con este valor segun el tamaño del ticket, por defecto para ticketeras de 80mm, 42 es la valor  deseado.                                                                                                      |
-| backgroundInverted   | boolean | true        | Algunas ticketeras antiguas fallan al imprimir anulaciones de comandas, si es es el caso configurar esta propiedad a false.                                                                                                                         |
-| charCodeTable        | string  | WPC1252     | El tipo de codificación de caracteres según escpos coffee, [enum CharCodeTable, escpos coffee](https://github.com/anastaciocintra/escpos-coffee/blob/master/src/main/java/com/github/anastaciocintra/escpos/EscPos.java).                           |
-| fontSizeCommand      | int     | 2           | Representa el tamaño de fuente que tendran las comandas, por cuestiones de enfasis en los pedidos el valor por defecto es 2, pero se puede establecer en 1.                                                                                         |
-| nativeQR             | boolean | false       | Por defecto el qr es generado como imagen y tratado como tal, pero tambien se puede establecer a true para que escpos coffee sea quien genere el qr. Se recomienda el valor por defecto ya que no todas la ticketeras soportan qr nativo de escpos. |
-| blankLinesAfterItems | int     | 0           | Número de lineas en blanco despues de imprimir los items, por defecto 0. Util en proformas.                                                                                                                                                         |
-| showUnitPrice        | boolean | false       | Indica si se debe mostrar el precio unitario en la tabla items, y cada item debe tener una propiedad "unitPrice".   Por defecto false.                                                                                                              |
-| showProductionArea   | boolean | false       | Afecta al diseño de las comandas, indica si se quiere mostrar el area de producción. Por defecto false.                                                                                                                                             |
+| Propiedad            |Tipo de diseño             | Tipo    | Por defecto | Descripción                                                                                                                                                                                                                                         |
+|----------------------|---------------------------|---------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| width                |General(tickets y tablas)  | int     | 42          | Número de caracteres por linea, jugar con este valor segun el tamaño del ticket, por defecto para ticketeras de 80mm, 42 es la valor  deseado.                                                                                                      |
+| backgroundInverted   |General(tickets y tablas)  | boolean | true        | Algunas ticketeras antiguas no soportan color de fondo invertido (oscuro) de ser el caso, esta propiedad debe configurarse con el valor false, por defecto es true.                                                                                                                         |
+| charCodeTable        |General(tickets y tablas)  | string  | WPC1252     | El tipo de codificación de caracteres según escpos coffee, [enum CharCodeTable, escpos coffee](https://github.com/anastaciocintra/escpos-coffee/blob/master/src/main/java/com/github/anastaciocintra/escpos/EscPos.java).                           |
+| textNormalize        |General(tickets y tablas)  | boolean | false       | Ciertas ticketeras no soportan caracteres como: 'áéíóú´d'. Si se establece en true entonces los textos se normalizan  a caracteres basicos. ejm: á -> a.                        |
+| fontSizeCommand      |Solo tickets               | int     | 2           | Representa el tamaño de fuente que tendran las comandas, por cuestiones de enfasis en los pedidos el valor por defecto es 2, pero se puede establecer en 1.                                                                                         |
+| nativeQR             |Solo tickets               | boolean | false       | Por defecto el qr es generado como imagen y tratado como tal, pero tambien se puede establecer a true para que escpos coffee sea quien genere el qr. Se recomienda el valor por defecto ya que no todas la ticketeras soportan qr nativo de escpos. |
+| blankLinesAfterItems |Solo tickets               | int     | 0           | Número de lineas en blanco despues de imprimir los items, por defecto 0. Util en proformas.                                                                                                                                                         |
+| showUnitPrice        |Solo tickets               | boolean | false       | Indica si se debe mostrar el precio unitario en la tabla items, y cada item debe tener una propiedad "unitPrice".   Por defecto false.                                                                                                              |
+| showProductionArea   |Solo tickets               | boolean | false       | Afecta al diseño de las comandas, indica si se quiere mostrar el area de producción. Por defecto false.                                                                                                                                             |
 
-## Modelos de tickets soportados
+<h2 id="modelos-ticket-soportados">🔎 Modelos de tickets soportados</h2> 
 
 SweetTicketDesign tiene varios modelos de tickets establecidos: boletas, facturas
 extras, encomienda, delivery, comandas para restaurante, extra para restaurante y precuentas.
 El modelo que se diseñara dependera del objeto json y su propiedad type.
 
-### Estructura general
+<h3 id="estructura-general">Estructura general</h3>
 
 Un objeto json ticket puede estar compuesta por varias propiedades, la mayoria de las propiedades
 son opcionales, Las propiedades que se tomaran en cuenta depende del
-tipo de ticket a diseñar (type). [ver ejemplos de json validos](#ejemplos-de-json-validos).
+tipo de ticket a diseñar (type). [ver ejemplos de json validos](#ejemplos-de-formato-json-para-el-diseño-de-tickets).
 
 #### Interfaz del ticket
 
@@ -115,9 +132,12 @@ interface Ticket {
             width: int // Opcional, por defecto 42
             backgroundInverted: boolean;// Opcional, por defecto true
             charCodeTable: string;// Opcional, por defecto WP1252
+						textNormalize: boolean; // opcional por defecto false
             fontSizeCommand: int; // Opcional, por defecto 2
             nativeQR: boolean;// Opcional, por defecto false
             blankLinesAfterItems: int; // opcional, por defecto 0
+						showUnitPrice: boolean; // opcional, por defecto false
+						showProductionArea: boolean; // opcional por defecto false
         }
     }
     data: {
@@ -162,9 +182,9 @@ interface Ticket {
 ```
 
 > Nota: Lo anterior solo es una especificación de que propiedades tendria
-> que contener los objetos json, ver [ejemplos](#ejemplos-de-json-validos) a continuación.
+> que contener los objetos json, ver [ejemplos](#ejemplos-disenio-ticket) a continuación.
 
-### Ejemplos de json validos
+<h3 id="ejemplos-disenio-ticket">Ejemplos, de formato json para el diseño de tickets.</h3>
 
 1. [Boleta o factura](docs/printing-models.md#1-modelo-para-boleta-o-factura)
 2. [Extras](docs/printing-models.md#2-modelo-para-extras)
@@ -174,7 +194,7 @@ interface Ticket {
 6. [Precuenta restaurante](docs/printing-models.md#6-modelo-precuenta-restaurante)
 7. [Notas de venta](docs/printing-models.md#7-notas-de-venta)
 
-### Considerar logo y/o código QR en el diseño de boletas y facturas.
+<h3 id="codigo-qr-ticket">📁 Considerar logo y/o código QR en el diseño de boletas y facturas.</h3>
 
 ```javascript
 {
@@ -195,3 +215,139 @@ interface Ticket {
 }
 ```
 
+<h2 id="disenio-tablas">🚀 Diseño de tablas, a partir de la versión 1.0.0 </h2>
+
+Con SweetTableDesign se puede diseñar distintos tipos de tablas con diferentes diseños y personalizaciones.
+<!-- TODO: Referenciar a los ejemplos  aqui-->
+
+<h3>Estructura General</h3>
+
+La información a imprimir y sus estilos se describen el objeto json que espera como parametro el constructor
+de SweetTableDesign [a continuación](#esquema-tablas) se describe todas las propiedades configurables del json.
+La mayoria de propiedades es opcional y tienen valores por defecto.
+
+<h4 id="esquema-tablas">Esquema del objecto json para SweetTableDesign</h4>
+
+El siguiente esquema se representó usando la sintaxis de TypeScrypt
+
+```typescript
+
+type Justification = "center" | "right" | "left"
+
+// ##### ESQUEMA PRINCIPAL  #####
+interface Report{
+	printer: {
+		properties: { // opcional
+			width: int // Opcional, por defecto 42
+			backgroundInverted: boolean;// Opcional, por defecto true, no se usa en el diseño de tablas de momento
+			charCodeTable: string;// Opcional, por defecto WP1252
+			textNormalize: boolean; // opcional por defecto false
+		}
+		title: string | string[]; // opcional, por defecto es un array vacio
+		details: string | string[]; // opcional, por defecto es un array vacio
+		tables: Table[]; // por defecto un array vacio
+		finalDetails: (string | FinalDetail)[]; // opcional, por defecto un array vacio
+	}
+}
+
+interface FinalDetail{
+	text: string; // el texto a imprimir, por defecto -> ""
+	align: Justification; //  por defecto -> center
+	bold: boolean; // aplicar negrita, por defecto false
+}
+
+// #### ESQUEMA DE UN OBJECTO TABLE ####
+
+interface Table{
+
+	// representa el caracter que se imprimirá para separar las columnas
+	// por defecto un espacio vacio -> ' '
+	// si se envia un string, solo se tomara en cuenta el primer caracter del string
+	separator: char; 
+
+	// un array de enteros del 0 al 100, por defecto un array vacio
+	// el indice '0' del array le corresponde a la columna 1, el indice '1' a la columna 2, sucesivamente...
+	// si uno de los elementos tiene valor 0 entonces su ancho se calcula de forma automatica en funcion del porcentage restante.
+	// algunos ejemplos a continuación suponiendo una tabla de 3 columnas:
+	// si se envia [80] se convierte en -> [80, 0, 0] -> [80, 10, 10].
+	// si se envia [] se convierte en -> [0, 0, 0] -> [33, 33, 33].
+	// si se envia [40, 0, 20] se convierte en -> [40, 60, 20].
+	widthPercents: int[]; 
+
+	// cellBodyStyles, es aplicable solo al body, es un objeto que tiene como propiedades los indices de las columnas 
+	// la propiedad '0' le corresponde a la columna 1 y asi sucevivamente.
+	// por defecto todos los indices tienen el valor CellBodyStyle por defecto, 
+	cellBodyStyles: {
+		'0': Justification | CellBodyStyle,
+		'1': Justification | CellBodyStyle,
+		'4': Justification | CellBodyStyle
+	};
+	title: string | TitleTable;
+	headers: (string | HeaderTable)[] // por defecto un array vacio
+
+	// body representa las filas
+	// body se comporta un matriz, cada elemento puede ser un array de strings (una fila)
+	// algunos elementos pueden ser un Subtitle object (ver la interfaz declarada mas abajo)
+	// algunos elementos pueden ser string, se imprimiran con los estilos de un Subtitle por defecto
+	
+	body: Array< (string | BodyCell)[] | Subtitle | string >; // por defecto es un array vacio y no se imprime
+	footer: (string | FooterItem)[]; // por defecto un array vacio
+}
+
+interface FooterItem{
+	text: string; // por defecto un string vacio
+
+	// cuantas columnas debe ocupar, segun el maximo numero de columnas entre los headers y el body
+	span: int;  // por defecto 1
+	align: Justification; // por defecto left
+	bold: boolean; // pintar en negrita el texto, por defecto false
+}
+
+interface BodyCell(){
+	text: string; // por defecto un string vacio
+	align: Justification; // por defecto left
+}
+
+interface Subtitle{
+	text: string; // por defecto un string vacio
+	align: Justification; // por defecto center
+	bold: boolean; // pintar el texto en negrita, por defecto false
+}
+
+interface HeaderTable{
+	text: string; // por defecto un string vacio
+	align: Justification; // por defecto center
+}
+
+interface TitleTable{
+	text: string; // por defecto false
+	align: Justification; // por defecto center
+	fontSize: int; // número entero del 1 al 7, por defecto 1
+
+  // caracter decorador que envuelve al titulo
+	// Si se envia un string solo se toma en cuenta el primer elemento
+	// Si no se quiere un decorador se tiene que enviar un string vacio el valor ""
+	decorator: char; // por defecto '-'
+}
+
+interface CellBodyStyle{
+	align: Justification; // por defecto left
+	bold: boolean; // pintar en negrita, por defecto false
+}
+
+
+```
+
+<h2 id="referencia-puka">📦 Utilidad de impresión: Puka-http </h2>
+
+La API de SweetTicketDesign y SweetTableDesign son muy simples y solo consiste en llamar a su constructor con el json y luego getBytes().
+Toda la complejidad esta en armar el objeto json, y en enviar esto a una ticketera correspondiente. Conectarse con diferentes tipos de ticketeras es 
+algo que **no** ofrece JTicketDesing, para ello existe otra herramienta 
+
+<h3>Puka HTTP</h3>
+
+Puka http es una herramienta multiplataforma que actua como servicio de impresión local e implementa una **API http** para trabajos de impresión de tickets y reportes.
+PukaHTTP usa por debajo JTicketDesign para emitir los comandos EscPOS. Asi mismo soporta diferentes interfaces de conexión a ticketeras como 
+ethernet, usb, samba , samba nativo, cups, linux-usb, etc. Para mas detalles en su [repositorio de github](https://github.com/puyu-pe/puka-http).
+
+Se puede descargar el instalador multiplataforma desde [su pagina de descarga.](https://www.jdeploy.com/gh/puyu-pe/puka-http).

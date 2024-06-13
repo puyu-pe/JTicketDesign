@@ -1,0 +1,25 @@
+<settings>
+  <servers>
+    <server>
+      <!-- Match the server id used in <distributionManagement> and <serverId>
+           for sonatype staging plugin in `pom.xml` -->
+      <id>ossrh</id>
+      <username>your_username_ossrh</username>
+      <password>your_password_ossrh</password>
+    </server>
+  </servers>
+  <profiles>
+    <profile>
+      <id>sonatype-oss-release</id>
+      <properties>
+        <gpg.keyname>your_keyname:ejm:3403FDDASDFDCADDSF2343DF1FC3</gpg.keyname>
+        <gpg.passphrase>your_secret_paraphrase</gpg.passphrase>
+        <!-- GPG should prompt for passphrase if not provided here. -->
+        <!-- <gpg.executable>/path/to/gpg.exe</gpg.executable> -->
+      </properties>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>oss-repository</activeProfile>
+  </activeProfiles>
+</settings>
