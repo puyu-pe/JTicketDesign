@@ -199,7 +199,11 @@ public class SweetTicketDesign {
 				text = String.format("%s %s", document.get("description").getAsString(), document.get("identifier").getAsString());
 			}
 		} else {
-			text = String.format("%s", documentObj);
+			String documentId = "";
+			if (this.data.has("documentId")) {
+				documentId = ": " + this.data.get("documentId").getAsString();
+			}
+			text = String.format("%s%s", documentObj, documentId);
 		}
 		FontSize fontWidth = FontSize._1, fontHeight = FontSize._1;
 		switch (helper.properties().type()) {
@@ -447,7 +451,7 @@ public class SweetTicketDesign {
 
 	private void finalMessage() throws Exception {
 		EscPosWrapper escPosWrapper = new EscPosWrapper(escpos);
-		if (!this.data.has("finalMessage")) {
+		if (!this.data.has("finalMessage") || this.data.get("finalMessage").isJsonNull()) {
 			escPosWrapper.printLine(' ', 1);
 			return;
 		}
