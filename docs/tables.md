@@ -80,7 +80,7 @@
 }
 ```
 
-## Ejemplo número 3
+## Ejemplo 3
 
 - Agregar titulo general, detalles adicionales y detalles finales
 - Elementos del body mixtos, objectos y array de strings.
@@ -152,7 +152,7 @@
 }
 ```
 
-## Ejemplo número 4
+## Ejemplo 4
 
 - Envio de varias tablas
 - Soporte de filas incompletas. (Sin configuración)

@@ -94,8 +94,7 @@ mas propias para el diseño de tickets.
 Estas propiedades se pueden indicar en la propiedad "printer.properties" del json. 
 
 - [Ver ejemplos json para tickets](#modelos-ticket-soportados)  
-<!-- TODO: Complete here tables examples -->
-- [Ver ejemplos json para tablas](#)  
+- [Ver ejemplos json para tablas](docs/tables.md#ejemplos-de-diseño-para-tablas)
 
 | Propiedad            |Tipo de diseño             | Tipo    | Por defecto | Descripción                                                                                                                                                                                                                                         |
 |----------------------|---------------------------|---------|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -218,7 +217,8 @@ interface Ticket {
 <h2 id="disenio-tablas">🚀 Diseño de tablas, a partir de la versión 1.0.0 </h2>
 
 Con SweetTableDesign se puede diseñar distintos tipos de tablas con diferentes diseños y personalizaciones.
-<!-- TODO: Referenciar a los ejemplos  aqui-->
+[Ver ejemplos de formato json](docs/tables.md#ejemplo-1) que sirven como punto de partida. Sin embargo se 
+recomienda dar un vistazo al [esquema general del formato json](#esquema-tablas).
 
 <h3>Estructura General</h3>
 
