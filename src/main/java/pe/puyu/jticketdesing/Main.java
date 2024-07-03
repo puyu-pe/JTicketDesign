@@ -1,10 +1,8 @@
 package pe.puyu.jticketdesing;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.module.InvalidModuleDescriptorException;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.PrintModeStyle;
@@ -13,16 +11,15 @@ import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import pe.puyu.jticketdesing.core.SweetTicketDesign;
 import pe.puyu.jticketdesing.core.table.SweetTableDesign;
-import pe.puyu.jticketdesing.metadata.PrinterPropertiesReader;
-import pe.puyu.jticketdesing.util.escpos.EscPosWrapper;
 
 import javax.print.PrintService;
 
 public class Main {
 	public static void main(String[] args) throws InterruptedException {
-		try (OutputStream outputStream = bixonSrpE300()) {
-			testTableDesign(outputStream);
+		try (OutputStream outputStream = ip("192.168.18.39")) {
+			testPrint(outputStream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -40,8 +37,16 @@ public class Main {
 		escpos.writeLF(style,"camaron con cola");
 	}
 
+	private static void testPrint(OutputStream outputStream) throws Exception {
+		String pathToFile = "/home/socamaru/Documentos/projects/testPrintJson/print.json";
+		FileReader reader = new FileReader(pathToFile);
+		JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
+		SweetTicketDesign printDesign = new SweetTicketDesign(jsonObject);
+		outputStream.write(printDesign.getBytes());
+	}
+
 	private static void testTableDesign(OutputStream outputStream) throws IOException {
-		String pathToFile = "/home/socamaru/Documentos/projects/puka-http/src/main/resources/pe/puyu/pukahttp/testPrinter/report.json";
+		String pathToFile = "/home/socamaru/Documentos/projects/testPrintJson/tables.json";
 		FileReader reader = new FileReader(pathToFile);
 		JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
 		SweetTableDesign tableDesign = new SweetTableDesign(jsonObject);

@@ -291,7 +291,7 @@ public class SweetTicketDesign {
 		int descriptionWidth = helper.properties().width();
 		DecimalFormat price = new DecimalFormat("0.00");
 
-		if (items.get(0).getAsJsonObject().has("quantity")) {
+		if (items.get(0).getAsJsonObject().has("quantity") && items.get(0).getAsJsonObject().get("quantity").isJsonPrimitive()) {
 			quantityWidth = Default.QUANTITY_COLUMN_WIDTH * StyleEscPosUtil.valueFontSize(fontSize);
 			descriptionWidth -= (quantityWidth + totalWidth);
 		} else {
@@ -307,7 +307,6 @@ public class SweetTicketDesign {
 		StyleText descriptionStyle = helper.styleNormalizeBuilder().align(JustifyAlign.CENTER).fontSize(1).feed(false).build();
 		StyleText unitPriceStyle = helper.styleNormalizeBuilder().align(JustifyAlign.RIGHT).fontSize(1).feed(false).build();
 		StyleText totalStyle = helper.styleNormalizeBuilder().align(JustifyAlign.RIGHT).feed(true).build();
-		StyleText lineStyle = helper.styleNormalizeBuilder().bold(isCommand).feed(false).build();
 		StyleText unitPriceItemStyle = helper.styleNormalizeBuilder()
 			.align(JustifyAlign.RIGHT)
 			.bold(isCommand)
@@ -342,7 +341,11 @@ public class SweetTicketDesign {
 			if (descriptionObj.isJsonArray()) {
 				JsonArray description = descriptionObj.getAsJsonArray();
 				for (int j = 0; j < description.size(); ++j) {
-					escPosWrapper.printLine(' ', quantityWidth, lineStyle);
+					if(j == 0 && item.has("quantity") && item.get("quantity").isJsonPrimitive()){
+						escPosWrapper.printText(item.get("quantity").getAsString(), quantityWidth, quantityItemStyle);
+					}else{
+						escPosWrapper.printLine(' ', quantityWidth, quantityItemStyle);
+					}
 					List<String> lines = StringUtils.wrapText(description.get(j).getAsString(), descriptionWidth, valueFontSize);
 					for (int k = 0; k < lines.size(); ++k) {
 						String line = lines.get(k);
