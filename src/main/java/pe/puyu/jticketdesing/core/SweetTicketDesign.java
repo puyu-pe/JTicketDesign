@@ -244,8 +244,6 @@ public class SweetTicketDesign {
 					escPosWrapper.printText(line, helper.properties().width(), styleText);
 				}
 			}
-		} else {
-			escPosWrapper.printLine('-', helper.properties().width());
 		}
 		escPosWrapper.printLine(' ', 1);
 	}
@@ -478,7 +476,6 @@ public class SweetTicketDesign {
 
 	private void stringQR() throws Exception {
 		if (!this.data.has("stringQR") || this.data.get("stringQR").isJsonNull()) {
-			this.escpos.writeLF(StringUtils.repeat('-', helper.properties().width()));
 			return;
 		}
 		String stringQr = this.data.get("stringQR").toString();
