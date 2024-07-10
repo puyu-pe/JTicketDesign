@@ -63,7 +63,6 @@ y SweetTableDesing (apartir de v 1.0.0) para diseño de tablas responsive ideal 
 
 ```java
 import com.github.anastaciocintra.output.TcpIpOutputStream;
-import com.google.gson.JsonObject;
 import pe.puyu.jticketdesing.core.SweetTicketDesign;
 
 import java.io.OutputStream;
