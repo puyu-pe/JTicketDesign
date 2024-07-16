@@ -11,7 +11,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PrinterDesignProperties {
-    private int blockWidth;
-    private boolean normalize;
-    private String charCodeTable;
+    private int blockWidth = 0;
+    private boolean normalize = false;
+    private String charCodeTable = "";
+
+    public PrinterDesignProperties(PrinterDesignProperties printerDesignProperties){
+        this.blockWidth = printerDesignProperties.blockWidth;
+        this.normalize = printerDesignProperties.normalize;
+        this.charCodeTable = printerDesignProperties.charCodeTable;
+    }
 }

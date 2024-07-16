@@ -1,12 +1,12 @@
-package pe.puyu.jticketdesing.core.main;
+package pe.puyu.jticketdesing.application;
 
 import pe.puyu.jticketdesing.core.bean.*;
-import pe.puyu.jticketdesing.core.interfaces.PrinterDefaultValuesProvider;
+import pe.puyu.jticketdesing.core.interfaces.DesignDefaultValuesProvider;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 
-public class SimplePrinterDefaultProvider implements PrinterDefaultValuesProvider {
+public class SimpleDesignDefaultProvider implements DesignDefaultValuesProvider {
 
     @Override
     public PrinterDesignCell getDefaultCellValues() {

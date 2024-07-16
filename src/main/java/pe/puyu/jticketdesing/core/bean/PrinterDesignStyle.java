@@ -10,12 +10,23 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PrinterDesignStyle {
-    private int fontWidth;
-    private int fontHeight;
-    private boolean bold;
-    private boolean normalize;
-    private boolean bgInverted;
-    private char pad;
-    private PrinterJustifyAlign align;
-    private int span;
+    private int fontWidth = 1;
+    private int fontHeight = 1;
+    private boolean bold = false;
+    private boolean normalize = false;
+    private boolean bgInverted = true;
+    private char pad = ' ';
+    private PrinterJustifyAlign align = PrinterJustifyAlign.LEFT;
+    private int span = 1;
+
+    public PrinterDesignStyle(PrinterDesignStyle printerDesignStyle){
+        this.fontWidth = printerDesignStyle.fontWidth;
+        this.fontHeight = printerDesignStyle.fontHeight;
+        this.bold = printerDesignStyle.bold;
+        this.normalize = printerDesignStyle.normalize;
+        this.bgInverted = printerDesignStyle.bgInverted;
+        this.pad = printerDesignStyle.pad;
+        this.align = printerDesignStyle.align;
+        this.span = printerDesignStyle.span;
+    }
 }

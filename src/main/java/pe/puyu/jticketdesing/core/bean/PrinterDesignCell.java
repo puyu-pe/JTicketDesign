@@ -10,6 +10,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PrinterDesignCell {
-    private String className;
-    private String text;
+    private String className = "";
+    private String text = "";
+
+    public PrinterDesignCell(PrinterDesignCell printerDesignCell) {
+        this.className = printerDesignCell.className;
+        this.text = printerDesignCell.text;
+    }
+
 }

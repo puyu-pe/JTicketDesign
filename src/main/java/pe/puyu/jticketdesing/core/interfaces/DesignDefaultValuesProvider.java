@@ -2,7 +2,7 @@ package pe.puyu.jticketdesing.core.interfaces;
 
 import pe.puyu.jticketdesing.core.bean.*;
 
-public interface PrinterDefaultValuesProvider {
+public interface DesignDefaultValuesProvider {
 
     PrinterDesignCell getDefaultCellValues();
 
