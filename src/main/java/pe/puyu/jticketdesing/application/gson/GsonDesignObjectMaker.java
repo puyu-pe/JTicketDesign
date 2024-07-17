@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import pe.puyu.jticketdesing.domain.inputpayload.*;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
 import pe.puyu.jticketdesing.domain.inputpayload.DesignDefaultValuesProvider;
+import pe.puyu.jticketdesing.domain.maker.DesignObjectMakerException;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,16 +27,20 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
 
     @Override
     public PrinterDesignObject build(DesignDefaultValuesProvider defaultProvider) {
-        PrinterDesignObject printerDesignObject = new PrinterDesignObject(defaultProvider.getDefaultDesignObject());
-        PrinterDesignProperties printerDesignProperties = buildPrinterDesignProperties(defaultProvider.getDefaultDesignProperties());
-        List<PrinterDesignBlock> printerDesignBlocks = buildPrinterDesignBlocks(
-            defaultProvider.getDefaultBlockValues(),
-            defaultProvider.getDefaultCellValues(),
-            defaultProvider.getDefaultDesignStyle()
-        );
-        printerDesignObject.setProperties(printerDesignProperties);
-        printerDesignObject.addData(printerDesignBlocks);
-        return printerDesignObject;
+        try {
+            PrinterDesignObject printerDesignObject = new PrinterDesignObject(defaultProvider.getDefaultDesignObject());
+            PrinterDesignProperties printerDesignProperties = buildPrinterDesignProperties(defaultProvider.getDefaultDesignProperties());
+            List<PrinterDesignBlock> printerDesignBlocks = buildPrinterDesignBlocks(
+                defaultProvider.getDefaultBlockValues(),
+                defaultProvider.getDefaultCellValues(),
+                defaultProvider.getDefaultDesignStyle()
+            );
+            printerDesignObject.setProperties(printerDesignProperties);
+            printerDesignObject.addData(printerDesignBlocks);
+            return printerDesignObject;
+        } catch (Exception e) {
+            throw new DesignObjectMakerException(String.format("GsonDesignObjectMaker throw an exception: %s", e.getMessage()), e);
+        }
     }
 
     private PrinterDesignProperties buildPrinterDesignProperties(PrinterDesignProperties defaultDesignProperties) {
