@@ -11,8 +11,8 @@ import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import pe.puyu.jticketdesing.core.SweetTicketDesign;
-import pe.puyu.jticketdesing.core.table.SweetTableDesign;
+import pe.puyu.jticketdesing.domain.SweetTicketDesign;
+import pe.puyu.jticketdesing.domain.table.SweetTableDesign;
 
 import javax.print.PrintService;
 

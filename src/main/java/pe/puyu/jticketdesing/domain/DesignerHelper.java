@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.core;
+package pe.puyu.jticketdesing.domain;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import pe.puyu.jticketdesing.metadata.PrinterPropertiesReader;

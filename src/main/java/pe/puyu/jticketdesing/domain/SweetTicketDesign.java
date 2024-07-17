@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.core;
+package pe.puyu.jticketdesing.domain;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;

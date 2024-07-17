@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.core.bean;
+package pe.puyu.jticketdesing.domain.inputpayload;
 
 
 import lombok.Getter;

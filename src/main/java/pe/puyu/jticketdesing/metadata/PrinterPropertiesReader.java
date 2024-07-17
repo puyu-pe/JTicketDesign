@@ -12,8 +12,8 @@ public class PrinterPropertiesReader {
 	public PrinterPropertiesReader(JsonObject ticket) {
 		this.ticket = ticket;
 		JsonObject printer = new JsonObject();
-		if (ticket.has("printer") && ticket.get("printer").isJsonObject()) {
-			printer = ticket.getAsJsonObject("printer");
+		if (ticket.has("mapper") && ticket.get("mapper").isJsonObject()) {
+			printer = ticket.getAsJsonObject("mapper");
 		}
 		properties = new JsonObject();
 		if (printer.has("properties") && !printer.get("properties").isJsonNull()) {

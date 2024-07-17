@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.core.table;
+package pe.puyu.jticketdesing.domain.table;
 
 import pe.puyu.jticketdesing.util.escpos.StyleText;
 

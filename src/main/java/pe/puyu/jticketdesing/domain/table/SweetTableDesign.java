@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.core.table;
+package pe.puyu.jticketdesing.domain.table;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.Style.FontSize;
@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import pe.puyu.jticketdesing.core.DesignerHelper;
+import pe.puyu.jticketdesing.domain.DesignerHelper;
 import pe.puyu.jticketdesing.metadata.PrinterPropertiesReader;
 import pe.puyu.jticketdesing.util.JsonUtil;
 import pe.puyu.jticketdesing.util.StringUtils;

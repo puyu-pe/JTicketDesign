@@ -3,9 +3,9 @@ package pe.puyu.jticketdesing.application.gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import pe.puyu.jticketdesing.core.bean.*;
-import pe.puyu.jticketdesing.core.interfaces.DesignObjectMapper;
-import pe.puyu.jticketdesing.core.interfaces.DesignDefaultValuesProvider;
+import pe.puyu.jticketdesing.domain.inputpayload.*;
+import pe.puyu.jticketdesing.domain.mapper.DesignObjectMapper;
+import pe.puyu.jticketdesing.domain.inputpayload.DesignDefaultValuesProvider;
 
 import java.util.HashMap;
 import java.util.LinkedList;

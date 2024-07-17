@@ -1,6 +1,4 @@
-package pe.puyu.jticketdesing.core.interfaces;
-
-import pe.puyu.jticketdesing.core.bean.*;
+package pe.puyu.jticketdesing.domain.inputpayload;
 
 public interface DesignDefaultValuesProvider {
 

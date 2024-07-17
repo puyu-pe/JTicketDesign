@@ -1,7 +1,6 @@
 package pe.puyu.jticketdesing.application;
 
-import pe.puyu.jticketdesing.core.bean.*;
-import pe.puyu.jticketdesing.core.interfaces.DesignDefaultValuesProvider;
+import pe.puyu.jticketdesing.domain.inputpayload.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;
