@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import pe.puyu.jticketdesing.domain.inputpayload.*;
-import pe.puyu.jticketdesing.domain.mapper.DesignObjectMapper;
+import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
 import pe.puyu.jticketdesing.domain.inputpayload.DesignDefaultValuesProvider;
 
 import java.util.HashMap;
@@ -12,15 +12,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class GsonDesignObjectMapper implements DesignObjectMapper {
+public class GsonDesignObjectMaker implements DesignObjectMaker {
 
     private final JsonObject designObject;
 
-    public GsonDesignObjectMapper(String jsonString) {
+    public GsonDesignObjectMaker(String jsonString) {
         this(JsonParser.parseString(jsonString).getAsJsonObject());
     }
 
-    public GsonDesignObjectMapper(JsonObject jsonObject) {
+    public GsonDesignObjectMaker(JsonObject jsonObject) {
         this.designObject = jsonObject;
     }
 

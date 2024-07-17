@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SweetDesignStyle {
+public class PainterStyle {
     private int fontWidth;
     private int fontHeight;
     private boolean bold;

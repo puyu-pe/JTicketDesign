@@ -1,8 +1,8 @@
-package pe.puyu.jticketdesing.domain.mapper;
+package pe.puyu.jticketdesing.domain.maker;
 
 import pe.puyu.jticketdesing.domain.inputpayload.DesignDefaultValuesProvider;
 import pe.puyu.jticketdesing.domain.inputpayload.PrinterDesignObject;
 
-public interface DesignObjectMapper {
+public interface DesignObjectMaker {
     PrinterDesignObject build(DesignDefaultValuesProvider printerDefaultValuesProvider);
 }
