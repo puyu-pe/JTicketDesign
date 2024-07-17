@@ -35,7 +35,7 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         );
         printerDesignObject.setProperties(printerDesignProperties);
         printerDesignObject.addData(printerDesignBlocks);
-        return null;
+        return printerDesignObject;
     }
 
     private PrinterDesignProperties buildPrinterDesignProperties(PrinterDesignProperties defaultDesignProperties) {
