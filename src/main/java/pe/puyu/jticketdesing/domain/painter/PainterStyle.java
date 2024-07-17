@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.domain.printer;
+package pe.puyu.jticketdesing.domain.painter;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

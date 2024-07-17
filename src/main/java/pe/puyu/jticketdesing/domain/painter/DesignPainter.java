@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.domain.printer;
+package pe.puyu.jticketdesing.domain.painter;
 
 public interface DesignPainter {
     void printText(String text, PainterStyle style);
