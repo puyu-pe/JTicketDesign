@@ -14,4 +14,5 @@ public class PainterStyle {
     private int fontHeight;
     private boolean bold;
     private boolean bgInverted;
+    private boolean charCode;
 }

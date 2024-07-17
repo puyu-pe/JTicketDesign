@@ -51,7 +51,7 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
                 GsonObject properties = new GsonObject(propertiesElement.getAsJsonObject());
                 printerDesignProperties.setBlockWidth(properties.getInt("blockWidth", printerDesignProperties.getBlockWidth()));
                 printerDesignProperties.setNormalize(properties.getBoolean("normalize", printerDesignProperties.isNormalize()));
-                printerDesignProperties.setCharCodeTable(properties.getString("charCodeTable", printerDesignProperties.getCharCodeTable()));
+                printerDesignProperties.setCharCode(properties.getString("charCode", printerDesignProperties.getCharCode()));
             }
         }
         return printerDesignProperties;

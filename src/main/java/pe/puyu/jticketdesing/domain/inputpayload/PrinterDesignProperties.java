@@ -13,11 +13,11 @@ import lombok.Setter;
 public class PrinterDesignProperties {
     private int blockWidth = 0;
     private boolean normalize = false;
-    private String charCodeTable = "";
+    private String charCode = "";
 
     public PrinterDesignProperties(PrinterDesignProperties printerDesignProperties){
         this.blockWidth = printerDesignProperties.blockWidth;
         this.normalize = printerDesignProperties.normalize;
-        this.charCodeTable = printerDesignProperties.charCodeTable;
+        this.charCode = printerDesignProperties.charCode;
     }
 }
