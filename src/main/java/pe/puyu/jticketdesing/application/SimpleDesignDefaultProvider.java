@@ -1,5 +1,6 @@
 package pe.puyu.jticketdesing.application;
 
+import org.jetbrains.annotations.NotNull;
 import pe.puyu.jticketdesing.domain.inputpayload.*;
 
 import java.util.HashMap;
@@ -8,18 +9,18 @@ import java.util.LinkedList;
 public class SimpleDesignDefaultProvider implements DesignDefaultValuesProvider {
 
     @Override
-    public PrinterDesignCell getDefaultCellValues() {
+    public @NotNull PrinterDesignCell getDefaultCellValues() {
         return new PrinterDesignCell("", "");
     }
 
     @Override
-    public PrinterDesignProperties getDefaultDesignProperties() {
+    public @NotNull PrinterDesignProperties getDefaultDesignProperties() {
         int charactersWidth = 42; // 42 characters equals 72 mm approx.
         return new PrinterDesignProperties(charactersWidth, false, "WPC1252");
     }
 
     @Override
-    public PrinterDesignStyle getDefaultDesignStyle() {
+    public @NotNull PrinterDesignStyle getDefaultDesignStyle() {
         return new PrinterDesignStyle(
             1,
             1,
@@ -33,20 +34,20 @@ public class SimpleDesignDefaultProvider implements DesignDefaultValuesProvider 
     }
 
     @Override
-    public PrinterDesignBlock getDefaultBlockValues() {
+    public @NotNull PrinterDesignBlock getDefaultBlockValues() {
         return new PrinterDesignBlock(
             1,
             ' ',
             "",
             "",
-            new HashMap<>(),
             6,
+            new HashMap<>(),
             new LinkedList<>()
         );
     }
 
     @Override
-    public PrinterDesignObject getDefaultDesignObject() {
+    public @NotNull PrinterDesignObject getDefaultDesignObject() {
         return new PrinterDesignObject(
             getDefaultDesignProperties(),
             new LinkedList<>()

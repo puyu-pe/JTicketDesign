@@ -1,9 +1,7 @@
 package pe.puyu.jticketdesing.domain.inputpayload;
 
 
-import lombok.Getter;
 
-@Getter
 public enum PrinterJustifyAlign {
     CENTER("CENTER"),
 
@@ -24,5 +22,9 @@ public enum PrinterJustifyAlign {
             }
         }
         return LEFT;
+    }
+
+    public String getValue(){
+        return value;
     }
 }

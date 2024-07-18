@@ -17,9 +17,6 @@ public class SweetDesigner {
 
     public void paintDesign() {
         PrinterDesignObject designObject = maker.build();
-        if(designObject != null && designObject.getData() != null){
-            designObject.getData().forEach(block -> printBlock(block, designObject.getProperties()));
-        }
     }
 
     public void printBlock(PrinterDesignBlock block, PrinterDesignProperties properties){

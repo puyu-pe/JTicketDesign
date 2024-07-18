@@ -26,7 +26,7 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
     }
 
     @Override
-    public PrinterDesignObject build() {
+    public @NotNull PrinterDesignObject build() {
         try {
             PrinterDesignProperties properties = buildPrinterDesignProperties();
             List<PrinterDesignBlock> blocks = buildPrinterDesignBlocks();

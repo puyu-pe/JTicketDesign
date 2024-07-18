@@ -1,18 +1,12 @@
 package pe.puyu.jticketdesing.domain.painter;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class PainterStyle {
-    private int fontWidth;
-    private int fontHeight;
-    private boolean bold;
-    private boolean bgInverted;
-    private boolean charCode;
+public record PainterStyle(
+    @NotNull Integer fontWidth,
+    @NotNull Integer fontHeight,
+    @NotNull Boolean bold,
+    @NotNull Boolean bgInverted,
+    @NotNull Boolean charCode
+) {
 }
