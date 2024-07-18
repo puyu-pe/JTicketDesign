@@ -40,7 +40,7 @@ public class SimpleDesignDefaultProvider implements DesignDefaultValuesProvider 
             "",
             "",
             new HashMap<>(),
-            12,
+            6,
             new LinkedList<>()
         );
     }
