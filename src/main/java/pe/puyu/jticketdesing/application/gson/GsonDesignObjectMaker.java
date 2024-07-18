@@ -3,9 +3,9 @@ package pe.puyu.jticketdesing.application.gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.jetbrains.annotations.NotNull;
 import pe.puyu.jticketdesing.domain.inputpayload.*;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
-import pe.puyu.jticketdesing.domain.inputpayload.DesignDefaultValuesProvider;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMakerException;
 
 import java.util.HashMap;
@@ -17,135 +17,130 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
 
     private final JsonObject designObject;
 
-    public GsonDesignObjectMaker(String jsonString) {
+    public GsonDesignObjectMaker(@NotNull String jsonString) {
         this(JsonParser.parseString(jsonString).getAsJsonObject());
     }
 
-    public GsonDesignObjectMaker(JsonObject jsonObject) {
+    public GsonDesignObjectMaker(@NotNull JsonObject jsonObject) {
         this.designObject = jsonObject;
     }
 
     @Override
-    public PrinterDesignObject build(DesignDefaultValuesProvider defaultProvider) {
+    public PrinterDesignObject build() {
         try {
-            PrinterDesignObject printerDesignObject = new PrinterDesignObject(defaultProvider.getDefaultDesignObject());
-            PrinterDesignProperties printerDesignProperties = buildPrinterDesignProperties(defaultProvider.getDefaultDesignProperties());
-            List<PrinterDesignBlock> printerDesignBlocks = buildPrinterDesignBlocks(
-                defaultProvider.getDefaultBlockValues(),
-                defaultProvider.getDefaultCellValues(),
-                defaultProvider.getDefaultDesignStyle()
-            );
-            printerDesignObject.setProperties(printerDesignProperties);
-            printerDesignObject.addData(printerDesignBlocks);
-            return printerDesignObject;
+            PrinterDesignProperties properties = buildPrinterDesignProperties();
+            List<PrinterDesignBlock> blocks = buildPrinterDesignBlocks();
+            return new PrinterDesignObject(properties, blocks);
         } catch (Exception e) {
             throw new DesignObjectMakerException(String.format("GsonDesignObjectMaker throw an exception: %s", e.getMessage()), e);
         }
     }
 
-    private PrinterDesignProperties buildPrinterDesignProperties(PrinterDesignProperties defaultDesignProperties) {
-        PrinterDesignProperties printerDesignProperties = new PrinterDesignProperties(defaultDesignProperties);
-        if (designObject.has("properties")) {
-            JsonElement propertiesElement = designObject.get("properties");
-            if (propertiesElement.isJsonObject()) {
-                GsonObject properties = new GsonObject(propertiesElement.getAsJsonObject());
-                printerDesignProperties.setBlockWidth(properties.getInt("blockWidth", printerDesignProperties.getBlockWidth()));
-                printerDesignProperties.setNormalize(properties.getBoolean("normalize", printerDesignProperties.isNormalize()));
-                printerDesignProperties.setCharCode(properties.getString("charCode", printerDesignProperties.getCharCode()));
-            }
+    private PrinterDesignProperties buildPrinterDesignProperties() {
+        if (designObject.has("properties") && designObject.get("properties").isJsonObject()) {
+            GsonObject properties = new GsonObject(designObject.get("properties").getAsJsonObject());
+            return new PrinterDesignProperties(
+                properties.getInt("blockWidth"),
+                properties.getBoolean("normalize"),
+                properties.getString("charCode")
+            );
         }
-        return printerDesignProperties;
+        return null;
     }
 
-    private List<PrinterDesignBlock> buildPrinterDesignBlocks(
-        PrinterDesignBlock defaultDesignBlock,
-        PrinterDesignCell defaultCell,
-        PrinterDesignStyle defaultStyle
-    ) {
-        List<PrinterDesignBlock> printerDesignBlocks = new LinkedList<>();
+    private List<PrinterDesignBlock> buildPrinterDesignBlocks() {
         if (designObject.has("data")) {
+            List<PrinterDesignBlock> blocks = new LinkedList<>();
             JsonElement element = designObject.get("data");
             if (element.isJsonObject()) {
-                printerDesignBlocks.add(castBlock(element, defaultDesignBlock, defaultCell, defaultStyle));
+                blocks.add(castBlock(element));
             } else if (element.isJsonArray()) {
-                element.getAsJsonArray().forEach(block -> printerDesignBlocks.add(castBlock(block, defaultDesignBlock, defaultCell, defaultStyle)));
+                element.getAsJsonArray().forEach(block -> blocks.add(castBlock(block)));
             }
+            return blocks;
         }
-        return printerDesignBlocks;
+        return null;
     }
 
-    private PrinterDesignBlock castBlock(
-        JsonElement element,
-        PrinterDesignBlock defaultDesignBlock,
-        PrinterDesignCell defaultCell,
-        PrinterDesignStyle defaultStyle
-    ) {
-        PrinterDesignBlock printerDesignBlock = new PrinterDesignBlock(defaultDesignBlock);
+    private PrinterDesignBlock castBlock(JsonElement element) {
         if (element.isJsonPrimitive()) {
-            PrinterDesignCell cell = new PrinterDesignCell(defaultCell);
-            cell.setText(element.getAsString());
+            PrinterDesignCell cell = new PrinterDesignCell(null, element.getAsString());
             List<PrinterDesignCell> row = new LinkedList<>();
             row.add(cell);
-            printerDesignBlock.addRow(row);
+            List<List<PrinterDesignCell>> rows = new LinkedList<>();
+            rows.add(row);
+            return new PrinterDesignBlock(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                rows
+            );
         } else if (element.isJsonObject()) {
             GsonObject block = new GsonObject(element.getAsJsonObject());
-            printerDesignBlock.setGap(block.getInt("gap", printerDesignBlock.getGap()));
-            printerDesignBlock.setSeparator(block.getChar("separator", printerDesignBlock.getSeparator()));
-            printerDesignBlock.setStringQR(block.getString("stringQR", printerDesignBlock.getStringQR()));
-            printerDesignBlock.setImgPath(block.getString("imgPath", printerDesignBlock.getImgPath()));
-            printerDesignBlock.addStyles(buildPrinterDesignStyles(block.getElement("styles"), defaultStyle));
-            printerDesignBlock.setNColumns(block.getInt("nColumns", printerDesignBlock.getNColumns()));
-            printerDesignBlock.addRows(buildRows(block.getElement("rows"), defaultCell));
+            return new PrinterDesignBlock(
+                block.getInt("gap"),
+                block.getCharacter("separator"),
+                block.getString("stringQr"),
+                block.getString("imgPath"),
+                block.getInt("nColumns"),
+                buildPrinterDesignStyles(block.getElement("styles")),
+                buildRows(block.getElement("rows"))
+            );
         }
-        return printerDesignBlock;
+        return null;
     }
 
-    private Map<String, PrinterDesignStyle> buildPrinterDesignStyles(JsonElement styleElement, PrinterDesignStyle defaultStyle) {
-        Map<String, PrinterDesignStyle> styles = new HashMap<>();
+    private Map<String, PrinterDesignStyle> buildPrinterDesignStyles(@NotNull JsonElement styleElement) {
         if (styleElement.isJsonObject()) {
-            styleElement.getAsJsonObject().asMap().forEach((key, element) -> styles.put(key, castStyle(element, defaultStyle)));
+            Map<String, PrinterDesignStyle> styles = new HashMap<>();
+            styleElement.getAsJsonObject().asMap().forEach((key, element) -> styles.put(key, castStyle(element)));
+            return styles;
         }
-        return styles;
+        return null;
     }
 
-    private PrinterDesignStyle castStyle(JsonElement element, PrinterDesignStyle defaultStyle) {
-        PrinterDesignStyle printerDesignStyle = new PrinterDesignStyle(defaultStyle);
+    private PrinterDesignStyle castStyle(@NotNull JsonElement element) {
         if (element.isJsonObject()) {
             GsonObject style = new GsonObject(element.getAsJsonObject());
-            printerDesignStyle.setFontWidth(style.getInt("fontWidth", printerDesignStyle.getFontWidth()));
-            printerDesignStyle.setFontHeight(style.getInt("fontHeight", printerDesignStyle.getFontHeight()));
-            printerDesignStyle.setBold(style.getBoolean("bold", printerDesignStyle.isBold()));
-            printerDesignStyle.setNormalize(style.getBoolean("normalize", printerDesignStyle.isNormalize()));
-            printerDesignStyle.setBgInverted(style.getBoolean("bgInverted", printerDesignStyle.isBgInverted()));
-            printerDesignStyle.setPad(style.getChar("pad", printerDesignStyle.getPad()));
-            printerDesignStyle.setAlign(PrinterJustifyAlign.fromValue(style.getString("align", printerDesignStyle.getAlign().getValue())));
-            printerDesignStyle.setSpan(style.getInt("span", printerDesignStyle.getSpan()));
+            return new PrinterDesignStyle(
+                style.getInt("fontWidth"),
+                style.getInt("fontHeight"),
+                style.getBoolean("bold"),
+                style.getBoolean("normalize"),
+                style.getBoolean("bgInverted"),
+                style.getCharacter("pad"),
+                PrinterJustifyAlign.fromValue(style.getString("align")),
+                style.getInt("span")
+            );
         }
-        return printerDesignStyle;
+        return null;
     }
 
-    private List<List<PrinterDesignCell>> buildRows(JsonElement element, PrinterDesignCell defaultCell) {
-        List<List<PrinterDesignCell>> rows = new LinkedList<>();
+    private List<List<PrinterDesignCell>> buildRows(@NotNull JsonElement element) {
         if (element.isJsonArray()) {
-            element.getAsJsonArray().forEach(row -> rows.add(castRow(row, defaultCell)));
+            List<List<PrinterDesignCell>> rows = new LinkedList<>();
+            element.getAsJsonArray().forEach(row -> rows.add(castRow(row)));
+            return rows;
         }
-        return rows;
+        return null;
     }
 
-    private List<PrinterDesignCell> castRow(JsonElement element, PrinterDesignCell defaultCell) {
+    private List<PrinterDesignCell> castRow(@NotNull JsonElement element) {
         List<PrinterDesignCell> row = new LinkedList<>();
         if (element.isJsonPrimitive()) {
-            PrinterDesignCell printerDesignCell = new PrinterDesignCell(defaultCell);
-            printerDesignCell.setText(element.getAsString());
-            row.add(printerDesignCell);
+            PrinterDesignCell cell = new PrinterDesignCell(null, element.getAsString());
+            row.add(cell);
+            return row;
         } else if (element.isJsonObject()) {
-            PrinterDesignCell printerDesignCell = new PrinterDesignCell(defaultCell);
             GsonObject cell = new GsonObject(element.getAsJsonObject());
-            printerDesignCell.setText(cell.getString("text", printerDesignCell.getText()));
-            printerDesignCell.setClassName(cell.getString("className", printerDesignCell.getClassName()));
+            PrinterDesignCell printerDesignCell = new PrinterDesignCell(cell.getString("className"), cell.getString("text"));
             row.add(printerDesignCell);
+            return row;
         } else if (element.isJsonArray()) {
-            element.getAsJsonArray().forEach(item -> row.addAll(castRow(item, defaultCell)));
+            element.getAsJsonArray().forEach(item -> row.addAll(castRow(item)));
         }
         return row;
     }

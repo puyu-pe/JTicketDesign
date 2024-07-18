@@ -1,32 +1,16 @@
 package pe.puyu.jticketdesing.domain.inputpayload;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-public class PrinterDesignStyle {
-    private int fontWidth = 1;
-    private int fontHeight = 1;
-    private boolean bold = false;
-    private boolean normalize = false;
-    private boolean bgInverted = true;
-    private char pad = ' ';
-    private PrinterJustifyAlign align = PrinterJustifyAlign.LEFT;
-    private int span = 1;
+public record PrinterDesignStyle(
+    @Nullable Integer fontWidth,
+    @Nullable Integer fontHeight,
+    @Nullable Boolean bold,
+    @Nullable Boolean normalize,
+    @Nullable Boolean bgInverted,
+    @Nullable Character pad,
+    @Nullable PrinterJustifyAlign align,
+    @Nullable Integer span
+) {
 
-    public PrinterDesignStyle(PrinterDesignStyle printerDesignStyle){
-        this.fontWidth = printerDesignStyle.fontWidth;
-        this.fontHeight = printerDesignStyle.fontHeight;
-        this.bold = printerDesignStyle.bold;
-        this.normalize = printerDesignStyle.normalize;
-        this.bgInverted = printerDesignStyle.bgInverted;
-        this.pad = printerDesignStyle.pad;
-        this.align = printerDesignStyle.align;
-        this.span = printerDesignStyle.span;
-    }
 }

@@ -5,6 +5,7 @@ module pe.puyu.jticketdesing {
     requires com.google.zxing;
     requires com.google.zxing.javase;
     requires static lombok;
+    requires org.jetbrains.annotations;
     exports pe.puyu.jticketdesing.domain;
     exports pe.puyu.jticketdesing.util.escpos;
     exports pe.puyu.jticketdesing.util;

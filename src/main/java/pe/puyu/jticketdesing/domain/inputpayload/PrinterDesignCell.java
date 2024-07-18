@@ -1,21 +1,9 @@
 package pe.puyu.jticketdesing.domain.inputpayload;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Getter
-@Setter
-public class PrinterDesignCell {
-    private String className = "";
-    private String text = "";
-
-    public PrinterDesignCell(PrinterDesignCell printerDesignCell) {
-        this.className = printerDesignCell.className;
-        this.text = printerDesignCell.text;
-    }
-
+public record PrinterDesignCell(
+    @Nullable String className,
+    @Nullable String text
+) {
 }

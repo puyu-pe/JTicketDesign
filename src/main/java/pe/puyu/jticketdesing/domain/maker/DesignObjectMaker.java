@@ -4,5 +4,5 @@ import pe.puyu.jticketdesing.domain.inputpayload.DesignDefaultValuesProvider;
 import pe.puyu.jticketdesing.domain.inputpayload.PrinterDesignObject;
 
 public interface DesignObjectMaker {
-    PrinterDesignObject build(DesignDefaultValuesProvider printerDefaultValuesProvider);
+    PrinterDesignObject build();
 }
