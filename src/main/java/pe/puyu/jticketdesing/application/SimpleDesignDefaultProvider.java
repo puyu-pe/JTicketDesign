@@ -38,8 +38,8 @@ public class SimpleDesignDefaultProvider implements DesignDefaultValuesProvider 
         return new PrinterDesignBlock(
             1,
             ' ',
-            "",
-            "",
+            null,
+            null,
             6,
             new HashMap<>(),
             new LinkedList<>()

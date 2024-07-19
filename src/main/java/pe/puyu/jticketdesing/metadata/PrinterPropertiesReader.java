@@ -33,8 +33,8 @@ public class PrinterPropertiesReader {
 	}
 
 	public int width() {
-		if (properties.has("width") && !properties.get("width").isJsonNull()) {
-			return properties.get("width").getAsInt();
+		if (properties.has("span") && !properties.get("span").isJsonNull()) {
+			return properties.get("span").getAsInt();
 		}
 		return 42;
 	}

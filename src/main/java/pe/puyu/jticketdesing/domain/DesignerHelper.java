@@ -35,7 +35,7 @@ public class DesignerHelper<T extends  PrinterPropertiesReader> {
 	public int calcWidthPaperInPx() {
 		// 290 y 25 ,son valores referenciales ya que se vio que
 		// 25 caracteres son 290px aprox.
-		// Se aplica la regla de 3 simple 25 -> 290 => width = x;
+		// Se aplica la regla de 3 simple 25 -> 290 => span = x;
 		return (290 * (propertiesReader.width() + 2)) / 25;
 	}
 

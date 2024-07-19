@@ -11,7 +11,7 @@ public record PrinterDesignBlock(
     @Nullable String stringQR,
     @Nullable String imgPath,
     @Nullable Integer nColumns,
-    @Nullable Map<String, PrinterDesignStyle> styles,
-    @Nullable List<List<PrinterDesignCell>> rows
+    @Nullable Map<@NotNull String, @Nullable PrinterDesignStyle> styles,
+    @Nullable List<@Nullable List<@Nullable PrinterDesignCell>> rows
 ) {
 }
