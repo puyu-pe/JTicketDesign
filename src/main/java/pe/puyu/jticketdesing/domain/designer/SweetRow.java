@@ -5,12 +5,17 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class SweetRow implements Iterable<SweetCell>{
+public class SweetRow implements Iterable<SweetCell> {
 
     private final @NotNull List<@NotNull SweetCell> _row;
 
     public SweetRow() {
         _row = new LinkedList<>();
+    }
+
+    public SweetRow(@NotNull SweetRow otherRow) {
+        this();
+        otherRow.forEach(otherCell -> _row.add(new SweetCell(otherCell)));
     }
 
     public void add(@NotNull SweetCell cell) {

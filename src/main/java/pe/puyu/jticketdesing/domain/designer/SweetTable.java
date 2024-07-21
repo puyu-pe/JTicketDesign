@@ -13,13 +13,9 @@ public class SweetTable implements Iterable<SweetRow> {
     private final @NotNull SweetTableInfo _info;
     private final @NotNull List<@NotNull SweetRow> _table;
 
-    public SweetTable() {
-        this(new SweetTableInfo(1, " ", 6));
-    }
-
     public SweetTable(@NotNull SweetTableInfo info) {
         _table = new LinkedList<>();
-        _info = info;
+        _info = new SweetTableInfo(info);
     }
 
     public void add(@NotNull SweetRow row) {
@@ -28,6 +24,10 @@ public class SweetTable implements Iterable<SweetRow> {
 
     public void addAll(@NotNull List<@NotNull SweetRow> rows) {
         _table.addAll(rows);
+    }
+
+    public void clear(){
+        _table.clear();
     }
 
     public @NotNull SweetTableInfo getInfo() {

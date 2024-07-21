@@ -9,4 +9,14 @@ public record PainterStyle(
     @NotNull Boolean bgInverted,
     @NotNull Boolean charCode
 ) {
+
+    public PainterStyle(PainterStyle otherPainterStyle){
+        this(
+            otherPainterStyle.fontWidth,
+            otherPainterStyle.fontHeight,
+            otherPainterStyle.bold,
+            otherPainterStyle.bgInverted,
+            otherPainterStyle.charCode
+        );
+    }
 }

@@ -4,7 +4,11 @@ import org.jetbrains.annotations.NotNull;
 
 public record SweetTableInfo(
     @NotNull Integer gap,
-    @NotNull String separator,
+    @NotNull Character separator,
     @NotNull Integer maxNumberOfColumns
 ) {
+
+    public SweetTableInfo (SweetTableInfo tableInfo){
+        this(tableInfo.gap, tableInfo.separator, tableInfo.maxNumberOfColumns);
+    }
 }

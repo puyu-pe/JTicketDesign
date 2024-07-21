@@ -9,4 +9,12 @@ public record SweetStringStyle(
     @NotNull PrinterJustifyAlign align,
     @NotNull Boolean normalize
 ) {
+    public SweetStringStyle(SweetStringStyle otherStringStyle) {
+        this(
+            otherStringStyle.span,
+            otherStringStyle.pad,
+            otherStringStyle.align,
+            otherStringStyle.normalize
+        );
+    }
 }

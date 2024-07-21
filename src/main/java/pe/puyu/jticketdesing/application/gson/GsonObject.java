@@ -5,8 +5,6 @@ import com.google.gson.JsonObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Consumer;
-
 public class GsonObject {
     private final JsonObject jsonObject;
 

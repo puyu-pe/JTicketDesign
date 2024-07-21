@@ -12,12 +12,16 @@ import com.github.anastaciocintra.output.TcpIpOutputStream;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import pe.puyu.jticketdesing.domain.SweetTicketDesign;
+import pe.puyu.jticketdesing.domain.designer.SweetDesignHelper;
 import pe.puyu.jticketdesing.domain.table.SweetTableDesign;
 
 import javax.print.PrintService;
 
 public class Main {
 	public static void main(String[] args) throws InterruptedException {
+        String text = "holas oscarss como estas abcdefghijklmnopqrstuvwxyz";
+        int cellWidth = 10;
+        SweetDesignHelper.wrapText(text, cellWidth, 2).forEach(System.out::println);
 	}
 
 	private static void testLineSpacing(OutputStream outputStream) throws IOException {
