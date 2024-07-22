@@ -3,9 +3,13 @@ package pe.puyu.jticketdesing.domain.painter;
 import org.jetbrains.annotations.NotNull;
 
 public interface DesignPainter {
-    void printText(@NotNull String text, @NotNull PainterStyle style);
+    // sin salto de linea
+    void print(@NotNull String text, @NotNull PainterStyle style);
 
-    void printImg(@NotNull String localImgPath);
+    // con salto de linea
+    void println(@NotNull String text, @NotNull PainterStyle style);
 
-    void printQR(@NotNull String stringQr);
+    void img(@NotNull String localImgPath);
+
+    void qr(@NotNull String stringQr);
 }

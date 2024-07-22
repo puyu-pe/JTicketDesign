@@ -5,7 +5,7 @@ import pe.puyu.jticketdesing.domain.inputpayload.PrinterJustifyAlign;
 
 public record SweetStringStyle(
     @NotNull Integer span,
-    @NotNull String pad,
+    @NotNull Character pad,
     @NotNull PrinterJustifyAlign align,
     @NotNull Boolean normalize
 ) {

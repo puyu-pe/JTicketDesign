@@ -78,7 +78,7 @@ public class SweetDesigner {
 
     private @NotNull SweetTableInfo makeSweetTableInfo(@NotNull PrinterDesignBlock block) {
         PrinterDesignBlock defaultBlock = defaultProvider.getDefaultBlockValues();
-        int gap = Math.max(Optional.ofNullable(block.gap()).or(() -> Optional.ofNullable(defaultBlock.gap())).orElse(1), 0);
+        int gap = Math.max(Optional.ofNullable(block.gap()).or(() -> Optional.ofNullable(defaultBlock.gap())).orElse(1), 1);
         char separator = Optional.ofNullable(block.separator()).or(() -> Optional.ofNullable(defaultBlock.separator())).orElse(' ');
         int nColumns = Math.max(Optional.ofNullable(block.nColumns()).or(() -> Optional.ofNullable(defaultBlock.nColumns())).orElse(0), 0);
         return new SweetTableInfo(gap, separator, nColumns);
@@ -88,11 +88,13 @@ public class SweetDesigner {
         SweetTable newTable = new SweetTable(table.getInfo());
         for (SweetRow row : table) {
             SweetRow newRow = new SweetRow();
-            for (SweetCell cell : row) {
+            for (int i = 0; i < row.size(); ++i) {
+                SweetCell cell = row.get(i);
                 int maxNumberOfColumns = table.getInfo().maxNumberOfColumns();
                 int blockWidth = helper.getProperties().blockWidth();
                 int span = Math.min(Math.max(cell.stringStyle().span(), 0), maxNumberOfColumns); // normalize span in range (0, max)
                 int widthPerCell = maxNumberOfColumns <= 0 ? 0 : blockWidth / maxNumberOfColumns;
+                widthPerCell = i + 1 < row.size() ? widthPerCell - table.getInfo().gap() : widthPerCell; // considerar espacios intermedios
                 SweetStringStyle newStringStyle = new SweetStringStyle(
                     span,
                     cell.stringStyle().pad(),
@@ -105,6 +107,41 @@ public class SweetDesigner {
             newTable.add(newRow);
         }
         return newTable;
+    }
+
+    private @NotNull SweetTable phase2WrapRows(@NotNull SweetTable table, @NotNull SweetDesignHelper helper) {
+        SweetTable newTable = new SweetTable(table.getInfo());
+        for (SweetRow row : table) {
+            newTable.addAll(wrapRow(row, helper));
+        }
+        return newTable;
+    }
+
+    private void phase3PrintRow(@NotNull SweetTable table, @NotNull SweetDesignHelper helper) {
+        SweetTableInfo tableInfo = table.getInfo();
+        String separator = tableInfo.separator().toString();
+        int gap = Math.max(tableInfo.gap(), 0);
+        for (SweetRow row : table) {
+            for (int i = 0; i < row.size(); ++i) {
+                SweetCell cell = row.get(i);
+                cell = helper.justify(cell);
+                cell = helper.normalize(cell);
+                boolean isLastElement = i + 1 < row.size();
+                if (isLastElement) {
+                    PainterStyle gapStyle = new PainterStyle(
+                        1,
+                        1,
+                        cell.painterStyle().bold(),
+                        cell.painterStyle().bgInverted(),
+                        cell.painterStyle().charCode()
+                    );
+                    painter.print(cell.text(), cell.painterStyle());
+                    painter.print(separator.repeat(gap), gapStyle);
+                }else{
+                    painter.println(cell.text(), cell.painterStyle());
+                }
+            }
+        }
     }
 
     private @NotNull List<SweetRow> wrapRow(@NotNull SweetRow row, @NotNull SweetDesignHelper helper) {

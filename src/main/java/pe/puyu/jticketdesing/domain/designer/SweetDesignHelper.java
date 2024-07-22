@@ -5,9 +5,11 @@ import org.jetbrains.annotations.Nullable;
 import pe.puyu.jticketdesing.domain.inputpayload.PrinterDesignStyle;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
 
+import java.text.Normalizer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class SweetDesignHelper {
 
@@ -72,6 +74,40 @@ public class SweetDesignHelper {
 
     public @NotNull SweetProperties getProperties() {
         return _properties;
+    }
+
+    public @NotNull SweetCell normalize(@NotNull SweetCell cell) {
+        if (cell.stringStyle().normalize()) {
+            String normalized = Normalizer.normalize(cell.text(), Normalizer.Form.NFD);
+            String textNormalized = Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(normalized)
+                .replaceAll("")
+                .replaceAll("[^\\p{ASCII}]", "");
+            return new SweetCell(
+                textNormalized,
+                cell.width(),
+                new PainterStyle(cell.painterStyle()),
+                new SweetStringStyle(cell.stringStyle())
+            );
+        }
+        return new SweetCell(cell);
+    }
+
+    public @NotNull SweetCell justify(SweetCell cell) {
+        int spacesAvailable = Math.max(cell.width() - (cell.text().length() * cell.painterStyle().fontWidth()), 0);
+        int startSpaces = spacesAvailable / 2;
+        int endSpaces = spacesAvailable - startSpaces;
+        String pad = cell.stringStyle().pad().toString();
+        String justifiedText = switch (cell.stringStyle().align()) {
+            case RIGHT -> pad.repeat(spacesAvailable) + cell.text();
+            case CENTER -> pad.repeat(startSpaces) + cell.text() + pad.repeat(endSpaces);
+            case LEFT -> cell.text() + pad.repeat(spacesAvailable);
+        };
+        return new SweetCell(
+            justifiedText,
+            cell.width(),
+            new PainterStyle(cell.painterStyle()),
+            new SweetStringStyle(cell.stringStyle())
+        );
     }
 
 }

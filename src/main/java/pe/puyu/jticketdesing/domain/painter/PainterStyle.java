@@ -7,7 +7,7 @@ public record PainterStyle(
     @NotNull Integer fontHeight,
     @NotNull Boolean bold,
     @NotNull Boolean bgInverted,
-    @NotNull Boolean charCode
+    @NotNull String charCode
 ) {
 
     public PainterStyle(PainterStyle otherPainterStyle){
