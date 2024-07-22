@@ -22,6 +22,18 @@ public class SweetRow implements Iterable<SweetCell> {
         _row.add(cell);
     }
 
+    public int size() {
+        return _row.size();
+    }
+
+    public boolean existsIndex(int i) {
+        return i >= 0 && i < _row.size();
+    }
+
+    public SweetCell get(int i) {
+        return _row.get(i);
+    }
+
     public void addAll(@NotNull List<@NotNull SweetCell> cells) {
         _row.addAll(cells);
     }

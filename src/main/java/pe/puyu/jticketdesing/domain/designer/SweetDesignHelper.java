@@ -27,7 +27,7 @@ public class SweetDesignHelper {
 //
 //    }
 
-    public static @NotNull List<String> wrapText(String text, int numberOfCharactersAvailable, int fontWidth) {
+    public @NotNull List<String> wrapText(String text, int numberOfCharactersAvailable, int fontWidth) {
         numberOfCharactersAvailable = Math.max(0, numberOfCharactersAvailable);
         fontWidth = Math.max(0, fontWidth);
         String[] splitWords = text.split("\\s+"); // divide in words
@@ -58,7 +58,7 @@ public class SweetDesignHelper {
         return wrappedText;
     }
 
-    public static @NotNull List<String> sliceWordInEqualParts(String word, int sliceWidth) {
+    public @NotNull List<String> sliceWordInEqualParts(String word, int sliceWidth) {
         int lastPart = sliceWidth <= 0 ? 0 : word.length() % sliceWidth;
         lastPart = lastPart > 0 ? 1 : 0;
         int numberOfParts = sliceWidth <= 0 ? 0 : word.length() / sliceWidth + lastPart;

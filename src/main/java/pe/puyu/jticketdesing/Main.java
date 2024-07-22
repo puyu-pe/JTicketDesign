@@ -19,9 +19,6 @@ import javax.print.PrintService;
 
 public class Main {
 	public static void main(String[] args) throws InterruptedException {
-        String text = "holas oscarss como estas abcdefghijklmnopqrstuvwxyz";
-        int cellWidth = 10;
-        SweetDesignHelper.wrapText(text, cellWidth, 2).forEach(System.out::println);
 	}
 
 	private static void testLineSpacing(OutputStream outputStream) throws IOException {

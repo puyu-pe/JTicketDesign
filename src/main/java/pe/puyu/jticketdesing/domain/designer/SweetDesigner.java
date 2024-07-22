@@ -107,13 +107,46 @@ public class SweetDesigner {
         return newTable;
     }
 
-    private @NotNull SweetTable phase2WrapCell(@NotNull SweetTable table) {
-        SweetTable newTable = new SweetTable(table.getInfo());
-        for (SweetRow row : table) {
-
+    private @NotNull List<SweetRow> wrapRow(@NotNull SweetRow row, @NotNull SweetDesignHelper helper) {
+        List<SweetRow> matrix = new LinkedList<>();
+        int nColumns = 0;
+        for (SweetCell cell : row) {
+            SweetRow newRow = new SweetRow();
+            List<String> wrappedText = helper.wrapText(cell.text(), cell.width(), cell.painterStyle().fontWidth());
+            for (String text : wrappedText) {
+                newRow.add(new SweetCell(
+                    text,
+                    cell.width(),
+                    new PainterStyle(cell.painterStyle()),
+                    new SweetStringStyle(cell.stringStyle())
+                ));
+            }
+            if (newRow.size() > nColumns)
+                nColumns = newRow.size();
+            matrix.add(newRow);
         }
-        return newTable;
-    }
+        List<SweetRow> wrappedRow = new LinkedList<>();
+        for (int j = 0; j < nColumns; ++j) {
+            SweetRow newRow = new SweetRow();
+            for (SweetRow currentRow : matrix) {
+                if (!currentRow.existsIndex(j)) {
+                    if (currentRow.existsIndex(0)) {
+                        SweetCell firstCell = currentRow.get(0);
+                        newRow.add(new SweetCell(
+                            " ",
+                            firstCell.width(),
+                            new PainterStyle(firstCell.painterStyle()),
+                            new SweetStringStyle(firstCell.stringStyle()))
+                        );
+                    }
+                } else {
+                    newRow.add(new SweetCell(currentRow.get(j)));
 
+                }
+            }
+            wrappedRow.add(newRow);
+        }
+        return wrappedRow;
+    }
 
 }
