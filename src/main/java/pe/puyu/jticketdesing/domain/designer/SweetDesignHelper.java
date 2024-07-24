@@ -29,20 +29,24 @@ public class SweetDesignHelper {
         @Nullable Map<String, @Nullable PrinterDesignStyle> styles
     ) {
         Optional<Map<String, @Nullable PrinterDesignStyle>> style = Optional.ofNullable(styles);
-        String indexStr = String.valueOf(index);
         int fontWidth = Optional.ofNullable(_defaultStyle.fontWidth()).orElse(1);
         int fontHeight = Optional.ofNullable(_defaultStyle.fontHeight()).orElse(1);
         boolean bold = Optional.ofNullable(_defaultStyle.bold()).orElse(false);
         boolean bgInverted = Optional.ofNullable(_defaultStyle.bgInverted()).orElse(false);
         String charCode = _properties.charCode();
         if (style.isPresent()) {
+            String indexStr = String.valueOf(index);
             var styleMap = style.get();
-            var searchPolicy = Optional.ofNullable(styleMap.get(className))
-                .or(() -> Optional.ofNullable(styleMap.get(indexStr)));
-            fontWidth = searchPolicy.map(PrinterDesignStyle::fontWidth).orElse(fontWidth);
-            fontHeight = searchPolicy.map(PrinterDesignStyle::fontHeight).orElse(fontHeight);
-            bold = searchPolicy.map(PrinterDesignStyle::bold).orElse(bold);
-            bgInverted = searchPolicy.map(PrinterDesignStyle::bgInverted).orElse(bgInverted);
+            Optional<PrinterDesignStyle> findByClassName = Optional.ofNullable(styleMap.get(className));
+            Optional<PrinterDesignStyle> findByIndex = Optional.ofNullable(styleMap.get(indexStr));
+            fontWidth = findByIndex.map(PrinterDesignStyle::fontWidth).orElse(fontWidth);
+            fontHeight = findByIndex.map(PrinterDesignStyle::fontHeight).orElse(fontHeight);
+            bold = findByIndex.map(PrinterDesignStyle::bold).orElse(bold);
+            bgInverted = findByIndex.map(PrinterDesignStyle::bgInverted).orElse(bgInverted);
+            fontWidth = findByClassName.map(PrinterDesignStyle::fontWidth).orElse(fontWidth);
+            fontHeight = findByClassName.map(PrinterDesignStyle::fontHeight).orElse(fontHeight);
+            bold = findByClassName.map(PrinterDesignStyle::bold).orElse(bold);
+            bgInverted = findByClassName.map(PrinterDesignStyle::bgInverted).orElse(bgInverted);
         }
         return new PainterStyle(fontWidth, fontHeight, bold, bgInverted, charCode);
     }
@@ -52,10 +56,26 @@ public class SweetDesignHelper {
         @NotNull Integer index,
         @Nullable Map<String, @Nullable PrinterDesignStyle> styles
     ) {
-        boolean normalize = Optional.ofNullable(_defaultStyle.normalize()).orElse(false);
-        char pad = Optional.ofNullable(_defaultStyle.pad()).orElse(' ');
+        Optional<Map<String, @Nullable PrinterDesignStyle>> style = Optional.ofNullable(styles);
         int span = Optional.ofNullable(_defaultStyle.span()).orElse(1);
+        char pad = Optional.ofNullable(_defaultStyle.pad()).orElse(' ');
         PrinterJustifyAlign align = Optional.ofNullable(_defaultStyle.align()).orElse(PrinterJustifyAlign.LEFT);
+        boolean normalize = _properties.normalize();
+        if(style.isPresent()){
+            String indexStr = String.valueOf(index);
+            var styleMap = style.get();
+            Optional<PrinterDesignStyle> findByClassName = Optional.ofNullable(styleMap.get(className));
+            Optional<PrinterDesignStyle> findByIndex = Optional.ofNullable(styleMap.get(indexStr));
+            span = findByIndex.map(PrinterDesignStyle::span).orElse(span);
+            pad = findByIndex.map(PrinterDesignStyle::pad).orElse(pad);
+            align = findByIndex.map(PrinterDesignStyle::align).orElse(align);
+            normalize = findByIndex.map(PrinterDesignStyle::normalize).orElse(normalize);
+            span = findByClassName.map(PrinterDesignStyle::span).orElse(span);
+            pad = findByClassName.map(PrinterDesignStyle::pad).orElse(pad);
+            align = findByClassName.map(PrinterDesignStyle::align).orElse(align);
+            normalize = findByClassName.map(PrinterDesignStyle::normalize).orElse(normalize);
+        }
+        return new SweetStringStyle(span, pad, align, normalize);
     }
 
     public @NotNull List<String> wrapText(String text, int numberOfCharactersAvailable, int fontWidth) {

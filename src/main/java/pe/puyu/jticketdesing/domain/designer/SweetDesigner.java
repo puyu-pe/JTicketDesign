@@ -38,8 +38,12 @@ public class SweetDesigner {
         PrinterDesignProperties defaultProperties = defaultProvider.getDefaultDesignProperties();
         propertiesDto = Optional.ofNullable(propertiesDto).orElse(defaultProperties);
         int blockWidth = Optional.ofNullable(propertiesDto.blockWidth()).or(() -> Optional.ofNullable(defaultProperties.blockWidth())).orElse(0);
-        boolean normalize = Optional.ofNullable(propertiesDto.normalize()).or(() -> Optional.ofNullable(defaultProperties.normalize())).orElse(false);
         String charCode = Optional.ofNullable(propertiesDto.charCode()).or(() -> Optional.ofNullable(defaultProperties.charCode())).orElse("");
+        boolean normalize = Optional
+            .ofNullable(propertiesDto.normalize())
+            .or(() -> Optional.ofNullable(defaultProperties.normalize()))
+            .or(() -> Optional.ofNullable(defaultProvider.getDefaultDesignStyle().normalize()))
+            .orElse(false);
         SweetProperties properties = new SweetProperties(Math.max(blockWidth, 0), normalize, charCode);
         return new SweetDesignHelper(properties, defaultProvider.getDefaultDesignStyle());
     }
