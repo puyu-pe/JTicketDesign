@@ -8,9 +8,7 @@ import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
 import pe.puyu.jticketdesing.domain.painter.DesignPainter;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class SweetDesigner {
     private final @NotNull DesignObjectMaker maker;
@@ -50,15 +48,33 @@ public class SweetDesigner {
 
     private void printBlock(@Nullable PrinterDesignBlock block, @NotNull SweetDesignHelper helper) {
         if (block == null) return;
+        if (block.imgPath() != null && !block.imgPath().isBlank()) {
 
-        //print qr, img, text
+        } else if (block.stringQR() != null && !block.stringQR().isBlank()) {
+
+        } else {
+            SweetTextBlock textBlock = makeTextBlock(block);
+            SweetTable table = makeSweetTable(textBlock, helper);
+            table = phase1CalcWidthAndNormalizeSpan(table, helper);
+            table = phase2WrapRows(table, helper);
+            phase3PrintRow(table, helper);
+        }
     }
 
-    private @NotNull SweetTable makeSweetTable(@NotNull PrinterDesignBlock block, @NotNull SweetDesignHelper helper) {
-        SweetTableInfo tableInfo = makeSweetTableInfo(block);
-        SweetTable table = new SweetTable(tableInfo);
+    private @NotNull SweetTextBlock makeTextBlock(@NotNull PrinterDesignBlock block) {
+        PrinterDesignBlock defaultBlock = defaultProvider.getDefaultBlockValues();
+        int gap = Math.max(Optional.ofNullable(block.gap()).or(() -> Optional.ofNullable(defaultBlock.gap())).orElse(1), 1);
+        char separator = Optional.ofNullable(block.separator()).or(() -> Optional.ofNullable(defaultBlock.separator())).orElse(' ');
+        int nColumns = Math.max(Optional.ofNullable(block.nColumns()).or(() -> Optional.ofNullable(defaultBlock.nColumns())).orElse(0), 0);
         var rows = Optional.ofNullable(block.rows()).orElse(new LinkedList<>());
-        List<SweetRow> printRows = rows.stream()
+        var styles = Optional.ofNullable(block.styles()).orElse(new HashMap<>());
+        return new SweetTextBlock(gap, separator, nColumns, styles, rows);
+    }
+
+    private @NotNull SweetTable makeSweetTable(@NotNull SweetTextBlock block, @NotNull SweetDesignHelper helper) {
+        SweetTableInfo tableInfo = new SweetTableInfo(block.gap(), block.separator(), block.nColumns());
+        SweetTable table = new SweetTable(tableInfo);
+        List<SweetRow> printRows = block.rows().stream()
             .map(rowDto -> {
                 List<PrinterDesignCell> cellRow = Optional.ofNullable(rowDto).orElse(new LinkedList<>());
                 List<SweetCell> row = new LinkedList<>();
@@ -80,14 +96,6 @@ public class SweetDesigner {
         return table;
     }
 
-    private @NotNull SweetTableInfo makeSweetTableInfo(@NotNull PrinterDesignBlock block) {
-        PrinterDesignBlock defaultBlock = defaultProvider.getDefaultBlockValues();
-        int gap = Math.max(Optional.ofNullable(block.gap()).or(() -> Optional.ofNullable(defaultBlock.gap())).orElse(1), 1);
-        char separator = Optional.ofNullable(block.separator()).or(() -> Optional.ofNullable(defaultBlock.separator())).orElse(' ');
-        int nColumns = Math.max(Optional.ofNullable(block.nColumns()).or(() -> Optional.ofNullable(defaultBlock.nColumns())).orElse(0), 0);
-        return new SweetTableInfo(gap, separator, nColumns);
-    }
-
     private @NotNull SweetTable phase1CalcWidthAndNormalizeSpan(@NotNull SweetTable table, @NotNull SweetDesignHelper helper) {
         SweetTable newTable = new SweetTable(table.getInfo());
         for (SweetRow row : table) {
@@ -98,7 +106,7 @@ public class SweetDesigner {
                 int blockWidth = helper.getProperties().blockWidth();
                 int span = Math.min(Math.max(cell.stringStyle().span(), 0), maxNumberOfColumns); // normalize span in range (0, max)
                 int widthPerCell = maxNumberOfColumns <= 0 ? 0 : blockWidth / maxNumberOfColumns;
-                widthPerCell = i + 1 < row.size() ? widthPerCell - table.getInfo().gap() : widthPerCell; // considerar espacios intermedios
+                widthPerCell = i + 1 < row.size() ? widthPerCell - table.getInfo().gap() : widthPerCell; // consider intermediate spaces
                 SweetStringStyle newStringStyle = new SweetStringStyle(
                     span,
                     cell.stringStyle().pad(),
@@ -141,7 +149,7 @@ public class SweetDesigner {
                     );
                     painter.print(cell.text(), cell.painterStyle());
                     painter.print(separator.repeat(gap), gapStyle);
-                }else{
+                } else {
                     painter.println(cell.text(), cell.painterStyle());
                 }
             }
