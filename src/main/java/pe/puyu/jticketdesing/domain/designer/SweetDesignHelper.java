@@ -3,12 +3,14 @@ package pe.puyu.jticketdesing.domain.designer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pe.puyu.jticketdesing.domain.inputpayload.PrinterDesignStyle;
+import pe.puyu.jticketdesing.domain.inputpayload.PrinterJustifyAlign;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
 
 import java.text.Normalizer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class SweetDesignHelper {
@@ -20,14 +22,41 @@ public class SweetDesignHelper {
         this._properties = properties;
         this._defaultStyle = defaultStyle;
     }
-//
-//    public @NotNull PainterStyle makePainterStyleFor(@NotNull String className, @NotNull Integer index, @Nullable Map<String, PrinterDesignStyle> styles) {
-//
-//    }
-//
-//    public @NotNull SweetStringStyle makeSweetStringStyleFor(@NotNull String className, @NotNull Integer index, @Nullable Map<String, PrinterDesignStyle> styles) {
-//
-//    }
+
+    public @NotNull PainterStyle makePainterStyleFor(
+        @NotNull String className,
+        @NotNull Integer index,
+        @Nullable Map<String, @Nullable PrinterDesignStyle> styles
+    ) {
+        Optional<Map<String, @Nullable PrinterDesignStyle>> style = Optional.ofNullable(styles);
+        String indexStr = String.valueOf(index);
+        int fontWidth = Optional.ofNullable(_defaultStyle.fontWidth()).orElse(1);
+        int fontHeight = Optional.ofNullable(_defaultStyle.fontHeight()).orElse(1);
+        boolean bold = Optional.ofNullable(_defaultStyle.bold()).orElse(false);
+        boolean bgInverted = Optional.ofNullable(_defaultStyle.bgInverted()).orElse(false);
+        String charCode = _properties.charCode();
+        if (style.isPresent()) {
+            var styleMap = style.get();
+            var searchPolicy = Optional.ofNullable(styleMap.get(className))
+                .or(() -> Optional.ofNullable(styleMap.get(indexStr)));
+            fontWidth = searchPolicy.map(PrinterDesignStyle::fontWidth).orElse(fontWidth);
+            fontHeight = searchPolicy.map(PrinterDesignStyle::fontHeight).orElse(fontHeight);
+            bold = searchPolicy.map(PrinterDesignStyle::bold).orElse(bold);
+            bgInverted = searchPolicy.map(PrinterDesignStyle::bgInverted).orElse(bgInverted);
+        }
+        return new PainterStyle(fontWidth, fontHeight, bold, bgInverted, charCode);
+    }
+
+    public @NotNull SweetStringStyle makeSweetStringStyleFor(
+        @NotNull String className,
+        @NotNull Integer index,
+        @Nullable Map<String, @Nullable PrinterDesignStyle> styles
+    ) {
+        boolean normalize = Optional.ofNullable(_defaultStyle.normalize()).orElse(false);
+        char pad = Optional.ofNullable(_defaultStyle.pad()).orElse(' ');
+        int span = Optional.ofNullable(_defaultStyle.span()).orElse(1);
+        PrinterJustifyAlign align = Optional.ofNullable(_defaultStyle.align()).orElse(PrinterJustifyAlign.LEFT);
+    }
 
     public @NotNull List<String> wrapText(String text, int numberOfCharactersAvailable, int fontWidth) {
         numberOfCharactersAvailable = Math.max(0, numberOfCharactersAvailable);

@@ -63,9 +63,9 @@ public class SweetDesigner {
                     PrinterDesignCell cellDto = Optional.ofNullable(cellRow.get(i)).orElse(defaultCell);
                     String text = Optional.ofNullable(cellDto.text()).or(() -> Optional.ofNullable(defaultCell.text())).orElse("");
                     String className = Optional.ofNullable(cellDto.className()).or(() -> Optional.ofNullable(defaultCell.className())).orElse("");
-//                    PainterStyle painterStyle = helper.makePainterStyleFor(className, i, block.styles());
-//                    SweetStringStyle stringStyle = helper.makeSweetStringStyleFor(className, i, block.styles());
-//                    row.add(new SweetCell(text, 0, painterStyle, stringStyle));
+                    PainterStyle painterStyle = helper.makePainterStyleFor(className, i, block.styles());
+                    SweetStringStyle stringStyle = helper.makeSweetStringStyleFor(className, i, block.styles());
+                    row.add(new SweetCell(text, 0, painterStyle, stringStyle));
                 }
                 SweetRow printRow = new SweetRow();
                 printRow.addAll(row);
