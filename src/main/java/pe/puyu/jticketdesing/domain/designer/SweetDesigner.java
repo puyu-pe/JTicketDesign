@@ -107,17 +107,18 @@ public class SweetDesigner {
             for (int i = 0; i < row.size(); ++i) {
                 SweetCell cell = row.get(i);
                 int span = Math.min(Math.max(cell.stringStyle().span(), 0), nColumns); // normalize span in range (0, max)
-                int width = nColumns == 0 ? 0 : Math.min(span * blockWidth / nColumns, remainingWidth);
+                int cellWidth = nColumns == 0 ? 0 : Math.min(span * blockWidth / nColumns, remainingWidth);
+                int coverWidthByCell = cellWidth;
                 boolean isLastItem = i + 1 >= row.size();
                 coveredColumns += span;
-                remainingWidth -= width;
-                if (!isLastItem && remainingWidth > 0) { // is not the last item
+                if (!isLastItem && (remainingWidth - cellWidth) > 0) { // is not the last item
                     int gap = table.getInfo().gap();
-                    width = Math.max(width - gap, 0); // consider intermediate space
+                    cellWidth = Math.max(cellWidth - gap, 0); // consider intermediate space
                 }
                 if (isLastItem && coveredColumns >= nColumns) {
-                    width = Math.max(remainingWidth, 0); // cover all remaining width
+                    cellWidth = Math.max(remainingWidth, 0); // cover all remaining width
                 }
+                remainingWidth -= coverWidthByCell;
                 SweetStringStyle newStringStyle = new SweetStringStyle(
                     span,
                     cell.stringStyle().pad(),
@@ -125,7 +126,7 @@ public class SweetDesigner {
                     cell.stringStyle().normalize()
                 );
                 PainterStyle painterStyle = new PainterStyle(cell.painterStyle());
-                newRow.add(new SweetCell(cell.text(), width, painterStyle, newStringStyle));
+                newRow.add(new SweetCell(cell.text(), cellWidth, painterStyle, newStringStyle));
             }
             newTable.add(newRow);
         }
