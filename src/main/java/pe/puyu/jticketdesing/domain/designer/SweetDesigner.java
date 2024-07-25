@@ -72,7 +72,7 @@ public class SweetDesigner {
     }
 
     private @NotNull SweetTable makeSweetTable(@NotNull SweetTextBlock block, @NotNull SweetDesignHelper helper) {
-        SweetTableInfo tableInfo = new SweetTableInfo(block.gap(), block.separator(), block.nColumns());
+        SweetTableInfo tableInfo = new SweetTableInfo(block.gap(), block.separator(), Math.max(block.nColumns(), 0));
         SweetTable table = new SweetTable(tableInfo);
         List<SweetRow> printRows = block.rows().stream()
             .map(rowDto -> {
@@ -100,13 +100,24 @@ public class SweetDesigner {
         SweetTable newTable = new SweetTable(table.getInfo());
         for (SweetRow row : table) {
             SweetRow newRow = new SweetRow();
+            int remainingWidth = helper.getProperties().blockWidth();
+            int blockWidth = remainingWidth;
+            int nColumns = table.getInfo().maxNumberOfColumns();
+            int coveredColumns = 0;
             for (int i = 0; i < row.size(); ++i) {
                 SweetCell cell = row.get(i);
-                int maxNumberOfColumns = table.getInfo().maxNumberOfColumns();
-                int blockWidth = helper.getProperties().blockWidth();
-                int span = Math.min(Math.max(cell.stringStyle().span(), 0), maxNumberOfColumns); // normalize span in range (0, max)
-                int widthPerCell = maxNumberOfColumns <= 0 ? 0 : blockWidth / maxNumberOfColumns;
-                widthPerCell = i + 1 < row.size() ? widthPerCell - table.getInfo().gap() : widthPerCell; // consider intermediate spaces
+                int span = Math.min(Math.max(cell.stringStyle().span(), 0), nColumns); // normalize span in range (0, max)
+                int width = nColumns == 0 ? 0 : Math.min(span * blockWidth / nColumns, remainingWidth);
+                boolean isLastItem = i + 1 >= row.size();
+                coveredColumns += span;
+                remainingWidth -= width;
+                if (!isLastItem && remainingWidth > 0) { // is not the last item
+                    int gap = table.getInfo().gap();
+                    width = Math.max(width - gap, 0); // consider intermediate space
+                }
+                if (isLastItem && coveredColumns >= nColumns) {
+                    width = Math.max(remainingWidth, 0); // cover all remaining width
+                }
                 SweetStringStyle newStringStyle = new SweetStringStyle(
                     span,
                     cell.stringStyle().pad(),
@@ -114,7 +125,7 @@ public class SweetDesigner {
                     cell.stringStyle().normalize()
                 );
                 PainterStyle painterStyle = new PainterStyle(cell.painterStyle());
-                newRow.add(new SweetCell(cell.text(), widthPerCell * span, painterStyle, newStringStyle));
+                newRow.add(new SweetCell(cell.text(), width, painterStyle, newStringStyle));
             }
             newTable.add(newRow);
         }
@@ -134,12 +145,13 @@ public class SweetDesigner {
         String separator = tableInfo.separator().toString();
         int gap = Math.max(tableInfo.gap(), 0);
         for (SweetRow row : table) {
+            int remainingWidth = helper.getProperties().blockWidth();
             for (int i = 0; i < row.size(); ++i) {
                 SweetCell cell = row.get(i);
+                boolean isLastElement = i + 1 >= row.size();
                 cell = helper.justify(cell);
                 cell = helper.normalize(cell);
-                boolean isLastElement = i + 1 < row.size();
-                if (isLastElement) {
+                if (!isLastElement) {
                     PainterStyle gapStyle = new PainterStyle(
                         1,
                         1,
@@ -148,7 +160,11 @@ public class SweetDesigner {
                         cell.painterStyle().charCode()
                     );
                     painter.print(cell.text(), cell.painterStyle());
-                    painter.print(separator.repeat(gap), gapStyle);
+                    remainingWidth -= cell.width();
+                    if (remainingWidth > 0) {
+                        painter.print(separator.repeat(gap), gapStyle);
+                        remainingWidth -= gap;
+                    }
                 } else {
                     painter.println(cell.text(), cell.painterStyle());
                 }

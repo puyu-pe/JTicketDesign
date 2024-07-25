@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.application.gson;
+package pe.puyu.jticketdesing.application.maker.gson;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;

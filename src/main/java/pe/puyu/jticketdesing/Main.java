@@ -1,8 +1,6 @@
 package pe.puyu.jticketdesing;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.PrintModeStyle;
@@ -11,27 +9,37 @@ import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import pe.puyu.jticketdesing.application.defaultprovider.SimpleDesignDefaultProvider;
+import pe.puyu.jticketdesing.application.maker.gson.GsonDesignObjectMaker;
+import pe.puyu.jticketdesing.application.painter.escpos.EscPosPrinter;
 import pe.puyu.jticketdesing.domain.SweetTicketDesign;
-import pe.puyu.jticketdesing.domain.designer.SweetDesignHelper;
+import pe.puyu.jticketdesing.domain.designer.SweetDesigner;
+import pe.puyu.jticketdesing.domain.painter.DesignPainter;
 import pe.puyu.jticketdesing.domain.table.SweetTableDesign;
 
 import javax.print.PrintService;
 
 public class Main {
 	public static void main(String[] args) throws InterruptedException {
+        try(OutputStream outputStream = ip("192.168.18.39")){
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            testSweetDesigner(byteArrayOutputStream);
+            outputStream.write(byteArrayOutputStream.toByteArray());
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
 	}
 
-	private static void testLineSpacing(OutputStream outputStream) throws IOException {
-		EscPos escpos = new EscPos(outputStream);
-		PrintModeStyle printModeStyle = new PrintModeStyle();
-		printModeStyle.setFontSize(true, true);
-		Style style = new Style();
-		style.setUnderline(Style.Underline.OneDotThick);
-		style.setBold(true);
-		style.setLineSpacing(1);
-		escpos.writeLF(style, "hola");
-		escpos.writeLF(style,"camaron con cola");
-	}
+    private static void testSweetDesigner(OutputStream outputStream) throws FileNotFoundException {
+        String pathToFile = "/home/socamaru/Documentos/projects/testPrintJson/designer.json";
+        FileReader reader = new FileReader(pathToFile);
+        JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
+        GsonDesignObjectMaker maker = new GsonDesignObjectMaker(jsonObject);
+        DesignPainter painter = new EscPosPrinter(outputStream);
+        SweetDesigner designer = new SweetDesigner(maker, painter, new SimpleDesignDefaultProvider());
+        designer.paintDesign();
+    }
 
 	private static void testPrint(OutputStream outputStream) throws Exception {
 		String pathToFile = "/home/socamaru/Documentos/projects/testPrintJson/print.json";

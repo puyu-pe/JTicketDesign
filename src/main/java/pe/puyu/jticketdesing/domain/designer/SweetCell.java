@@ -18,4 +18,15 @@ public record SweetCell(
             new SweetStringStyle(otherCell.stringStyle)
         );
     }
+
+    //immutable method
+    public SweetCell setWidth(int width){
+        return new SweetCell(
+            this.text,
+            Math.max(0, width),
+            new PainterStyle(this.painterStyle),
+            new SweetStringStyle(this.stringStyle)
+        );
+    }
+
 }

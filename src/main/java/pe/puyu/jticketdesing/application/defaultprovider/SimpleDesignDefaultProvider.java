@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.application;
+package pe.puyu.jticketdesing.application.defaultprovider;
 
 import org.jetbrains.annotations.NotNull;
 import pe.puyu.jticketdesing.domain.inputpayload.*;
