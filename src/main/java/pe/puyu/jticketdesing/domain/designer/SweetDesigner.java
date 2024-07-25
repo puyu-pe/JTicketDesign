@@ -198,7 +198,7 @@ public class SweetDesigner {
                     if (currentRow.existsIndex(0)) {
                         SweetCell firstCell = currentRow.get(0);
                         newRow.add(new SweetCell(
-                            " ",
+                            "",
                             firstCell.width(),
                             new PainterStyle(firstCell.painterStyle()),
                             new SweetStringStyle(firstCell.stringStyle()))
