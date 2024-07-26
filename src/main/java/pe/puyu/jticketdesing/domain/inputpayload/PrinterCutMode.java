@@ -19,8 +19,4 @@ public enum PrinterCutMode {
         }
         return PART;
     }
-
-    public String getValue() {
-        return value;
-    }
 }

@@ -31,7 +31,8 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         try {
             PrinterDesignProperties properties = buildPrinterDesignProperties();
             List<PrinterDesignBlock> blocks = buildPrinterDesignBlocks();
-            return new PrinterDesignObject(properties, blocks);
+            PrinterDesignOpenDrawer openDrawer = buildPrinterOpenDrawer();
+            return new PrinterDesignObject(properties, blocks, openDrawer);
         } catch (Exception e) {
             throw new DesignObjectMakerException(String.format("GsonDesignObjectMaker throw an exception: %s", e.getMessage()), e);
         }
@@ -157,4 +158,18 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         }
         return null;
     }
+
+    private @Nullable PrinterDesignOpenDrawer buildPrinterOpenDrawer() {
+        if (designObject.has("openDrawer") && designObject.get("openDrawer").isJsonObject()) {
+            GsonObject openDrawer = new GsonObject(designObject.get("openDrawer").getAsJsonObject());
+            return new PrinterDesignOpenDrawer(
+                PrinterPinConnector.fromValue(openDrawer.getInt("pin")),
+                openDrawer.getInt("t1"),
+                openDrawer.getInt("t2")
+            );
+        }
+        return null;
+    }
+
+
 }

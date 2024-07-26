@@ -7,7 +7,8 @@ import java.util.List;
 
 public record PrinterDesignObject(
     @Nullable PrinterDesignProperties properties,
-    @Nullable List< @Nullable PrinterDesignBlock> blocks
+    @Nullable List< @Nullable PrinterDesignBlock> blocks,
+    @Nullable PrinterDesignOpenDrawer openDrawer
 ) {
 
 }

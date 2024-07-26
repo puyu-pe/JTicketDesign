@@ -19,4 +19,7 @@ public interface DesignDefaultValuesProvider {
     @NotNull
     PrinterDesignObject getDefaultDesignObject();
 
+    @NotNull
+    PrinterDesignOpenDrawer getDefaultOpenDrawer();
+
 }

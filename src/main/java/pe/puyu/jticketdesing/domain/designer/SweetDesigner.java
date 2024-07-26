@@ -30,8 +30,11 @@ public class SweetDesigner {
             .orElse(new LinkedList<>());
         SweetDesignHelper helper = makeSweetHelper(designObject.properties());
         blocks.forEach(block -> printBlock(block, helper));
-        SweetProperties.CutProperty cutProperty = helper.getProperties().cutProperty();
-        painter.cut(cutProperty.feed(), cutProperty.mode());
+        if (!blocks.isEmpty()) {
+            SweetProperties.CutProperty cutProperty = helper.getProperties().cutProperty();
+            painter.cut(cutProperty.feed(), cutProperty.mode());
+        }
+        openDrawer(defaultDesignObject.openDrawer());
     }
 
     private @NotNull SweetDesignHelper makeSweetHelper(@Nullable PrinterDesignProperties propertiesDto) {
@@ -228,6 +231,21 @@ public class SweetDesigner {
             wrappedRow.add(newRow);
         }
         return wrappedRow;
+    }
+
+    private void openDrawer(@Nullable PrinterDesignOpenDrawer openDrawer) {
+        if (openDrawer != null) {
+            PrinterPinConnector pin = PrinterPinConnector.Pin_2;
+            int t1 = 120, t2 = 240;
+            PrinterDesignOpenDrawer defaultOpenDrawer = defaultProvider.getDefaultOpenDrawer();
+            pin = Optional.ofNullable(defaultOpenDrawer.pin()).orElse(pin);
+            t1 = Optional.ofNullable(defaultOpenDrawer.t1()).orElse(t1);
+            t2 = Optional.ofNullable(defaultOpenDrawer.t2()).orElse(t2);
+            pin = Optional.ofNullable(openDrawer.pin()).orElse(pin);
+            t1 = Optional.ofNullable(openDrawer.t1()).orElse(t1);
+            t2 = Optional.ofNullable(openDrawer.t2()).orElse(t2);
+            painter.openDrawer(pin, t1, t2);
+        }
     }
 
 }

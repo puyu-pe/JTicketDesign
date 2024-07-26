@@ -4,6 +4,7 @@ import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.Style;
 import org.jetbrains.annotations.NotNull;
 import pe.puyu.jticketdesing.domain.inputpayload.PrinterCutMode;
+import pe.puyu.jticketdesing.domain.inputpayload.PrinterPinConnector;
 import pe.puyu.jticketdesing.domain.painter.DesignPainter;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
 
@@ -41,6 +42,15 @@ public class EscPosPrinter implements DesignPainter {
         try {
             this.escpos.feed(feed);
             this.escpos.cut(EscPosUtil.toEscPosCutMode(mode));
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    @Override
+    public void openDrawer(@NotNull PrinterPinConnector pin, int t1, int t2) {
+        try {
+            this.escpos.pulsePin(EscPosUtil.toPinConnector(pin), t1, t2);
         } catch (Exception ignored) {
 
         }

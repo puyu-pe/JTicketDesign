@@ -5,6 +5,7 @@ import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
 import com.github.anastaciocintra.escpos.Style;
 import com.github.anastaciocintra.escpos.Style.FontSize;
 import pe.puyu.jticketdesing.domain.inputpayload.PrinterCutMode;
+import pe.puyu.jticketdesing.domain.inputpayload.PrinterPinConnector;
 
 public class EscPosUtil {
 
@@ -20,6 +21,13 @@ public class EscPosUtil {
         return switch (cutMode) {
             case PART -> EscPos.CutMode.PART;
             case FULL -> EscPos.CutMode.FULL;
+        };
+    }
+
+    public static EscPos.PinConnector toPinConnector(PrinterPinConnector pinConnector){
+        return switch (pinConnector){
+            case Pin_2 -> EscPos.PinConnector.Pin_2;
+            case Pin_5 -> EscPos.PinConnector.Pin_5;
         };
     }
 

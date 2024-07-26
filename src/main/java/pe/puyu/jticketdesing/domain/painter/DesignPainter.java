@@ -2,6 +2,7 @@ package pe.puyu.jticketdesing.domain.painter;
 
 import org.jetbrains.annotations.NotNull;
 import pe.puyu.jticketdesing.domain.inputpayload.PrinterCutMode;
+import pe.puyu.jticketdesing.domain.inputpayload.PrinterPinConnector;
 
 public interface DesignPainter {
     // sin salto de linea
@@ -15,4 +16,6 @@ public interface DesignPainter {
     void qr(@NotNull String stringQr);
 
     void cut(@NotNull Integer feed, @NotNull PrinterCutMode mode);
+
+    void openDrawer(@NotNull PrinterPinConnector pin, int t1, int t2);
 }

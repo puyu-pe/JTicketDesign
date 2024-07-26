@@ -55,7 +55,13 @@ public class SimpleDesignDefaultProvider implements DesignDefaultValuesProvider 
     public @NotNull PrinterDesignObject getDefaultDesignObject() {
         return new PrinterDesignObject(
             getDefaultDesignProperties(),
-            new LinkedList<>()
+            new LinkedList<>(),
+            getDefaultOpenDrawer()
         );
+    }
+
+    @Override
+    public @NotNull PrinterDesignOpenDrawer getDefaultOpenDrawer() {
+        return new PrinterDesignOpenDrawer(PrinterPinConnector.Pin_2, 120, 240);
     }
 }
