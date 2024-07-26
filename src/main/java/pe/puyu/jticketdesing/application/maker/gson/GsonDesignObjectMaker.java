@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import pe.puyu.jticketdesing.domain.inputpayload.*;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMakerException;
@@ -36,19 +37,20 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         }
     }
 
-    private PrinterDesignProperties buildPrinterDesignProperties() {
+    private @Nullable PrinterDesignProperties buildPrinterDesignProperties() {
         if (designObject.has("properties") && designObject.get("properties").isJsonObject()) {
             GsonObject properties = new GsonObject(designObject.get("properties").getAsJsonObject());
             return new PrinterDesignProperties(
                 properties.getInt("blockWidth"),
                 properties.getBoolean("normalize"),
-                properties.getString("charCode")
+                properties.getString("charCode"),
+                buildPrinterCutModeProperty(properties.getElement("cut"))
             );
         }
         return null;
     }
 
-    private List<PrinterDesignBlock> buildPrinterDesignBlocks() {
+    private @Nullable List<PrinterDesignBlock> buildPrinterDesignBlocks() {
         if (designObject.has("data")) {
             List<PrinterDesignBlock> blocks = new LinkedList<>();
             JsonElement element = designObject.get("data");
@@ -62,7 +64,7 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         return null;
     }
 
-    private PrinterDesignBlock castBlock(JsonElement element) {
+    private @Nullable PrinterDesignBlock castBlock(JsonElement element) {
         if (element.isJsonPrimitive()) {
             PrinterDesignCell cell = new PrinterDesignCell(null, element.getAsString());
             List<PrinterDesignCell> row = new LinkedList<>();
@@ -93,7 +95,7 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         return null;
     }
 
-    private Map<String, PrinterDesignStyle> buildPrinterDesignStyles(@NotNull JsonElement styleElement) {
+    private @Nullable Map<String, PrinterDesignStyle> buildPrinterDesignStyles(@NotNull JsonElement styleElement) {
         if (styleElement.isJsonObject()) {
             Map<String, PrinterDesignStyle> styles = new HashMap<>();
             styleElement.getAsJsonObject().asMap().forEach((key, element) -> styles.put(key, castStyle(element)));
@@ -102,7 +104,7 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         return null;
     }
 
-    private PrinterDesignStyle castStyle(@NotNull JsonElement element) {
+    private @Nullable PrinterDesignStyle castStyle(@NotNull JsonElement element) {
         if (element.isJsonObject()) {
             GsonObject style = new GsonObject(element.getAsJsonObject());
             return new PrinterDesignStyle(
@@ -119,7 +121,7 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         return null;
     }
 
-    private List<List<PrinterDesignCell>> buildRows(@NotNull JsonElement element) {
+    private @Nullable List<List<PrinterDesignCell>> buildRows(@NotNull JsonElement element) {
         if (element.isJsonArray()) {
             List<List<PrinterDesignCell>> rows = new LinkedList<>();
             element.getAsJsonArray().forEach(row -> rows.add(castRow(row)));
@@ -145,4 +147,14 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         return row;
     }
 
+    private @Nullable PrinterDesignCut buildPrinterCutModeProperty(@NotNull JsonElement element) {
+        if (element.isJsonObject()) {
+            GsonObject cut = new GsonObject(element.getAsJsonObject());
+            return new PrinterDesignCut(
+                cut.getInt("feed"),
+                PrinterCutMode.fromValue(cut.getString("mode"))
+            );
+        }
+        return null;
+    }
 }

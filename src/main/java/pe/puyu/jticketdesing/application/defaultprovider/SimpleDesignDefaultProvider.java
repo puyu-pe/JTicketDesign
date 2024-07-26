@@ -16,7 +16,12 @@ public class SimpleDesignDefaultProvider implements DesignDefaultValuesProvider 
     @Override
     public @NotNull PrinterDesignProperties getDefaultDesignProperties() {
         int charactersWidth = 42; // 42 characters equals 72 mm approx.
-        return new PrinterDesignProperties(charactersWidth, false, "WPC1252");
+        return new PrinterDesignProperties(
+            charactersWidth,
+            false,
+            "WPC1252",
+            new PrinterDesignCut(4, PrinterCutMode.PART)
+        );
     }
 
     @Override

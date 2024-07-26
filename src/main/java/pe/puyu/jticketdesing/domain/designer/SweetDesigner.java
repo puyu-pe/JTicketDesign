@@ -30,6 +30,8 @@ public class SweetDesigner {
             .orElse(new LinkedList<>());
         SweetDesignHelper helper = makeSweetHelper(designObject.properties());
         blocks.forEach(block -> printBlock(block, helper));
+        SweetProperties.CutProperty cutProperty = helper.getProperties().cutProperty();
+        painter.cut(cutProperty.feed(), cutProperty.mode());
     }
 
     private @NotNull SweetDesignHelper makeSweetHelper(@Nullable PrinterDesignProperties propertiesDto) {
@@ -42,8 +44,21 @@ public class SweetDesigner {
             .or(() -> Optional.ofNullable(defaultProperties.normalize()))
             .or(() -> Optional.ofNullable(defaultProvider.getDefaultDesignStyle().normalize()))
             .orElse(false);
-        SweetProperties properties = new SweetProperties(Math.max(blockWidth, 0), normalize, charCode);
+        SweetProperties.CutProperty cut = makeCutProperty(propertiesDto, defaultProperties);
+        SweetProperties properties = new SweetProperties(Math.max(blockWidth, 0), normalize, charCode, cut);
         return new SweetDesignHelper(properties, defaultProvider.getDefaultDesignStyle());
+    }
+
+    private SweetProperties.CutProperty makeCutProperty(@NotNull PrinterDesignProperties properties, @NotNull PrinterDesignProperties defaultProperties) {
+        int feed = Optional.ofNullable(properties.cutMode())
+            .map(PrinterDesignCut::feed)
+            .or(() -> Optional.ofNullable(defaultProperties.cutMode()).map(PrinterDesignCut::feed))
+            .orElse(4);
+        PrinterCutMode cutMode = Optional.ofNullable(properties.cutMode())
+            .map(PrinterDesignCut::mode)
+            .or(() -> Optional.ofNullable(defaultProperties.cutMode()).map(PrinterDesignCut::mode))
+            .orElse(PrinterCutMode.PART);
+        return new SweetProperties.CutProperty(feed, cutMode);
     }
 
     private void printBlock(@Nullable PrinterDesignBlock block, @NotNull SweetDesignHelper helper) {

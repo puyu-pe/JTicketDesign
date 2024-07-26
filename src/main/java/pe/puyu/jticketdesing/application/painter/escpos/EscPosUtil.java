@@ -4,8 +4,9 @@ import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
 import com.github.anastaciocintra.escpos.Style;
 import com.github.anastaciocintra.escpos.Style.FontSize;
+import pe.puyu.jticketdesing.domain.inputpayload.PrinterCutMode;
 
-public class StyleEscPosUtil {
+public class EscPosUtil {
 
     public static CharacterCodeTable valueCharCodeTable(String charCode) {
         try {
@@ -13,6 +14,13 @@ public class StyleEscPosUtil {
         } catch (Exception ignored) {
             return EscPos.CharacterCodeTable.WPC1252;
         }
+    }
+
+    public static EscPos.CutMode toEscPosCutMode(PrinterCutMode cutMode) {
+        return switch (cutMode) {
+            case PART -> EscPos.CutMode.PART;
+            case FULL -> EscPos.CutMode.FULL;
+        };
     }
 
     public static int valueFontSize(FontSize fontSize) {
