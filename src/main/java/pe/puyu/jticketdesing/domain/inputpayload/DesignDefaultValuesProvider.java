@@ -2,6 +2,8 @@ package pe.puyu.jticketdesing.domain.inputpayload;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public interface DesignDefaultValuesProvider {
 
     @NotNull
@@ -17,9 +19,9 @@ public interface DesignDefaultValuesProvider {
     PrinterDesignBlock getDefaultBlockValues();
 
     @NotNull
-    PrinterDesignObject getDefaultDesignObject();
+    PrinterDesignOpenDrawer getDefaultOpenDrawer();
 
     @NotNull
-    PrinterDesignOpenDrawer getDefaultOpenDrawer();
+    List<PrinterDesignBlock> getDefaultData();
 
 }

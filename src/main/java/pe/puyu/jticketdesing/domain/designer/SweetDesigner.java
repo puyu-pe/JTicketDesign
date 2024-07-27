@@ -23,18 +23,16 @@ public class SweetDesigner {
 
     public void paintDesign() {
         PrinterDesignObject designObject = maker.build();
-        PrinterDesignObject defaultDesignObject = defaultProvider.getDefaultDesignObject();
         List<PrinterDesignBlock> blocks = Optional
             .ofNullable(designObject.blocks())
-            .or(() -> Optional.ofNullable(defaultDesignObject.blocks()))
-            .orElse(new LinkedList<>());
+            .orElse(defaultProvider.getDefaultData());
         SweetDesignHelper helper = makeSweetHelper(designObject.properties());
         blocks.forEach(block -> printBlock(block, helper));
         if (!blocks.isEmpty()) {
             SweetProperties.CutProperty cutProperty = helper.getProperties().cutProperty();
             painter.cut(cutProperty.feed(), cutProperty.mode());
         }
-        openDrawer(defaultDesignObject.openDrawer());
+        openDrawer(defaultProvider.getDefaultOpenDrawer());
     }
 
     private @NotNull SweetDesignHelper makeSweetHelper(@Nullable PrinterDesignProperties propertiesDto) {

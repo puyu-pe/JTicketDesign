@@ -5,6 +5,7 @@ import pe.puyu.jticketdesing.domain.inputpayload.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 public class SimpleDesignDefaultProvider implements DesignDefaultValuesProvider {
 
@@ -52,16 +53,12 @@ public class SimpleDesignDefaultProvider implements DesignDefaultValuesProvider 
     }
 
     @Override
-    public @NotNull PrinterDesignObject getDefaultDesignObject() {
-        return new PrinterDesignObject(
-            getDefaultDesignProperties(),
-            new LinkedList<>(),
-            getDefaultOpenDrawer()
-        );
+    public @NotNull PrinterDesignOpenDrawer getDefaultOpenDrawer() {
+        return new PrinterDesignOpenDrawer(PrinterPinConnector.Pin_2, 120, 240);
     }
 
     @Override
-    public @NotNull PrinterDesignOpenDrawer getDefaultOpenDrawer() {
-        return new PrinterDesignOpenDrawer(PrinterPinConnector.Pin_2, 120, 240);
+    public @NotNull List<PrinterDesignBlock> getDefaultData() {
+        return new LinkedList<>();
     }
 }
