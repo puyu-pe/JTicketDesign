@@ -1,7 +1,16 @@
 package pe.puyu.jticketdesing.application.defaultprovider;
 
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.inputpayload.*;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignBlock;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
+import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterDesignOpenDrawer;
+import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
+import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
+import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignCut;
+import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignProperties;
+import pe.puyu.jticketdesing.domain.inputs.provider.DesignDefaultValuesProvider;
+import pe.puyu.jticketdesing.domain.inputs.text.PrinterDesignCell;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignStyle;
 
 import java.util.HashMap;
 import java.util.LinkedList;

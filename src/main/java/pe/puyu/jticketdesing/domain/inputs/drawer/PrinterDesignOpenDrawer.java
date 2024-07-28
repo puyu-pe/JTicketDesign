@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.domain.inputpayload;
+package pe.puyu.jticketdesing.domain.inputs.drawer;
 
 import org.jetbrains.annotations.Nullable;
 

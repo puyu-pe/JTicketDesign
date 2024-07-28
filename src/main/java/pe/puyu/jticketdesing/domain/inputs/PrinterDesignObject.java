@@ -1,7 +1,10 @@
-package pe.puyu.jticketdesing.domain.inputpayload;
+package pe.puyu.jticketdesing.domain.inputs;
 
 
 import org.jetbrains.annotations.Nullable;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignBlock;
+import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterDesignOpenDrawer;
+import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignProperties;
 
 import java.util.List;
 

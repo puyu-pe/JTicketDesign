@@ -1,8 +1,8 @@
 package pe.puyu.jticketdesing.domain.painter;
 
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.inputpayload.PrinterCutMode;
-import pe.puyu.jticketdesing.domain.inputpayload.PrinterPinConnector;
+import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
+import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
 
 public interface DesignPainter {
     // sin salto de linea

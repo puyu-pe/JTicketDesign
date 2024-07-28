@@ -5,7 +5,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pe.puyu.jticketdesing.domain.inputpayload.*;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignBlock;
+import pe.puyu.jticketdesing.domain.inputs.PrinterDesignObject;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
+import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterDesignOpenDrawer;
+import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
+import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
+import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignCut;
+import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignProperties;
+import pe.puyu.jticketdesing.domain.inputs.text.PrinterDesignCell;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignStyle;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMakerException;
 

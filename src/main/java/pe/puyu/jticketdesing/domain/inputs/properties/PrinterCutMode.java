@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.domain.inputpayload;
+package pe.puyu.jticketdesing.domain.inputs.properties;
 
 public enum PrinterCutMode {
     PART("PART"),

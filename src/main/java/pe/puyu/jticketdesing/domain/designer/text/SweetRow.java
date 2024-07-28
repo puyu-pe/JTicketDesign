@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.domain.designer;
+package pe.puyu.jticketdesing.domain.designer.text;
 
 import org.jetbrains.annotations.NotNull;
 

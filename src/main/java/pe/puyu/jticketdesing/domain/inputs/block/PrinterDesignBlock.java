@@ -1,7 +1,8 @@
-package pe.puyu.jticketdesing.domain.inputpayload;
+package pe.puyu.jticketdesing.domain.inputs.block;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import pe.puyu.jticketdesing.domain.inputs.text.PrinterDesignCell;
 
 import java.util.*;
 

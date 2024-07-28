@@ -3,8 +3,8 @@ package pe.puyu.jticketdesing.application.painter.escpos;
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.Style;
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.inputpayload.PrinterCutMode;
-import pe.puyu.jticketdesing.domain.inputpayload.PrinterPinConnector;
+import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
+import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
 import pe.puyu.jticketdesing.domain.painter.DesignPainter;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
 

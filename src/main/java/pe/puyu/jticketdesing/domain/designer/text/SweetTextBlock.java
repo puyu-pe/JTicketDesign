@@ -1,9 +1,9 @@
-package pe.puyu.jticketdesing.domain.designer;
+package pe.puyu.jticketdesing.domain.designer.text;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pe.puyu.jticketdesing.domain.inputpayload.PrinterDesignCell;
-import pe.puyu.jticketdesing.domain.inputpayload.PrinterDesignStyle;
+import pe.puyu.jticketdesing.domain.inputs.text.PrinterDesignCell;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignStyle;
 
 import java.util.List;
 import java.util.Map;

@@ -2,8 +2,10 @@ package pe.puyu.jticketdesing.domain.designer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pe.puyu.jticketdesing.domain.inputpayload.PrinterDesignStyle;
-import pe.puyu.jticketdesing.domain.inputpayload.PrinterJustifyAlign;
+import pe.puyu.jticketdesing.domain.designer.text.SweetCell;
+import pe.puyu.jticketdesing.domain.designer.text.SweetStringStyle;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignStyle;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
 
 import java.text.Normalizer;

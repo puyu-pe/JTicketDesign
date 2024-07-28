@@ -4,8 +4,8 @@ import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
 import com.github.anastaciocintra.escpos.Style;
 import com.github.anastaciocintra.escpos.Style.FontSize;
-import pe.puyu.jticketdesing.domain.inputpayload.PrinterCutMode;
-import pe.puyu.jticketdesing.domain.inputpayload.PrinterPinConnector;
+import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
+import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
 
 public class EscPosUtil {
 

@@ -1,7 +1,7 @@
-package pe.puyu.jticketdesing.domain.designer;
+package pe.puyu.jticketdesing.domain.designer.text;
 
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.inputpayload.PrinterJustifyAlign;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
 
 public record SweetStringStyle(
     @NotNull Integer span,
