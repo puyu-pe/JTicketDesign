@@ -89,7 +89,6 @@ public class SweetDesigner {
         }
     }
 
-
     private @NotNull SweetTextBlock makeTextBlock(@NotNull PrinterDesignBlock block) {
         PrinterDesignBlock defaultBlock = defaultProvider.getDefaultBlockValues();
         int gap = Math.max(Optional.ofNullable(block.gap()).or(() -> Optional.ofNullable(defaultBlock.gap())).orElse(1), 1);

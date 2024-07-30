@@ -92,7 +92,7 @@ public class SweetDesignHelper {
         height = Optional.ofNullable(_defaultStyle.imgHeight()).orElse(height);
         align = Optional.ofNullable(_defaultStyle.align()).orElse(align);
         Optional<Map<String, @Nullable PrinterDesignStyle>> style = Optional.ofNullable(styles);
-        if(style.isPresent()){
+        if (style.isPresent()) {
             Map<String, PrinterDesignStyle> styleMap = style.get();
             Optional<PrinterDesignStyle> findByClassName = Optional.ofNullable(styleMap.get("$img"));
             scaleType = findByClassName.map(PrinterDesignStyle::imgScale).orElse(scaleType);
@@ -100,6 +100,7 @@ public class SweetDesignHelper {
             height = findByClassName.map(PrinterDesignStyle::imgHeight).orElse(height);
             align = findByClassName.map(PrinterDesignStyle::align).orElse(align);
         }
+        width = Math.min(width, calcWidthPaperInPx());
         return new SweetImageInfo(scaleType, width, height, align);
     }
 
@@ -184,9 +185,7 @@ public class SweetDesignHelper {
         );
     }
 
-    // calcula el ancho del papel en pixeles awt
     public int calcWidthPaperInPx() {
-        // 1
         int pixelsPerCharacter = 11;
         return _properties.blockWidth() * pixelsPerCharacter + _properties.blockWidth();
     }
