@@ -10,7 +10,11 @@ public record PrinterDesignStyle(
     @Nullable Boolean bgInverted,
     @Nullable Character pad,
     @Nullable PrinterJustifyAlign align,
-    @Nullable Integer span
+    @Nullable Integer span,
+    @Nullable ScaleType imgScale,
+    @Nullable Integer imgWidth,
+    @Nullable Integer imgHeight,
+    @Nullable TypeQr typeQr
 ) {
 
 }

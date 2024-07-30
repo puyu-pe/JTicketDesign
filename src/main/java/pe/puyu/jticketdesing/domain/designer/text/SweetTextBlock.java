@@ -2,7 +2,7 @@ package pe.puyu.jticketdesing.domain.designer.text;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pe.puyu.jticketdesing.domain.inputs.text.PrinterDesignCell;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignCell;
 import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignStyle;
 
 import java.util.List;

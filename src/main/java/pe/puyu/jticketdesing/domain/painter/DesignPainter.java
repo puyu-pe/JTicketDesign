@@ -4,6 +4,8 @@ import org.jetbrains.annotations.NotNull;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
 import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
 
+import java.awt.image.BufferedImage;
+
 public interface DesignPainter {
     // sin salto de linea
     void print(@NotNull String text, @NotNull PainterStyle style);
@@ -11,9 +13,9 @@ public interface DesignPainter {
     // con salto de linea
     void println(@NotNull String text, @NotNull PainterStyle style);
 
-    void img(@NotNull String localImgPath);
+    void printImg(@NotNull BufferedImage image);
 
-    void qr(@NotNull String stringQr);
+    void printQr(@NotNull String stringQr);
 
     void cut(@NotNull Integer feed, @NotNull PrinterCutMode mode);
 

@@ -21,14 +21,14 @@ import javax.print.PrintService;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-/*        try (OutputStream outputStream = ip("192.168.18.39")) {
+        try (OutputStream outputStream = ip("192.168.1.38")) {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             testSweetDesigner(byteArrayOutputStream);
             outputStream.write(byteArrayOutputStream.toByteArray());
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
-        }*/
+        }
     }
 
     private static void testSweetDesigner(OutputStream outputStream) throws FileNotFoundException {

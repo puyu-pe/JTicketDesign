@@ -5,16 +5,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignBlock;
+import pe.puyu.jticketdesing.domain.inputs.block.*;
 import pe.puyu.jticketdesing.domain.inputs.PrinterDesignObject;
-import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
 import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterDesignOpenDrawer;
 import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignCut;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignProperties;
-import pe.puyu.jticketdesing.domain.inputs.text.PrinterDesignCell;
-import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignStyle;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMakerException;
 
@@ -125,7 +122,11 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
                 style.getBoolean("bgInverted"),
                 style.getCharacter("pad"),
                 PrinterJustifyAlign.fromValue(style.getString("align")),
-                style.getInt("span")
+                style.getInt("span"),
+                ScaleType.fromValue(style.getString("imgScale")),
+                style.getInt("imgWidth"),
+                style.getInt("height"),
+                TypeQr.fromValue(style.getString("typeQr"))
             );
         }
         return null;

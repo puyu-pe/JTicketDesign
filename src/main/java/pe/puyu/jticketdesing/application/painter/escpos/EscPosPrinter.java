@@ -2,12 +2,14 @@ package pe.puyu.jticketdesing.application.painter.escpos;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.Style;
+import com.github.anastaciocintra.escpos.image.*;
 import org.jetbrains.annotations.NotNull;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
 import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
 import pe.puyu.jticketdesing.domain.painter.DesignPainter;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
 
+import java.awt.image.BufferedImage;
 import java.io.OutputStream;
 
 public class EscPosPrinter implements DesignPainter {
@@ -28,12 +30,12 @@ public class EscPosPrinter implements DesignPainter {
     }
 
     @Override
-    public void img(@NotNull String localImgPath) {
-
+    public void printImg(@NotNull BufferedImage image) {
+        writBitImage(image, new BitonalThreshold());
     }
 
     @Override
-    public void qr(@NotNull String stringQr) {
+    public void printQr(@NotNull String stringQr) {
 
     }
 
@@ -69,6 +71,15 @@ public class EscPosPrinter implements DesignPainter {
             if (feed) {
                 this.escpos.feed(1);
             }
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void writBitImage(BufferedImage image, Bitonal algorithm) {
+        try {
+            EscPosImage escPosImage = new EscPosImage(new CoffeeImageImpl(image), algorithm);
+            RasterBitImageWrapper imageWrapper = new RasterBitImageWrapper();
+            this.escpos.write(imageWrapper, escPosImage);
         } catch (Exception ignored) {
         }
     }

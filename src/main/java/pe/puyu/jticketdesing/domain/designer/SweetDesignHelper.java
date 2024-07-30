@@ -2,10 +2,12 @@ package pe.puyu.jticketdesing.domain.designer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import pe.puyu.jticketdesing.domain.designer.img.SweetImageInfo;
 import pe.puyu.jticketdesing.domain.designer.text.SweetCell;
 import pe.puyu.jticketdesing.domain.designer.text.SweetStringStyle;
 import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignStyle;
 import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
+import pe.puyu.jticketdesing.domain.inputs.block.ScaleType;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
 
 import java.text.Normalizer;
@@ -63,7 +65,7 @@ public class SweetDesignHelper {
         char pad = Optional.ofNullable(_defaultStyle.pad()).orElse(' ');
         PrinterJustifyAlign align = Optional.ofNullable(_defaultStyle.align()).orElse(PrinterJustifyAlign.LEFT);
         boolean normalize = _properties.normalize();
-        if(style.isPresent()){
+        if (style.isPresent()) {
             String indexStr = String.valueOf(index);
             var styleMap = style.get();
             Optional<PrinterDesignStyle> findByClassName = Optional.ofNullable(styleMap.get(className));
@@ -78,6 +80,27 @@ public class SweetDesignHelper {
             normalize = findByClassName.map(PrinterDesignStyle::normalize).orElse(normalize);
         }
         return new SweetStringStyle(span, pad, align, normalize);
+    }
+
+    public @NotNull SweetImageInfo makeSweetImgStyle(@Nullable Map<String, PrinterDesignStyle> styles) {
+        ScaleType scaleType = ScaleType.SMOOTH;
+        int width = 290;
+        int height = 290;
+        PrinterJustifyAlign align = PrinterJustifyAlign.LEFT;
+        scaleType = Optional.ofNullable(_defaultStyle.imgScale()).orElse(scaleType);
+        width = Optional.ofNullable(_defaultStyle.imgWidth()).orElse(width);
+        height = Optional.ofNullable(_defaultStyle.imgHeight()).orElse(height);
+        align = Optional.ofNullable(_defaultStyle.align()).orElse(align);
+        Optional<Map<String, @Nullable PrinterDesignStyle>> style = Optional.ofNullable(styles);
+        if(style.isPresent()){
+            Map<String, PrinterDesignStyle> styleMap = style.get();
+            Optional<PrinterDesignStyle> findByClassName = Optional.ofNullable(styleMap.get("$img"));
+            scaleType = findByClassName.map(PrinterDesignStyle::imgScale).orElse(scaleType);
+            width = findByClassName.map(PrinterDesignStyle::imgWidth).orElse(width);
+            height = findByClassName.map(PrinterDesignStyle::imgHeight).orElse(height);
+            align = findByClassName.map(PrinterDesignStyle::align).orElse(align);
+        }
+        return new SweetImageInfo(scaleType, width, height, align);
     }
 
     public @NotNull List<String> wrapText(String text, int numberOfCharactersAvailable, int fontWidth) {
@@ -143,7 +166,7 @@ public class SweetDesignHelper {
         return new SweetCell(cell);
     }
 
-    public @NotNull SweetCell justify(SweetCell cell) {
+    public @NotNull SweetCell justifyCell(SweetCell cell) {
         int spacesAvailable = Math.max(cell.width() - (cell.text().length() * cell.painterStyle().fontWidth()), 0);
         int startSpaces = spacesAvailable / 2;
         int endSpaces = spacesAvailable - startSpaces;
@@ -159,6 +182,14 @@ public class SweetDesignHelper {
             new PainterStyle(cell.painterStyle()),
             new SweetStringStyle(cell.stringStyle())
         );
+    }
+
+    // calcula el ancho del papel en pixeles
+    public int calcWidthPaperInPx() {
+        // 290 y 25 ,son valores referenciales ya que se vio que
+        // 25 caracteres son 290px aprox.
+        // Se aplica la regla de 3 simple 25 -> 290 => x -> widthInPx;
+        return (290 * (_properties.blockWidth() + 2)) / 25;
     }
 
 }

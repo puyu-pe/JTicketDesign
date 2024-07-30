@@ -2,6 +2,9 @@ package pe.puyu.jticketdesing.domain.designer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import pe.puyu.jticketdesing.domain.designer.img.SweetImageBlock;
+import pe.puyu.jticketdesing.domain.designer.img.SweetImageHelper;
+import pe.puyu.jticketdesing.domain.designer.img.SweetImageInfo;
 import pe.puyu.jticketdesing.domain.designer.text.*;
 import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignBlock;
 import pe.puyu.jticketdesing.domain.inputs.PrinterDesignObject;
@@ -10,12 +13,13 @@ import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignCut;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignProperties;
 import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterDesignOpenDrawer;
 import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
-import pe.puyu.jticketdesing.domain.inputs.provider.DesignDefaultValuesProvider;
-import pe.puyu.jticketdesing.domain.inputs.text.PrinterDesignCell;
+import pe.puyu.jticketdesing.domain.inputs.DesignDefaultValuesProvider;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignCell;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
 import pe.puyu.jticketdesing.domain.painter.DesignPainter;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
 
+import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class SweetDesigner {
@@ -36,10 +40,8 @@ public class SweetDesigner {
             .orElse(defaultProvider.getDefaultData());
         SweetDesignHelper helper = makeSweetHelper(designObject.properties());
         blocks.forEach(block -> printBlock(block, helper));
-        if (!blocks.isEmpty()) {
-            SweetProperties.CutProperty cutProperty = helper.getProperties().cutProperty();
-            painter.cut(cutProperty.feed(), cutProperty.mode());
-        }
+        SweetProperties.CutProperty cutProperty = helper.getProperties().cutProperty();
+        painter.cut(cutProperty.feed(), cutProperty.mode());
         openDrawer(defaultProvider.getDefaultOpenDrawer());
     }
 
@@ -73,7 +75,9 @@ public class SweetDesigner {
     private void printBlock(@Nullable PrinterDesignBlock block, @NotNull SweetDesignHelper helper) {
         if (block == null) return;
         if (block.imgPath() != null && !block.imgPath().isBlank()) {
-
+            String imgPath = block.imgPath();
+            SweetImageInfo imageInfo = helper.makeSweetImgStyle(block.styles());
+            printImg(new SweetImageBlock(imgPath, helper.calcWidthPaperInPx(), imageInfo));
         } else if (block.stringQR() != null && !block.stringQR().isBlank()) {
 
         } else {
@@ -84,6 +88,7 @@ public class SweetDesigner {
             phase3PrintRow(table, helper);
         }
     }
+
 
     private @NotNull SweetTextBlock makeTextBlock(@NotNull PrinterDesignBlock block) {
         PrinterDesignBlock defaultBlock = defaultProvider.getDefaultBlockValues();
@@ -140,7 +145,7 @@ public class SweetDesigner {
                     cellWidth = Math.max(cellWidth - gap, 0); // consider intermediate space
                 }
                 if (isLastItem && coveredColumns >= nColumns) {
-                    cellWidth = Math.max(remainingWidth, 0); // cover all remaining width
+                    cellWidth = Math.max(remainingWidth, 0); // cover all remaining widthInPx
                 }
                 remainingWidth -= coverWidthByCell;
                 SweetStringStyle newStringStyle = new SweetStringStyle(
@@ -174,7 +179,7 @@ public class SweetDesigner {
             for (int i = 0; i < row.size(); ++i) {
                 SweetCell cell = row.get(i);
                 boolean isLastElement = i + 1 >= row.size();
-                cell = helper.justify(cell);
+                cell = helper.justifyCell(cell);
                 cell = helper.normalize(cell);
                 if (!isLastElement) {
                     PainterStyle gapStyle = new PainterStyle(
@@ -251,6 +256,17 @@ public class SweetDesigner {
             t1 = Optional.ofNullable(openDrawer.t1()).orElse(t1);
             t2 = Optional.ofNullable(openDrawer.t2()).orElse(t2);
             painter.openDrawer(pin, t1, t2);
+        }
+    }
+
+    private void printImg(@NotNull SweetImageBlock imageBlock) {
+        try {
+            BufferedImage image = SweetImageHelper.toBufferedImage(imageBlock.imgPath());
+            BufferedImage resizedImage = SweetImageHelper.resize(image, imageBlock.imageInfo());
+            BufferedImage justifiedImage = SweetImageHelper.justify(resizedImage, imageBlock.widthInPx(), imageBlock.imageInfo());
+            painter.printImg(justifiedImage);
+        } catch (Exception ignored) {
+
         }
     }
 
