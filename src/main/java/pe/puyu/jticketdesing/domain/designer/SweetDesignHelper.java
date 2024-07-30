@@ -82,7 +82,7 @@ public class SweetDesignHelper {
         return new SweetStringStyle(span, pad, align, normalize);
     }
 
-    public @NotNull SweetImageInfo makeSweetImgStyle(@Nullable Map<String, PrinterDesignStyle> styles) {
+    public @NotNull SweetImageInfo makeSweetImageInfo(@Nullable Map<String, PrinterDesignStyle> styles) {
         ScaleType scaleType = ScaleType.SMOOTH;
         int width = 290;
         int height = 290;
@@ -184,12 +184,11 @@ public class SweetDesignHelper {
         );
     }
 
-    // calcula el ancho del papel en pixeles
+    // calcula el ancho del papel en pixeles awt
     public int calcWidthPaperInPx() {
-        // 290 y 25 ,son valores referenciales ya que se vio que
-        // 25 caracteres son 290px aprox.
-        // Se aplica la regla de 3 simple 25 -> 290 => x -> widthInPx;
-        return (290 * (_properties.blockWidth() + 2)) / 25;
+        // 1
+        int pixelsPerCharacter = 11;
+        return _properties.blockWidth() * pixelsPerCharacter + _properties.blockWidth();
     }
 
 }

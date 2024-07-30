@@ -125,7 +125,7 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
                 style.getInt("span"),
                 ScaleType.fromValue(style.getString("imgScale")),
                 style.getInt("imgWidth"),
-                style.getInt("height"),
+                style.getInt("imgHeight"),
                 TypeQr.fromValue(style.getString("typeQr"))
             );
         }

@@ -28,7 +28,7 @@ public class SweetImageHelper {
                 g.drawImage(image, (containerWidth - imageInfo.width()) / 2, 0, null);
                 break;
             case RIGHT:
-                g.drawImage(image, containerWidth - imageInfo.width(), 0, null);
+                g.drawImage(image, containerWidth - imageInfo.width() - 2, 0, null);
                 break;
             default:
                 g.drawImage(image, 0, 0, null);

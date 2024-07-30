@@ -76,7 +76,7 @@ public class SweetDesigner {
         if (block == null) return;
         if (block.imgPath() != null && !block.imgPath().isBlank()) {
             String imgPath = block.imgPath();
-            SweetImageInfo imageInfo = helper.makeSweetImgStyle(block.styles());
+            SweetImageInfo imageInfo = helper.makeSweetImageInfo(block.styles());
             printImg(new SweetImageBlock(imgPath, helper.calcWidthPaperInPx(), imageInfo));
         } else if (block.stringQR() != null && !block.stringQR().isBlank()) {
 
