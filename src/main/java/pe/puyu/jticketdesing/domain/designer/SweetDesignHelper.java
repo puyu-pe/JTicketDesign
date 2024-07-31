@@ -87,17 +87,17 @@ public class SweetDesignHelper {
         int width = 290;
         int height = 290;
         PrinterJustifyAlign align = PrinterJustifyAlign.LEFT;
-        scaleType = Optional.ofNullable(_defaultStyle.imgScale()).orElse(scaleType);
-        width = Optional.ofNullable(_defaultStyle.imgWidth()).orElse(width);
-        height = Optional.ofNullable(_defaultStyle.imgHeight()).orElse(height);
+        scaleType = Optional.ofNullable(_defaultStyle.scale()).orElse(scaleType);
+        width = Optional.ofNullable(_defaultStyle.width()).orElse(width);
+        height = Optional.ofNullable(_defaultStyle.height()).orElse(height);
         align = Optional.ofNullable(_defaultStyle.align()).orElse(align);
         Optional<Map<String, @Nullable PrinterDesignStyle>> style = Optional.ofNullable(styles);
         if (style.isPresent()) {
             Map<String, PrinterDesignStyle> styleMap = style.get();
             Optional<PrinterDesignStyle> findByClassName = Optional.ofNullable(styleMap.get("$img"));
-            scaleType = findByClassName.map(PrinterDesignStyle::imgScale).orElse(scaleType);
-            width = findByClassName.map(PrinterDesignStyle::imgWidth).orElse(width);
-            height = findByClassName.map(PrinterDesignStyle::imgHeight).orElse(height);
+            scaleType = findByClassName.map(PrinterDesignStyle::scale).orElse(scaleType);
+            width = findByClassName.map(PrinterDesignStyle::width).orElse(width);
+            height = findByClassName.map(PrinterDesignStyle::height).orElse(height);
             align = findByClassName.map(PrinterDesignStyle::align).orElse(align);
         }
         width = Math.min(width, calcWidthPaperInPx());
