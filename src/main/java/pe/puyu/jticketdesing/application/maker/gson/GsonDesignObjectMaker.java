@@ -123,10 +123,9 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
                 style.getCharacter("pad"),
                 PrinterJustifyAlign.fromValue(style.getString("align")),
                 style.getInt("span"),
-                ScaleType.fromValue(style.getString("imgScale")),
-                style.getInt("imgWidth"),
-                style.getInt("imgHeight"),
-                TypeQr.fromValue(style.getString("typeQr"))
+                ScaleType.fromValue(style.getString("scale")),
+                style.getInt("width"),
+                style.getInt("height")
             );
         }
         return null;

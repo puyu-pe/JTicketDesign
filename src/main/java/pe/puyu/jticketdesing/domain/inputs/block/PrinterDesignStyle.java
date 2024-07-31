@@ -11,10 +11,9 @@ public record PrinterDesignStyle(
     @Nullable Character pad,
     @Nullable PrinterJustifyAlign align,
     @Nullable Integer span,
-    @Nullable ScaleType imgScale,
-    @Nullable Integer imgWidth,
-    @Nullable Integer imgHeight,
-    @Nullable TypeQr typeQr
+    @Nullable ScaleType scale,
+    @Nullable Integer width,
+    @Nullable Integer height
 ) {
 
 }

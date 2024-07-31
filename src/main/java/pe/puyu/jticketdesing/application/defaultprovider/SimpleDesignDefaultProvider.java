@@ -44,8 +44,7 @@ public class SimpleDesignDefaultProvider implements DesignDefaultValuesProvider 
             1,
             ScaleType.SMOOTH,
             290,
-            290,
-            TypeQr.IMG
+            290
         );
     }
 
