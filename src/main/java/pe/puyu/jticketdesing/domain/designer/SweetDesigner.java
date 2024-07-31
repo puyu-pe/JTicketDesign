@@ -203,7 +203,7 @@ public class SweetDesigner {
 
     private @NotNull List<SweetRow> wrapRow(@NotNull SweetRow row, @NotNull SweetDesignHelper helper) {
         List<SweetRow> matrix = new LinkedList<>();
-        int nColumns = 0;
+        int numberColumnsMatrix = 0;
         for (SweetCell cell : row) {
             SweetRow newRow = new SweetRow();
             List<String> wrappedText = helper.wrapText(cell.text(), cell.width(), cell.painterStyle().fontWidth());
@@ -215,12 +215,11 @@ public class SweetDesigner {
                     new SweetStringStyle(cell.stringStyle())
                 ));
             }
-            if (newRow.size() > nColumns)
-                nColumns = newRow.size();
             matrix.add(newRow);
+            numberColumnsMatrix = Math.max(newRow.size(), numberColumnsMatrix);
         }
         List<SweetRow> wrappedRow = new LinkedList<>();
-        for (int j = 0; j < nColumns; ++j) {
+        for (int j = 0; j < numberColumnsMatrix; ++j) {
             SweetRow newRow = new SweetRow();
             for (SweetRow currentRow : matrix) {
                 if (!currentRow.existsIndex(j)) {

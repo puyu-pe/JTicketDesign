@@ -105,10 +105,14 @@ public class SweetDesignHelper {
     }
 
     public @NotNull List<String> wrapText(String text, int numberOfCharactersAvailable, int fontWidth) {
+        List<String> wrappedText = new LinkedList<>();
+        if(text.length() <= numberOfCharactersAvailable){
+            wrappedText.add(text);
+            return wrappedText;
+        }
         numberOfCharactersAvailable = Math.max(0, numberOfCharactersAvailable);
         fontWidth = Math.max(0, fontWidth);
         String[] splitWords = text.split("\\s+"); // divide in words
-        List<String> wrappedText = new LinkedList<>();
         List<String> words = new LinkedList<>();
         String midCharacter = "-";
         for (String word : splitWords) {
