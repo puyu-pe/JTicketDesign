@@ -21,19 +21,19 @@ import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
 import pe.puyu.jticketdesing.domain.inputs.DesignDefaultValuesProvider;
 import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignCell;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
-import pe.puyu.jticketdesing.domain.painter.DesignPainter;
-import pe.puyu.jticketdesing.domain.painter.PainterStyle;
-import pe.puyu.jticketdesing.domain.painter.QrHints;
+import pe.puyu.jticketdesing.domain.printer.SweetPrinter;
+import pe.puyu.jticketdesing.domain.printer.SweetPrinterStyle;
+import pe.puyu.jticketdesing.domain.printer.SweetPrinterQrHints;
 
 import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class SweetDesigner {
     private final @NotNull DesignObjectMaker maker;
-    private final @NotNull DesignPainter painter;
+    private final @NotNull SweetPrinter painter;
     private final @NotNull DesignDefaultValuesProvider defaultProvider;
 
-    public SweetDesigner(@NotNull DesignObjectMaker maker, @NotNull DesignPainter painter, @NotNull DesignDefaultValuesProvider defaultProvider) {
+    public SweetDesigner(@NotNull DesignObjectMaker maker, @NotNull SweetPrinter painter, @NotNull DesignDefaultValuesProvider defaultProvider) {
         this.maker = maker;
         this.painter = painter;
         this.defaultProvider = defaultProvider;
@@ -121,9 +121,9 @@ public class SweetDesigner {
                     PrinterDesignCell cellDto = Optional.ofNullable(cellRow.get(i)).orElse(defaultCell);
                     String text = Optional.ofNullable(cellDto.text()).or(() -> Optional.ofNullable(defaultCell.text())).orElse("");
                     String className = Optional.ofNullable(cellDto.className()).or(() -> Optional.ofNullable(defaultCell.className())).orElse("");
-                    PainterStyle painterStyle = helper.makePainterStyleFor(className, i, block.styles());
+                    SweetPrinterStyle sweetPrinterStyle = helper.makePainterStyleFor(className, i, block.styles());
                     SweetStringStyle stringStyle = helper.makeSweetStringStyleFor(className, i, block.styles());
-                    row.add(new SweetCell(text, 0, painterStyle, stringStyle));
+                    row.add(new SweetCell(text, 0, sweetPrinterStyle, stringStyle));
                 }
                 SweetRow printRow = new SweetRow();
                 printRow.addAll(row);
@@ -163,8 +163,8 @@ public class SweetDesigner {
                     cell.stringStyle().align(),
                     cell.stringStyle().normalize()
                 );
-                PainterStyle painterStyle = new PainterStyle(cell.painterStyle());
-                newRow.add(new SweetCell(cell.text(), cellWidth, painterStyle, newStringStyle));
+                SweetPrinterStyle sweetPrinterStyle = new SweetPrinterStyle(cell.printerStyle());
+                newRow.add(new SweetCell(cell.text(), cellWidth, sweetPrinterStyle, newStringStyle));
             }
             newTable.add(newRow);
         }
@@ -191,21 +191,21 @@ public class SweetDesigner {
                 cell = helper.justifyCell(cell);
                 cell = helper.normalize(cell);
                 if (!isLastElement) {
-                    PainterStyle gapStyle = new PainterStyle(
+                    SweetPrinterStyle gapStyle = new SweetPrinterStyle(
                         1,
                         1,
-                        cell.painterStyle().bold(),
-                        cell.painterStyle().bgInverted(),
-                        cell.painterStyle().charCode()
+                        cell.printerStyle().bold(),
+                        cell.printerStyle().bgInverted(),
+                        cell.printerStyle().charCode()
                     );
-                    painter.print(cell.text(), cell.painterStyle());
+                    painter.print(cell.text(), cell.printerStyle());
                     remainingWidth -= cell.width();
                     if (remainingWidth > 0) {
                         painter.print(separator.repeat(gap), gapStyle);
                         remainingWidth -= gap;
                     }
                 } else {
-                    painter.println(cell.text(), cell.painterStyle());
+                    painter.println(cell.text(), cell.printerStyle());
                 }
             }
         }
@@ -216,12 +216,12 @@ public class SweetDesigner {
         int numberColumnsMatrix = 0;
         for (SweetCell cell : row) {
             SweetRow newRow = new SweetRow();
-            List<String> wrappedText = helper.wrapText(cell.text(), cell.width(), cell.painterStyle().fontWidth());
+            List<String> wrappedText = helper.wrapText(cell.text(), cell.width(), cell.printerStyle().fontWidth());
             for (String text : wrappedText) {
                 newRow.add(new SweetCell(
                     text,
                     cell.width(),
-                    new PainterStyle(cell.painterStyle()),
+                    new SweetPrinterStyle(cell.printerStyle()),
                     new SweetStringStyle(cell.stringStyle())
                 ));
             }
@@ -238,7 +238,7 @@ public class SweetDesigner {
                         newRow.add(new SweetCell(
                             "",
                             firstCell.width(),
-                            new PainterStyle(firstCell.painterStyle()),
+                            new SweetPrinterStyle(firstCell.printerStyle()),
                             new SweetStringStyle(firstCell.stringStyle()))
                         );
                     }
@@ -288,7 +288,7 @@ public class SweetDesigner {
                 BufferedImage justifiedQr = SweetImageHelper.justify(qrImage, qrBlock.widthInPx(), imageInfo);
                 painter.printImg(justifiedQr);
             } else {
-                QrHints hints = new QrHints(style.size(), style.align(), qrInfo.correctionLevel());
+                SweetPrinterQrHints hints = new SweetPrinterQrHints(style.size(), style.align(), qrInfo.correctionLevel());
                 painter.printQr(qrInfo.data(), hints);
             }
         } catch (Exception ignored) {

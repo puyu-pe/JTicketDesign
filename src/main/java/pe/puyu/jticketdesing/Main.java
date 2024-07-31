@@ -2,9 +2,6 @@ package pe.puyu.jticketdesing;
 
 import java.io.*;
 
-import com.github.anastaciocintra.escpos.EscPos;
-import com.github.anastaciocintra.escpos.PrintModeStyle;
-import com.github.anastaciocintra.escpos.Style;
 import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
 import com.google.gson.JsonObject;
@@ -14,7 +11,7 @@ import pe.puyu.jticketdesing.application.maker.gson.GsonDesignObjectMaker;
 import pe.puyu.jticketdesing.application.painter.escpos.EscPosPrinter;
 import pe.puyu.jticketdesing.domain.SweetTicketDesign;
 import pe.puyu.jticketdesing.domain.designer.SweetDesigner;
-import pe.puyu.jticketdesing.domain.painter.DesignPainter;
+import pe.puyu.jticketdesing.domain.printer.SweetPrinter;
 import pe.puyu.jticketdesing.domain.table.SweetTableDesign;
 
 import javax.print.PrintService;
@@ -36,7 +33,7 @@ public class Main {
         FileReader reader = new FileReader(pathToFile);
         JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
         GsonDesignObjectMaker maker = new GsonDesignObjectMaker(jsonObject);
-        DesignPainter painter = new EscPosPrinter(outputStream);
+        SweetPrinter painter = new EscPosPrinter(outputStream);
         SweetDesigner designer = new SweetDesigner(maker, painter, new SimpleDesignDefaultProvider());
         designer.paintDesign();
     }

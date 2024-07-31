@@ -1,12 +1,12 @@
 package pe.puyu.jticketdesing.domain.designer.text;
 
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.painter.PainterStyle;
+import pe.puyu.jticketdesing.domain.printer.SweetPrinterStyle;
 
 public record SweetCell(
     @NotNull String text,
     @NotNull Integer width,
-    @NotNull PainterStyle painterStyle,
+    @NotNull SweetPrinterStyle printerStyle,
     @NotNull SweetStringStyle stringStyle
 ) {
 
@@ -14,7 +14,7 @@ public record SweetCell(
         this(
             otherCell.text,
             otherCell.width,
-            new PainterStyle(otherCell.painterStyle),
+            new SweetPrinterStyle(otherCell.printerStyle),
             new SweetStringStyle(otherCell.stringStyle)
         );
     }
@@ -24,7 +24,7 @@ public record SweetCell(
         return new SweetCell(
             this.text,
             Math.max(0, width),
-            new PainterStyle(this.painterStyle),
+            new SweetPrinterStyle(this.printerStyle),
             new SweetStringStyle(this.stringStyle)
         );
     }

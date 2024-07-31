@@ -7,14 +7,14 @@ import com.github.anastaciocintra.escpos.image.*;
 import org.jetbrains.annotations.NotNull;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
 import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
-import pe.puyu.jticketdesing.domain.painter.DesignPainter;
-import pe.puyu.jticketdesing.domain.painter.PainterStyle;
-import pe.puyu.jticketdesing.domain.painter.QrHints;
+import pe.puyu.jticketdesing.domain.printer.SweetPrinter;
+import pe.puyu.jticketdesing.domain.printer.SweetPrinterStyle;
+import pe.puyu.jticketdesing.domain.printer.SweetPrinterQrHints;
 
 import java.awt.image.BufferedImage;
 import java.io.OutputStream;
 
-public class EscPosPrinter implements DesignPainter {
+public class EscPosPrinter implements SweetPrinter {
     private final EscPos escpos;
 
     public EscPosPrinter(@NotNull OutputStream buffer) {
@@ -22,12 +22,12 @@ public class EscPosPrinter implements DesignPainter {
     }
 
     @Override
-    public void print(@NotNull String text, @NotNull PainterStyle style) {
+    public void print(@NotNull String text, @NotNull SweetPrinterStyle style) {
         write(text, style, false);
     }
 
     @Override
-    public void println(@NotNull String text, @NotNull PainterStyle style) {
+    public void println(@NotNull String text, @NotNull SweetPrinterStyle style) {
         write(text, style, true);
     }
 
@@ -37,7 +37,7 @@ public class EscPosPrinter implements DesignPainter {
     }
 
     @Override
-    public void printQr(@NotNull String data, @NotNull QrHints hints) {
+    public void printQr(@NotNull String data, @NotNull SweetPrinterQrHints hints) {
         int size = Math.max(1, Math.min(hints.size(), 16)); // else throw illegalArgumentException
         try {
             var qrCode = new QRCode();
@@ -70,7 +70,7 @@ public class EscPosPrinter implements DesignPainter {
         }
     }
 
-    private void write(@NotNull String text, @NotNull PainterStyle style, boolean feed) {
+    private void write(@NotNull String text, @NotNull SweetPrinterStyle style, boolean feed) {
         try {
             Style escposStyle = new Style();
             escposStyle.setFontSize(EscPosUtil.toFontSize(style.fontWidth()), EscPosUtil.toFontSize(style.fontHeight()));

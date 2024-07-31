@@ -8,7 +8,7 @@ import pe.puyu.jticketdesing.domain.designer.qr.SweetQrStyle;
 import pe.puyu.jticketdesing.domain.designer.text.SweetCell;
 import pe.puyu.jticketdesing.domain.designer.text.SweetStringStyle;
 import pe.puyu.jticketdesing.domain.inputs.block.*;
-import pe.puyu.jticketdesing.domain.painter.PainterStyle;
+import pe.puyu.jticketdesing.domain.printer.SweetPrinterStyle;
 
 import java.text.Normalizer;
 import java.util.LinkedList;
@@ -27,7 +27,7 @@ public class SweetDesignHelper {
         this._defaultStyle = defaultStyle;
     }
 
-    public @NotNull PainterStyle makePainterStyleFor(
+    public @NotNull SweetPrinterStyle makePainterStyleFor(
         @NotNull String className,
         @NotNull Integer index,
         @Nullable Map<String, @Nullable PrinterDesignStyle> styles
@@ -52,7 +52,7 @@ public class SweetDesignHelper {
             bold = findByClassName.map(PrinterDesignStyle::bold).orElse(bold);
             bgInverted = findByClassName.map(PrinterDesignStyle::bgInverted).orElse(bgInverted);
         }
-        return new PainterStyle(fontWidth, fontHeight, bold, bgInverted, charCode);
+        return new SweetPrinterStyle(fontWidth, fontHeight, bold, bgInverted, charCode);
     }
 
     public @NotNull SweetStringStyle makeSweetStringStyleFor(
@@ -201,7 +201,7 @@ public class SweetDesignHelper {
             return new SweetCell(
                 textNormalized,
                 cell.width(),
-                new PainterStyle(cell.painterStyle()),
+                new SweetPrinterStyle(cell.printerStyle()),
                 new SweetStringStyle(cell.stringStyle())
             );
         }
@@ -209,7 +209,7 @@ public class SweetDesignHelper {
     }
 
     public @NotNull SweetCell justifyCell(SweetCell cell) {
-        int spacesAvailable = Math.max(cell.width() - (cell.text().length() * cell.painterStyle().fontWidth()), 0);
+        int spacesAvailable = Math.max(cell.width() - (cell.text().length() * cell.printerStyle().fontWidth()), 0);
         int startSpaces = spacesAvailable / 2;
         int endSpaces = spacesAvailable - startSpaces;
         String pad = cell.stringStyle().pad().toString();
@@ -221,7 +221,7 @@ public class SweetDesignHelper {
         return new SweetCell(
             justifiedText,
             cell.width(),
-            new PainterStyle(cell.painterStyle()),
+            new SweetPrinterStyle(cell.printerStyle()),
             new SweetStringStyle(cell.stringStyle())
         );
     }
