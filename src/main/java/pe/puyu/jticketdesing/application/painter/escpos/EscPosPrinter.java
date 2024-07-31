@@ -2,12 +2,14 @@ package pe.puyu.jticketdesing.application.painter.escpos;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.Style;
+import com.github.anastaciocintra.escpos.barcode.QRCode;
 import com.github.anastaciocintra.escpos.image.*;
 import org.jetbrains.annotations.NotNull;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
 import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
 import pe.puyu.jticketdesing.domain.painter.DesignPainter;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
+import pe.puyu.jticketdesing.domain.painter.QrHints;
 
 import java.awt.image.BufferedImage;
 import java.io.OutputStream;
@@ -35,8 +37,18 @@ public class EscPosPrinter implements DesignPainter {
     }
 
     @Override
-    public void printQr(@NotNull String stringQr) {
+    public void printQr(@NotNull String data, @NotNull QrHints hints) {
+        int size = Math.max(1, Math.min(hints.size(), 16)); // else throw illegalArgumentException
+        try {
+            var qrCode = new QRCode();
+            qrCode.setSize(size)
+                .setJustification(EscPosUtil.toEscPosJustification(hints.align()))
+                .setModel(QRCode.QRModel._2)
+                .setErrorCorrectionLevel(EscPosUtil.toQRErrorCorrectionLevel(hints.correctionLevel()));
+            this.escpos.write(qrCode, data);
+        } catch (Exception ignored) {
 
+        }
     }
 
     @Override

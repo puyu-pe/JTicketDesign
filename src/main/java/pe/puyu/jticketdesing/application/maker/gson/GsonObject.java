@@ -33,11 +33,11 @@ public class GsonObject {
         return null;
     }
 
-    public @NotNull JsonElement getElement(String property) {
+    public @Nullable JsonElement getElement(String property) {
         if (jsonObject.has(property)) {
             return jsonObject.get(property);
         }
-        return new JsonObject();
+        return null;
     }
 
     public @Nullable Character getCharacter(String property) {

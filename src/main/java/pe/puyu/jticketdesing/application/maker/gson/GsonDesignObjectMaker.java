@@ -102,8 +102,8 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         return null;
     }
 
-    private @Nullable Map<String, PrinterDesignStyle> buildPrinterDesignStyles(@NotNull JsonElement styleElement) {
-        if (styleElement.isJsonObject()) {
+    private @Nullable Map<String, PrinterDesignStyle> buildPrinterDesignStyles(@Nullable JsonElement styleElement) {
+        if (styleElement != null && styleElement.isJsonObject()) {
             Map<String, PrinterDesignStyle> styles = new HashMap<>();
             styleElement.getAsJsonObject().asMap().forEach((key, element) -> styles.put(key, castStyle(element)));
             return styles;
@@ -131,8 +131,8 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         return null;
     }
 
-    private @Nullable List<List<PrinterDesignCell>> buildRows(@NotNull JsonElement element) {
-        if (element.isJsonArray()) {
+    private @Nullable List<List<PrinterDesignCell>> buildRows(@Nullable JsonElement element) {
+        if (element != null && element.isJsonArray()) {
             List<List<PrinterDesignCell>> rows = new LinkedList<>();
             element.getAsJsonArray().forEach(row -> rows.add(castRow(row)));
             return rows;
@@ -157,8 +157,8 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         return row;
     }
 
-    private @Nullable PrinterDesignCut buildPrinterCutModeProperty(@NotNull JsonElement element) {
-        if (element.isJsonObject()) {
+    private @Nullable PrinterDesignCut buildPrinterCutModeProperty(@Nullable JsonElement element) {
+        if (element != null && element.isJsonObject()) {
             GsonObject cut = new GsonObject(element.getAsJsonObject());
             return new PrinterDesignCut(
                 cut.getInt("feed"),
@@ -180,7 +180,10 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         return null;
     }
 
-    private @Nullable PrinterDesignQr buildQrProperty(@NotNull JsonElement element) {
+    private @Nullable PrinterDesignQr buildQrProperty(@Nullable JsonElement element) {
+        if (element == null) {
+            return null;
+        }
         if (element.isJsonPrimitive()) {
             String data = element.getAsString();
             return new PrinterDesignQr(data, null, null);

@@ -3,11 +3,11 @@ package pe.puyu.jticketdesing.domain.designer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import pe.puyu.jticketdesing.domain.designer.img.SweetImageInfo;
+import pe.puyu.jticketdesing.domain.designer.qr.SweetQrInfo;
+import pe.puyu.jticketdesing.domain.designer.qr.SweetQrStyle;
 import pe.puyu.jticketdesing.domain.designer.text.SweetCell;
 import pe.puyu.jticketdesing.domain.designer.text.SweetStringStyle;
-import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignStyle;
-import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
-import pe.puyu.jticketdesing.domain.inputs.block.ScaleType;
+import pe.puyu.jticketdesing.domain.inputs.block.*;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
 
 import java.text.Normalizer;
@@ -82,7 +82,7 @@ public class SweetDesignHelper {
         return new SweetStringStyle(span, pad, align, normalize);
     }
 
-    public @NotNull SweetImageInfo makeSweetImageInfo(@Nullable Map<String, PrinterDesignStyle> styles) {
+    public @NotNull SweetImageInfo makeImageInfo(@Nullable Map<String, PrinterDesignStyle> styles) {
         ScaleType scaleType = ScaleType.SMOOTH;
         int width = 290;
         int height = 290;
@@ -100,13 +100,50 @@ public class SweetDesignHelper {
             height = findByClassName.map(PrinterDesignStyle::height).orElse(height);
             align = findByClassName.map(PrinterDesignStyle::align).orElse(align);
         }
-        width = Math.min(width, calcWidthPaperInPx());
+        width = Math.max(Math.min(width, calcWidthPaperInPx()), 0);
+        height = Math.max(0, height);
         return new SweetImageInfo(scaleType, width, height, align);
+    }
+
+    public @NotNull SweetQrStyle makeQrStyles(@Nullable Map<String, PrinterDesignStyle> styles) {
+        PrinterJustifyAlign align = PrinterJustifyAlign.CENTER;
+        int size = 250;
+        ScaleType scale = ScaleType.SMOOTH;
+        align = Optional.ofNullable(_defaultStyle.align()).orElse(align);
+        size = Optional.ofNullable(_defaultStyle.width()).orElse(size);
+        scale = Optional.ofNullable(_defaultStyle.scale()).orElse(scale);
+        Optional<Map<String, @Nullable PrinterDesignStyle>> style = Optional.ofNullable(styles);
+        if (style.isPresent()) {
+            Map<String, PrinterDesignStyle> styleMap = style.get();
+            Optional<PrinterDesignStyle> findByClassName = Optional.ofNullable(styleMap.get("$qr"));
+            align = findByClassName.map(PrinterDesignStyle::align).orElse(align);
+            size = findByClassName.map(PrinterDesignStyle::height).orElse(size); // first height
+            size = findByClassName.map(PrinterDesignStyle::width).orElse(size); // priority width
+            scale = findByClassName.map(PrinterDesignStyle::scale).orElse(scale);
+        }
+        size = Math.max(0, Math.min(size, calcWidthPaperInPx()));
+        return new SweetQrStyle(align, size, scale);
+    }
+
+    public @NotNull SweetQrInfo makeQrInfo(
+        @NotNull PrinterDesignQr designQr,
+        @NotNull PrinterDesignQr defaultQr
+    ) {
+        String data = "";
+        QrType type = QrType.IMG;
+        QrCorrectionLevel correctionLevel = QrCorrectionLevel.Q;
+        data = Optional.ofNullable(defaultQr.data()).orElse(data);
+        type = Optional.ofNullable(defaultQr.qrType()).orElse(type);
+        correctionLevel = Optional.ofNullable(defaultQr.correctionLevel()).orElse(correctionLevel);
+        data = Optional.ofNullable(designQr.data()).orElse(data);
+        type = Optional.ofNullable(designQr.qrType()).orElse(type);
+        correctionLevel = Optional.ofNullable(designQr.correctionLevel()).orElse(correctionLevel);
+        return new SweetQrInfo(data, type, correctionLevel);
     }
 
     public @NotNull List<String> wrapText(String text, int numberOfCharactersAvailable, int fontWidth) {
         List<String> wrappedText = new LinkedList<>();
-        if(text.length() <= numberOfCharactersAvailable){
+        if (text.length() <= numberOfCharactersAvailable) {
             wrappedText.add(text);
             return wrappedText;
         }

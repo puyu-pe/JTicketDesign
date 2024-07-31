@@ -15,7 +15,7 @@ public interface DesignPainter {
 
     void printImg(@NotNull BufferedImage image);
 
-    void printQr(@NotNull String stringQr);
+    void printQr(@NotNull String data, @NotNull QrHints hints);
 
     void cut(@NotNull Integer feed, @NotNull PrinterCutMode mode);
 

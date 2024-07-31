@@ -2,7 +2,7 @@ package pe.puyu.jticketdesing.domain.inputs.block;
 
 import org.jetbrains.annotations.Nullable;
 
-public enum TypeQr {
+public enum QrType {
 
     IMG("IMG"),
 
@@ -10,12 +10,12 @@ public enum TypeQr {
 
     private final String value;
 
-    TypeQr(String value){
+    QrType(String value){
         this.value = value;
     }
 
-    public static TypeQr fromValue(@Nullable String value) {
-        for (TypeQr type : TypeQr.values()) {
+    public static QrType fromValue(@Nullable String value) {
+        for (QrType type : QrType.values()) {
             if (type.value.equalsIgnoreCase(value)) {
                 return type;
             }

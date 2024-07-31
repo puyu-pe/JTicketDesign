@@ -2,8 +2,12 @@ package pe.puyu.jticketdesing.application.painter.escpos;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.EscPos.CharacterCodeTable;
+import com.github.anastaciocintra.escpos.EscPosConst;
 import com.github.anastaciocintra.escpos.Style;
 import com.github.anastaciocintra.escpos.Style.FontSize;
+import com.github.anastaciocintra.escpos.barcode.QRCode;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
+import pe.puyu.jticketdesing.domain.inputs.block.QrCorrectionLevel;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
 import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
 
@@ -52,6 +56,23 @@ public class EscPosUtil {
             case 6 -> Style.FontSize._6;
             case 7 -> Style.FontSize._7;
             default -> Style.FontSize._1;
+        };
+    }
+
+    public static EscPosConst.Justification toEscPosJustification(PrinterJustifyAlign align){
+        return switch (align){
+            case CENTER -> EscPosConst.Justification.Center;
+            case RIGHT -> EscPosConst.Justification.Right;
+            default -> EscPosConst.Justification.Left_Default;
+        };
+    }
+
+    public static QRCode.QRErrorCorrectionLevel toQRErrorCorrectionLevel(QrCorrectionLevel correctionLevel){
+        return switch (correctionLevel){
+            case Q -> QRCode.QRErrorCorrectionLevel.QR_ECLEVEL_Q;
+            case L -> QRCode.QRErrorCorrectionLevel.QR_ECLEVEL_L;
+            case H -> QRCode.QRErrorCorrectionLevel.QR_ECLEVEL_H;
+            default -> QRCode.QRErrorCorrectionLevel.QR_ECLEVEL_M_Default;
         };
     }
 }

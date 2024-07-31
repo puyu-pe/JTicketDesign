@@ -5,9 +5,14 @@ import org.jetbrains.annotations.Nullable;
 import pe.puyu.jticketdesing.domain.designer.img.SweetImageBlock;
 import pe.puyu.jticketdesing.domain.designer.img.SweetImageHelper;
 import pe.puyu.jticketdesing.domain.designer.img.SweetImageInfo;
+import pe.puyu.jticketdesing.domain.designer.qr.SweetQrBlock;
+import pe.puyu.jticketdesing.domain.designer.qr.SweetQrHelper;
+import pe.puyu.jticketdesing.domain.designer.qr.SweetQrInfo;
+import pe.puyu.jticketdesing.domain.designer.qr.SweetQrStyle;
 import pe.puyu.jticketdesing.domain.designer.text.*;
 import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignBlock;
 import pe.puyu.jticketdesing.domain.inputs.PrinterDesignObject;
+import pe.puyu.jticketdesing.domain.inputs.block.QrType;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignCut;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignProperties;
@@ -18,6 +23,7 @@ import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignCell;
 import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
 import pe.puyu.jticketdesing.domain.painter.DesignPainter;
 import pe.puyu.jticketdesing.domain.painter.PainterStyle;
+import pe.puyu.jticketdesing.domain.painter.QrHints;
 
 import java.awt.image.BufferedImage;
 import java.util.*;
@@ -76,10 +82,14 @@ public class SweetDesigner {
         if (block == null) return;
         if (block.imgPath() != null && !block.imgPath().isBlank()) {
             String imgPath = block.imgPath();
-            SweetImageInfo imageInfo = helper.makeSweetImageInfo(block.styles());
-            printImg(new SweetImageBlock(imgPath, helper.calcWidthPaperInPx(), imageInfo));
-        } else if (block.stringQR() != null && !block.stringQR().isBlank()) {
-
+            SweetImageInfo imageInfo = helper.makeImageInfo(block.styles());
+            SweetImageBlock imgBlock = new SweetImageBlock(imgPath, helper.calcWidthPaperInPx(), imageInfo);
+            printImg(imgBlock);
+        } else if (block.qr() != null) {
+            SweetQrInfo qrInfo = helper.makeQrInfo(block.qr(), defaultProvider.getDefaultQr());
+            SweetQrStyle qrStyle = helper.makeQrStyles(block.styles());
+            SweetQrBlock qrBlock = new SweetQrBlock(helper.calcWidthPaperInPx(), qrInfo, qrStyle);
+            printQr(qrBlock);
         } else {
             SweetTextBlock textBlock = makeTextBlock(block);
             SweetTable table = makeSweetTable(textBlock, helper);
@@ -265,6 +275,23 @@ public class SweetDesigner {
             painter.printImg(justifiedImage);
         } catch (Exception ignored) {
 
+        }
+    }
+
+    private void printQr(@NotNull SweetQrBlock qrBlock) {
+        try {
+            SweetQrInfo qrInfo = qrBlock.info();
+            SweetQrStyle style = qrBlock.style();
+            if (qrInfo.qrType() == QrType.IMG) {
+                BufferedImage qrImage = SweetQrHelper.generateQr(qrInfo, style.size());
+                SweetImageInfo imageInfo = new SweetImageInfo(style.scale(), style.size(), style.size(), style.align());
+                BufferedImage justifiedQr = SweetImageHelper.justify(qrImage, qrBlock.widthInPx(), imageInfo);
+                painter.printImg(justifiedQr);
+            } else {
+                QrHints hints = new QrHints(style.size(), style.align(), qrInfo.correctionLevel());
+                painter.printQr(qrInfo.data(), hints);
+            }
+        } catch (Exception ignored) {
         }
     }
 
