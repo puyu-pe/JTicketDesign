@@ -92,7 +92,7 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
             return new PrinterDesignBlock(
                 block.getInt("gap"),
                 block.getCharacter("separator"),
-                block.getString("stringQr"),
+                buildQrProperty(block.getElement("qr")),
                 block.getString("imgPath"),
                 block.getInt("nColumns"),
                 buildPrinterDesignStyles(block.getElement("styles")),
@@ -180,5 +180,19 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
         return null;
     }
 
+    private @Nullable PrinterDesignQr buildQrProperty(@NotNull JsonElement element) {
+        if (element.isJsonPrimitive()) {
+            String data = element.getAsString();
+            return new PrinterDesignQr(data, null, null);
+        } else if (element.isJsonObject()) {
+            GsonObject qr = new GsonObject(element.getAsJsonObject());
+            return new PrinterDesignQr(
+                qr.getString("data"),
+                QrType.fromValue(qr.getString("type")),
+                QrCorrectionLevel.fromValue(qr.getString("correctionLevel"))
+            );
+        }
+        return null;
+    }
 
 }

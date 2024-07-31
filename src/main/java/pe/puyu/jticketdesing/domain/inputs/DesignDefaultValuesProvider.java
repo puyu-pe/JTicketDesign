@@ -2,6 +2,7 @@ package pe.puyu.jticketdesing.domain.inputs;
 
 import org.jetbrains.annotations.NotNull;
 import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignBlock;
+import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignQr;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignProperties;
 import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterDesignOpenDrawer;
 import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignCell;
@@ -29,4 +30,6 @@ public interface DesignDefaultValuesProvider {
     @NotNull
     List<PrinterDesignBlock> getDefaultData();
 
+    @NotNull
+    PrinterDesignQr getDefaultQr();
 }

@@ -70,4 +70,13 @@ public class SimpleDesignDefaultProvider implements DesignDefaultValuesProvider 
     public @NotNull List<PrinterDesignBlock> getDefaultData() {
         return new LinkedList<>();
     }
+
+    @Override
+    public @NotNull PrinterDesignQr getDefaultQr() {
+        return new PrinterDesignQr(
+            null,
+            QrType.IMG,
+            QrCorrectionLevel.Q
+        );
+    }
 }

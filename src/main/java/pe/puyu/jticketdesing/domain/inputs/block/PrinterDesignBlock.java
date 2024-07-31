@@ -8,7 +8,7 @@ import java.util.*;
 public record PrinterDesignBlock(
     @Nullable Integer gap,
     @Nullable Character separator,
-    @Nullable String stringQR,
+    @Nullable PrinterDesignQr qr,
     @Nullable String imgPath,
     @Nullable Integer nColumns,
     @Nullable Map<@NotNull String, @Nullable PrinterDesignStyle> styles,
