@@ -1,12 +1,12 @@
 package pe.puyu.jticketdesing.domain.printer;
 
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
-import pe.puyu.jticketdesing.domain.inputs.block.QrCorrectionLevel;
+import pe.puyu.jticketdesing.domain.components.block.SweetJustify;
+import pe.puyu.jticketdesing.domain.components.block.SweetQrCorrectionLevel;
 
 public record SweetPrinterQrHints(
     @NotNull Integer size,
-    @NotNull PrinterJustifyAlign align,
-    @NotNull QrCorrectionLevel correctionLevel
+    @NotNull SweetJustify align,
+    @NotNull SweetQrCorrectionLevel correctionLevel
     ) {
 }

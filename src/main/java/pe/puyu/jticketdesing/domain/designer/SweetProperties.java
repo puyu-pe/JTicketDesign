@@ -1,7 +1,7 @@
 package pe.puyu.jticketdesing.domain.designer;
 
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
+import pe.puyu.jticketdesing.domain.components.properties.SweetCutMode;
 
 public record SweetProperties(
     @NotNull Integer blockWidth,
@@ -12,7 +12,7 @@ public record SweetProperties(
 
     public record CutProperty(
         @NotNull Integer feed,
-        @NotNull PrinterCutMode mode
+        @NotNull SweetCutMode mode
     ) {
 
     }

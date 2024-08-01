@@ -6,7 +6,7 @@ import com.github.anastaciocintra.output.PrinterOutputStream;
 import com.github.anastaciocintra.output.TcpIpOutputStream;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import pe.puyu.jticketdesing.application.defaultprovider.SimpleDesignDefaultProvider;
+import pe.puyu.jticketdesing.application.components.DefaultComponentsProvider;
 import pe.puyu.jticketdesing.application.builder.gson.GsonDesignObjectBuilder;
 import pe.puyu.jticketdesing.application.printer.escpos.EscPosPrinter;
 import pe.puyu.jticketdesing.domain.SweetTicketDesign;
@@ -34,7 +34,7 @@ public class Main {
         JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
         GsonDesignObjectBuilder builder = new GsonDesignObjectBuilder(jsonObject);
         SweetPrinter printer = new EscPosPrinter(outputStream);
-        SweetDesigner designer = new SweetDesigner(builder, printer, new SimpleDesignDefaultProvider());
+        SweetDesigner designer = new SweetDesigner(builder, printer, new DefaultComponentsProvider());
         designer.paintDesign();
     }
 

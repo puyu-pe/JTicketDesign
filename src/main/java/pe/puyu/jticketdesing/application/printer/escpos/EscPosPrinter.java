@@ -5,8 +5,8 @@ import com.github.anastaciocintra.escpos.Style;
 import com.github.anastaciocintra.escpos.barcode.QRCode;
 import com.github.anastaciocintra.escpos.image.*;
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
-import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
+import pe.puyu.jticketdesing.domain.components.properties.SweetCutMode;
+import pe.puyu.jticketdesing.domain.components.drawer.SweetPinConnector;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinter;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinterStyle;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinterQrHints;
@@ -52,7 +52,7 @@ public class EscPosPrinter implements SweetPrinter {
     }
 
     @Override
-    public void cut(@NotNull Integer feed, @NotNull PrinterCutMode mode) {
+    public void cut(@NotNull Integer feed, @NotNull SweetCutMode mode) {
         try {
             this.escpos.feed(feed);
             this.escpos.cut(EscPosUtil.toEscPosCutMode(mode));
@@ -62,7 +62,7 @@ public class EscPosPrinter implements SweetPrinter {
     }
 
     @Override
-    public void openDrawer(@NotNull PrinterPinConnector pin, int t1, int t2) {
+    public void openDrawer(@NotNull SweetPinConnector pin, int t1, int t2) {
         try {
             this.escpos.pulsePin(EscPosUtil.toPinConnector(pin), t1, t2);
         } catch (Exception ignored) {

@@ -2,13 +2,13 @@ package pe.puyu.jticketdesing.domain.designer.img;
 
 
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
-import pe.puyu.jticketdesing.domain.inputs.block.ScaleType;
+import pe.puyu.jticketdesing.domain.components.block.SweetJustify;
+import pe.puyu.jticketdesing.domain.components.block.SweetScale;
 
 public record SweetImageInfo(
-    @NotNull ScaleType scaleType,
+    @NotNull SweetScale sweetScale,
     @NotNull Integer width,
     @NotNull Integer height,
-    @NotNull PrinterJustifyAlign align
+    @NotNull SweetJustify align
 ) {
 }

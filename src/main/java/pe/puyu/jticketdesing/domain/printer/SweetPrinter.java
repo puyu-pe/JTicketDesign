@@ -1,8 +1,8 @@
 package pe.puyu.jticketdesing.domain.printer;
 
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
-import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
+import pe.puyu.jticketdesing.domain.components.properties.SweetCutMode;
+import pe.puyu.jticketdesing.domain.components.drawer.SweetPinConnector;
 
 import java.awt.image.BufferedImage;
 
@@ -17,7 +17,7 @@ public interface SweetPrinter {
 
     void printQr(@NotNull String data, @NotNull SweetPrinterQrHints hints);
 
-    void cut(@NotNull Integer feed, @NotNull PrinterCutMode mode);
+    void cut(@NotNull Integer feed, @NotNull SweetCutMode mode);
 
-    void openDrawer(@NotNull PrinterPinConnector pin, int t1, int t2);
+    void openDrawer(@NotNull SweetPinConnector pin, int t1, int t2);
 }

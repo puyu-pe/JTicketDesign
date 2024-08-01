@@ -7,7 +7,7 @@ import pe.puyu.jticketdesing.domain.designer.qr.SweetQrInfo;
 import pe.puyu.jticketdesing.domain.designer.qr.SweetQrStyle;
 import pe.puyu.jticketdesing.domain.designer.text.SweetCell;
 import pe.puyu.jticketdesing.domain.designer.text.SweetStringStyle;
-import pe.puyu.jticketdesing.domain.inputs.block.*;
+import pe.puyu.jticketdesing.domain.components.block.*;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinterStyle;
 
 import java.text.Normalizer;
@@ -20,9 +20,9 @@ import java.util.regex.Pattern;
 public class SweetDesignHelper {
 
     private final @NotNull SweetProperties _properties;
-    private final @NotNull PrinterDesignStyle _defaultStyle;
+    private final @NotNull SweetStyleComponent _defaultStyle;
 
-    public SweetDesignHelper(@NotNull SweetProperties properties, @NotNull PrinterDesignStyle defaultStyle) {
+    public SweetDesignHelper(@NotNull SweetProperties properties, @NotNull SweetStyleComponent defaultStyle) {
         this._properties = properties;
         this._defaultStyle = defaultStyle;
     }
@@ -30,9 +30,9 @@ public class SweetDesignHelper {
     public @NotNull SweetPrinterStyle makePrinterStyleFor(
         @NotNull String className,
         @NotNull Integer index,
-        @Nullable Map<String, @Nullable PrinterDesignStyle> styles
+        @Nullable Map<String, @Nullable SweetStyleComponent> styles
     ) {
-        Optional<Map<String, @Nullable PrinterDesignStyle>> style = Optional.ofNullable(styles);
+        Optional<Map<String, @Nullable SweetStyleComponent>> style = Optional.ofNullable(styles);
         int fontWidth = Optional.ofNullable(_defaultStyle.fontWidth()).orElse(1);
         int fontHeight = Optional.ofNullable(_defaultStyle.fontHeight()).orElse(1);
         boolean bold = Optional.ofNullable(_defaultStyle.bold()).orElse(false);
@@ -41,16 +41,16 @@ public class SweetDesignHelper {
         if (style.isPresent()) {
             String indexStr = String.valueOf(index);
             var styleMap = style.get();
-            Optional<PrinterDesignStyle> findByClassName = Optional.ofNullable(styleMap.get(className));
-            Optional<PrinterDesignStyle> findByIndex = Optional.ofNullable(styleMap.get(indexStr));
-            fontWidth = findByIndex.map(PrinterDesignStyle::fontWidth).orElse(fontWidth);
-            fontHeight = findByIndex.map(PrinterDesignStyle::fontHeight).orElse(fontHeight);
-            bold = findByIndex.map(PrinterDesignStyle::bold).orElse(bold);
-            bgInverted = findByIndex.map(PrinterDesignStyle::bgInverted).orElse(bgInverted);
-            fontWidth = findByClassName.map(PrinterDesignStyle::fontWidth).orElse(fontWidth);
-            fontHeight = findByClassName.map(PrinterDesignStyle::fontHeight).orElse(fontHeight);
-            bold = findByClassName.map(PrinterDesignStyle::bold).orElse(bold);
-            bgInverted = findByClassName.map(PrinterDesignStyle::bgInverted).orElse(bgInverted);
+            Optional<SweetStyleComponent> findByClassName = Optional.ofNullable(styleMap.get(className));
+            Optional<SweetStyleComponent> findByIndex = Optional.ofNullable(styleMap.get(indexStr));
+            fontWidth = findByIndex.map(SweetStyleComponent::fontWidth).orElse(fontWidth);
+            fontHeight = findByIndex.map(SweetStyleComponent::fontHeight).orElse(fontHeight);
+            bold = findByIndex.map(SweetStyleComponent::bold).orElse(bold);
+            bgInverted = findByIndex.map(SweetStyleComponent::bgInverted).orElse(bgInverted);
+            fontWidth = findByClassName.map(SweetStyleComponent::fontWidth).orElse(fontWidth);
+            fontHeight = findByClassName.map(SweetStyleComponent::fontHeight).orElse(fontHeight);
+            bold = findByClassName.map(SweetStyleComponent::bold).orElse(bold);
+            bgInverted = findByClassName.map(SweetStyleComponent::bgInverted).orElse(bgInverted);
         }
         return new SweetPrinterStyle(fontWidth, fontHeight, bold, bgInverted, charCode);
     }
@@ -58,80 +58,80 @@ public class SweetDesignHelper {
     public @NotNull SweetStringStyle makeSweetStringStyleFor(
         @NotNull String className,
         @NotNull Integer index,
-        @Nullable Map<String, @Nullable PrinterDesignStyle> styles
+        @Nullable Map<String, @Nullable SweetStyleComponent> styles
     ) {
-        Optional<Map<String, @Nullable PrinterDesignStyle>> style = Optional.ofNullable(styles);
+        Optional<Map<String, @Nullable SweetStyleComponent>> style = Optional.ofNullable(styles);
         int span = Optional.ofNullable(_defaultStyle.span()).orElse(1);
         char pad = Optional.ofNullable(_defaultStyle.pad()).orElse(' ');
-        PrinterJustifyAlign align = Optional.ofNullable(_defaultStyle.align()).orElse(PrinterJustifyAlign.LEFT);
+        SweetJustify align = Optional.ofNullable(_defaultStyle.align()).orElse(SweetJustify.LEFT);
         boolean normalize = _properties.normalize();
         if (style.isPresent()) {
             String indexStr = String.valueOf(index);
             var styleMap = style.get();
-            Optional<PrinterDesignStyle> findByClassName = Optional.ofNullable(styleMap.get(className));
-            Optional<PrinterDesignStyle> findByIndex = Optional.ofNullable(styleMap.get(indexStr));
-            span = findByIndex.map(PrinterDesignStyle::span).orElse(span);
-            pad = findByIndex.map(PrinterDesignStyle::pad).orElse(pad);
-            align = findByIndex.map(PrinterDesignStyle::align).orElse(align);
-            normalize = findByIndex.map(PrinterDesignStyle::normalize).orElse(normalize);
-            span = findByClassName.map(PrinterDesignStyle::span).orElse(span);
-            pad = findByClassName.map(PrinterDesignStyle::pad).orElse(pad);
-            align = findByClassName.map(PrinterDesignStyle::align).orElse(align);
-            normalize = findByClassName.map(PrinterDesignStyle::normalize).orElse(normalize);
+            Optional<SweetStyleComponent> findByClassName = Optional.ofNullable(styleMap.get(className));
+            Optional<SweetStyleComponent> findByIndex = Optional.ofNullable(styleMap.get(indexStr));
+            span = findByIndex.map(SweetStyleComponent::span).orElse(span);
+            pad = findByIndex.map(SweetStyleComponent::pad).orElse(pad);
+            align = findByIndex.map(SweetStyleComponent::align).orElse(align);
+            normalize = findByIndex.map(SweetStyleComponent::normalize).orElse(normalize);
+            span = findByClassName.map(SweetStyleComponent::span).orElse(span);
+            pad = findByClassName.map(SweetStyleComponent::pad).orElse(pad);
+            align = findByClassName.map(SweetStyleComponent::align).orElse(align);
+            normalize = findByClassName.map(SweetStyleComponent::normalize).orElse(normalize);
         }
         return new SweetStringStyle(span, pad, align, normalize);
     }
 
-    public @NotNull SweetImageInfo makeImageInfo(@Nullable Map<String, PrinterDesignStyle> styles) {
-        ScaleType scaleType = ScaleType.SMOOTH;
+    public @NotNull SweetImageInfo makeImageInfo(@Nullable Map<String, SweetStyleComponent> styles) {
+        SweetScale sweetScale = SweetScale.SMOOTH;
         int width = 290;
         int height = 290;
-        PrinterJustifyAlign align = PrinterJustifyAlign.LEFT;
-        scaleType = Optional.ofNullable(_defaultStyle.scale()).orElse(scaleType);
+        SweetJustify align = SweetJustify.LEFT;
+        sweetScale = Optional.ofNullable(_defaultStyle.scale()).orElse(sweetScale);
         width = Optional.ofNullable(_defaultStyle.width()).orElse(width);
         height = Optional.ofNullable(_defaultStyle.height()).orElse(height);
         align = Optional.ofNullable(_defaultStyle.align()).orElse(align);
-        Optional<Map<String, @Nullable PrinterDesignStyle>> style = Optional.ofNullable(styles);
+        Optional<Map<String, @Nullable SweetStyleComponent>> style = Optional.ofNullable(styles);
         if (style.isPresent()) {
-            Map<String, PrinterDesignStyle> styleMap = style.get();
-            Optional<PrinterDesignStyle> findByClassName = Optional.ofNullable(styleMap.get("$img"));
-            scaleType = findByClassName.map(PrinterDesignStyle::scale).orElse(scaleType);
-            width = findByClassName.map(PrinterDesignStyle::width).orElse(width);
-            height = findByClassName.map(PrinterDesignStyle::height).orElse(height);
-            align = findByClassName.map(PrinterDesignStyle::align).orElse(align);
+            Map<String, SweetStyleComponent> styleMap = style.get();
+            Optional<SweetStyleComponent> findByClassName = Optional.ofNullable(styleMap.get("$img"));
+            sweetScale = findByClassName.map(SweetStyleComponent::scale).orElse(sweetScale);
+            width = findByClassName.map(SweetStyleComponent::width).orElse(width);
+            height = findByClassName.map(SweetStyleComponent::height).orElse(height);
+            align = findByClassName.map(SweetStyleComponent::align).orElse(align);
         }
         width = Math.max(Math.min(width, calcWidthPaperInPx()), 0);
         height = Math.max(0, height);
-        return new SweetImageInfo(scaleType, width, height, align);
+        return new SweetImageInfo(sweetScale, width, height, align);
     }
 
-    public @NotNull SweetQrStyle makeQrStyles(@Nullable Map<String, PrinterDesignStyle> styles) {
-        PrinterJustifyAlign align = PrinterJustifyAlign.CENTER;
+    public @NotNull SweetQrStyle makeQrStyles(@Nullable Map<String, SweetStyleComponent> styles) {
+        SweetJustify align = SweetJustify.CENTER;
         int size = 250;
-        ScaleType scale = ScaleType.SMOOTH;
+        SweetScale scale = SweetScale.SMOOTH;
         align = Optional.ofNullable(_defaultStyle.align()).orElse(align);
         size = Optional.ofNullable(_defaultStyle.width()).orElse(size);
         scale = Optional.ofNullable(_defaultStyle.scale()).orElse(scale);
-        Optional<Map<String, @Nullable PrinterDesignStyle>> style = Optional.ofNullable(styles);
+        Optional<Map<String, @Nullable SweetStyleComponent>> style = Optional.ofNullable(styles);
         if (style.isPresent()) {
-            Map<String, PrinterDesignStyle> styleMap = style.get();
-            Optional<PrinterDesignStyle> findByClassName = Optional.ofNullable(styleMap.get("$qr"));
-            align = findByClassName.map(PrinterDesignStyle::align).orElse(align);
-            size = findByClassName.map(PrinterDesignStyle::height).orElse(size); // first height
-            size = findByClassName.map(PrinterDesignStyle::width).orElse(size); // priority width
-            scale = findByClassName.map(PrinterDesignStyle::scale).orElse(scale);
+            Map<String, SweetStyleComponent> styleMap = style.get();
+            Optional<SweetStyleComponent> findByClassName = Optional.ofNullable(styleMap.get("$qr"));
+            align = findByClassName.map(SweetStyleComponent::align).orElse(align);
+            size = findByClassName.map(SweetStyleComponent::height).orElse(size); // first height
+            size = findByClassName.map(SweetStyleComponent::width).orElse(size); // priority width
+            scale = findByClassName.map(SweetStyleComponent::scale).orElse(scale);
         }
         size = Math.max(0, Math.min(size, calcWidthPaperInPx()));
         return new SweetQrStyle(align, size, scale);
     }
 
     public @NotNull SweetQrInfo makeQrInfo(
-        @NotNull PrinterDesignQr designQr,
-        @NotNull PrinterDesignQr defaultQr
+        @NotNull SweetQrComponent designQr,
+        @NotNull SweetQrComponent defaultQr
     ) {
         String data = "";
-        QrType type = QrType.IMG;
-        QrCorrectionLevel correctionLevel = QrCorrectionLevel.Q;
+        SweetQrType type = SweetQrType.IMG;
+        SweetQrCorrectionLevel correctionLevel = SweetQrCorrectionLevel.Q;
         data = Optional.ofNullable(defaultQr.data()).orElse(data);
         type = Optional.ofNullable(defaultQr.qrType()).orElse(type);
         correctionLevel = Optional.ofNullable(defaultQr.correctionLevel()).orElse(correctionLevel);

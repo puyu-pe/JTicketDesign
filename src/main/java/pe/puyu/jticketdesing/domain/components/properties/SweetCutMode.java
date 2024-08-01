@@ -1,18 +1,18 @@
-package pe.puyu.jticketdesing.domain.inputs.properties;
+package pe.puyu.jticketdesing.domain.components.properties;
 
-public enum PrinterCutMode {
+public enum SweetCutMode {
     PART("PART"),
 
     FULL("FULL");
 
     private final String value;
 
-    PrinterCutMode(String value) {
+    SweetCutMode(String value) {
         this.value = value;
     }
 
-    public static PrinterCutMode fromValue(String value) {
-        for (PrinterCutMode mode : PrinterCutMode.values()) {
+    public static SweetCutMode fromValue(String value) {
+        for (SweetCutMode mode : SweetCutMode.values()) {
             if (mode.value.equalsIgnoreCase(value)) {
                 return mode;
             }

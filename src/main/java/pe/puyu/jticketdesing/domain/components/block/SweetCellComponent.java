@@ -1,8 +1,8 @@
-package pe.puyu.jticketdesing.domain.inputs.block;
+package pe.puyu.jticketdesing.domain.components.block;
 
 import org.jetbrains.annotations.Nullable;
 
-public record PrinterDesignCell(
+public record SweetCellComponent(
     @Nullable String className,
     @Nullable String text
 ) {

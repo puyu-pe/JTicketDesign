@@ -11,16 +11,16 @@ import pe.puyu.jticketdesing.domain.designer.qr.SweetQrHelper;
 import pe.puyu.jticketdesing.domain.designer.qr.SweetQrInfo;
 import pe.puyu.jticketdesing.domain.designer.qr.SweetQrStyle;
 import pe.puyu.jticketdesing.domain.designer.text.*;
-import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignBlock;
-import pe.puyu.jticketdesing.domain.inputs.PrinterDesignObject;
-import pe.puyu.jticketdesing.domain.inputs.block.QrType;
-import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
-import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignCut;
-import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignProperties;
-import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterDesignOpenDrawer;
-import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
-import pe.puyu.jticketdesing.domain.inputs.DesignDefaultValuesProvider;
-import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignCell;
+import pe.puyu.jticketdesing.domain.components.block.SweetBlockComponent;
+import pe.puyu.jticketdesing.domain.components.SweetPrinterObjectComponent;
+import pe.puyu.jticketdesing.domain.components.block.SweetQrType;
+import pe.puyu.jticketdesing.domain.components.properties.SweetCutMode;
+import pe.puyu.jticketdesing.domain.components.properties.SweetCutComponent;
+import pe.puyu.jticketdesing.domain.components.properties.SweetPropertiesComponent;
+import pe.puyu.jticketdesing.domain.components.drawer.SweetOpenDrawerComponent;
+import pe.puyu.jticketdesing.domain.components.drawer.SweetPinConnector;
+import pe.puyu.jticketdesing.domain.components.SweetDefaultComponentsProvider;
+import pe.puyu.jticketdesing.domain.components.block.SweetCellComponent;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinter;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinterStyle;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinterQrHints;
@@ -31,54 +31,54 @@ import java.util.*;
 public class SweetDesigner {
     private final @NotNull SweetDesignObjectBuilder builder;
     private final @NotNull SweetPrinter printer;
-    private final @NotNull DesignDefaultValuesProvider defaultProvider;
+    private final @NotNull SweetDefaultComponentsProvider defaultProvider;
 
-    public SweetDesigner(@NotNull SweetDesignObjectBuilder builder, @NotNull SweetPrinter printer, @NotNull DesignDefaultValuesProvider defaultProvider) {
+    public SweetDesigner(@NotNull SweetDesignObjectBuilder builder, @NotNull SweetPrinter printer, @NotNull SweetDefaultComponentsProvider defaultProvider) {
         this.builder = builder;
         this.printer = printer;
         this.defaultProvider = defaultProvider;
     }
 
     public void paintDesign() {
-        PrinterDesignObject designObject = builder.build();
-        List<PrinterDesignBlock> blocks = Optional
+        SweetPrinterObjectComponent designObject = builder.build();
+        List<SweetBlockComponent> blocks = Optional
             .ofNullable(designObject.blocks())
-            .orElse(defaultProvider.getDefaultData());
+            .orElse(defaultProvider.getDataComponent());
         SweetDesignHelper helper = makeSweetHelper(designObject.properties());
         blocks.forEach(block -> printBlock(block, helper));
         SweetProperties.CutProperty cutProperty = helper.getProperties().cutProperty();
         printer.cut(cutProperty.feed(), cutProperty.mode());
-        openDrawer(defaultProvider.getDefaultOpenDrawer());
+        openDrawer(defaultProvider.getOpenDrawerComponent());
     }
 
-    private @NotNull SweetDesignHelper makeSweetHelper(@Nullable PrinterDesignProperties propertiesDto) {
-        PrinterDesignProperties defaultProperties = defaultProvider.getDefaultDesignProperties();
+    private @NotNull SweetDesignHelper makeSweetHelper(@Nullable SweetPropertiesComponent propertiesDto) {
+        SweetPropertiesComponent defaultProperties = defaultProvider.getPropertiesComponent();
         propertiesDto = Optional.ofNullable(propertiesDto).orElse(defaultProperties);
         int blockWidth = Optional.ofNullable(propertiesDto.blockWidth()).or(() -> Optional.ofNullable(defaultProperties.blockWidth())).orElse(0);
         String charCode = Optional.ofNullable(propertiesDto.charCode()).or(() -> Optional.ofNullable(defaultProperties.charCode())).orElse("");
         boolean normalize = Optional
             .ofNullable(propertiesDto.normalize())
             .or(() -> Optional.ofNullable(defaultProperties.normalize()))
-            .or(() -> Optional.ofNullable(defaultProvider.getDefaultDesignStyle().normalize()))
+            .or(() -> Optional.ofNullable(defaultProvider.getStyleComponent().normalize()))
             .orElse(false);
         SweetProperties.CutProperty cut = makeCutProperty(propertiesDto, defaultProperties);
         SweetProperties properties = new SweetProperties(Math.max(blockWidth, 0), normalize, charCode, cut);
-        return new SweetDesignHelper(properties, defaultProvider.getDefaultDesignStyle());
+        return new SweetDesignHelper(properties, defaultProvider.getStyleComponent());
     }
 
-    private SweetProperties.CutProperty makeCutProperty(@NotNull PrinterDesignProperties properties, @NotNull PrinterDesignProperties defaultProperties) {
+    private SweetProperties.CutProperty makeCutProperty(@NotNull SweetPropertiesComponent properties, @NotNull SweetPropertiesComponent defaultProperties) {
         int feed = Optional.ofNullable(properties.cutMode())
-            .map(PrinterDesignCut::feed)
-            .or(() -> Optional.ofNullable(defaultProperties.cutMode()).map(PrinterDesignCut::feed))
+            .map(SweetCutComponent::feed)
+            .or(() -> Optional.ofNullable(defaultProperties.cutMode()).map(SweetCutComponent::feed))
             .orElse(4);
-        PrinterCutMode cutMode = Optional.ofNullable(properties.cutMode())
-            .map(PrinterDesignCut::mode)
-            .or(() -> Optional.ofNullable(defaultProperties.cutMode()).map(PrinterDesignCut::mode))
-            .orElse(PrinterCutMode.PART);
+        SweetCutMode cutMode = Optional.ofNullable(properties.cutMode())
+            .map(SweetCutComponent::mode)
+            .or(() -> Optional.ofNullable(defaultProperties.cutMode()).map(SweetCutComponent::mode))
+            .orElse(SweetCutMode.PART);
         return new SweetProperties.CutProperty(feed, cutMode);
     }
 
-    private void printBlock(@Nullable PrinterDesignBlock block, @NotNull SweetDesignHelper helper) {
+    private void printBlock(@Nullable SweetBlockComponent block, @NotNull SweetDesignHelper helper) {
         if (block == null) return;
         if (block.imgPath() != null && !block.imgPath().isBlank()) {
             String imgPath = block.imgPath();
@@ -86,7 +86,7 @@ public class SweetDesigner {
             SweetImageBlock imgBlock = new SweetImageBlock(imgPath, helper.calcWidthPaperInPx(), imageInfo);
             printImg(imgBlock);
         } else if (block.qr() != null) {
-            SweetQrInfo qrInfo = helper.makeQrInfo(block.qr(), defaultProvider.getDefaultQr());
+            SweetQrInfo qrInfo = helper.makeQrInfo(block.qr(), defaultProvider.getQrComponent());
             SweetQrStyle qrStyle = helper.makeQrStyles(block.styles());
             SweetQrBlock qrBlock = new SweetQrBlock(helper.calcWidthPaperInPx(), qrInfo, qrStyle);
             printQr(qrBlock);
@@ -99,8 +99,8 @@ public class SweetDesigner {
         }
     }
 
-    private @NotNull SweetTextBlock makeTextBlock(@NotNull PrinterDesignBlock block) {
-        PrinterDesignBlock defaultBlock = defaultProvider.getDefaultBlockValues();
+    private @NotNull SweetTextBlock makeTextBlock(@NotNull SweetBlockComponent block) {
+        SweetBlockComponent defaultBlock = defaultProvider.getBlockComponent();
         int gap = Math.max(Optional.ofNullable(block.gap()).or(() -> Optional.ofNullable(defaultBlock.gap())).orElse(1), 1);
         char separator = Optional.ofNullable(block.separator()).or(() -> Optional.ofNullable(defaultBlock.separator())).orElse(' ');
         int nColumns = Math.max(Optional.ofNullable(block.nColumns()).or(() -> Optional.ofNullable(defaultBlock.nColumns())).orElse(0), 0);
@@ -114,11 +114,11 @@ public class SweetDesigner {
         SweetTable table = new SweetTable(tableInfo);
         List<SweetRow> printRows = block.rows().stream()
             .map(rowDto -> {
-                List<PrinterDesignCell> cellRow = Optional.ofNullable(rowDto).orElse(new LinkedList<>());
+                List<SweetCellComponent> cellRow = Optional.ofNullable(rowDto).orElse(new LinkedList<>());
                 List<SweetCell> row = new LinkedList<>();
                 for (int i = 0; i < cellRow.size(); ++i) {
-                    PrinterDesignCell defaultCell = defaultProvider.getDefaultCellValues();
-                    PrinterDesignCell cellDto = Optional.ofNullable(cellRow.get(i)).orElse(defaultCell);
+                    SweetCellComponent defaultCell = defaultProvider.getCellComponent();
+                    SweetCellComponent cellDto = Optional.ofNullable(cellRow.get(i)).orElse(defaultCell);
                     String text = Optional.ofNullable(cellDto.text()).or(() -> Optional.ofNullable(defaultCell.text())).orElse("");
                     String className = Optional.ofNullable(cellDto.className()).or(() -> Optional.ofNullable(defaultCell.className())).orElse("");
                     SweetPrinterStyle sweetPrinterStyle = helper.makePrinterStyleFor(className, i, block.styles());
@@ -252,11 +252,11 @@ public class SweetDesigner {
         return wrappedRow;
     }
 
-    private void openDrawer(@Nullable PrinterDesignOpenDrawer openDrawer) {
+    private void openDrawer(@Nullable SweetOpenDrawerComponent openDrawer) {
         if (openDrawer != null) {
-            PrinterPinConnector pin = PrinterPinConnector.Pin_2;
+            SweetPinConnector pin = SweetPinConnector.Pin_2;
             int t1 = 120, t2 = 240;
-            PrinterDesignOpenDrawer defaultOpenDrawer = defaultProvider.getDefaultOpenDrawer();
+            SweetOpenDrawerComponent defaultOpenDrawer = defaultProvider.getOpenDrawerComponent();
             pin = Optional.ofNullable(defaultOpenDrawer.pin()).orElse(pin);
             t1 = Optional.ofNullable(defaultOpenDrawer.t1()).orElse(t1);
             t2 = Optional.ofNullable(defaultOpenDrawer.t2()).orElse(t2);
@@ -282,7 +282,7 @@ public class SweetDesigner {
         try {
             SweetQrInfo qrInfo = qrBlock.info();
             SweetQrStyle style = qrBlock.style();
-            if (qrInfo.qrType() == QrType.IMG) {
+            if (qrInfo.qrType() == SweetQrType.IMG) {
                 BufferedImage qrImage = SweetQrHelper.generateQr(qrInfo, style.size());
                 SweetImageInfo imageInfo = new SweetImageInfo(style.scale(), style.size(), style.size(), style.align());
                 BufferedImage justifiedQr = SweetImageHelper.justify(qrImage, qrBlock.widthInPx(), imageInfo);

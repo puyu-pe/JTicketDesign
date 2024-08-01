@@ -1,9 +1,9 @@
 package pe.puyu.jticketdesing.domain.builder;
 
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.inputs.PrinterDesignObject;
+import pe.puyu.jticketdesing.domain.components.SweetPrinterObjectComponent;
 
 public interface SweetDesignObjectBuilder {
     @NotNull
-    PrinterDesignObject build();
+    SweetPrinterObjectComponent build();
 }

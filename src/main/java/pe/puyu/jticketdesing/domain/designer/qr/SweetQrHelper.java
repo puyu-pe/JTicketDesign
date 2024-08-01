@@ -6,7 +6,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
-import pe.puyu.jticketdesing.domain.inputs.block.QrCorrectionLevel;
+import pe.puyu.jticketdesing.domain.components.block.SweetQrCorrectionLevel;
 
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class SweetQrHelper {
         return MatrixToImageWriter.toBufferedImage(matrix);
     }
 
-    private static ErrorCorrectionLevel toErrorCorrectionLevel(QrCorrectionLevel correctionLevel) {
+    private static ErrorCorrectionLevel toErrorCorrectionLevel(SweetQrCorrectionLevel correctionLevel) {
         return switch (correctionLevel) {
             case L -> ErrorCorrectionLevel.L;
             case M -> ErrorCorrectionLevel.M;

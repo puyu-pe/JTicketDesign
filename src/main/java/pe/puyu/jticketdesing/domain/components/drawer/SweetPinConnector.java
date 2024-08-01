@@ -1,21 +1,21 @@
-package pe.puyu.jticketdesing.domain.inputs.drawer;
+package pe.puyu.jticketdesing.domain.components.drawer;
 
 import org.jetbrains.annotations.Nullable;
 
-public enum PrinterPinConnector {
+public enum SweetPinConnector {
     Pin_2(2),
 
     Pin_5(5);
 
     private final Integer value;
 
-    PrinterPinConnector(int value) {
+    SweetPinConnector(int value) {
         this.value = value;
     }
 
-    public static PrinterPinConnector fromValue(@Nullable Integer value) {
+    public static SweetPinConnector fromValue(@Nullable Integer value) {
         if (value != null) {
-            for (PrinterPinConnector pin : PrinterPinConnector.values()) {
+            for (SweetPinConnector pin : SweetPinConnector.values()) {
                 if (pin.value.equals(value)) {
                     return pin;
                 }

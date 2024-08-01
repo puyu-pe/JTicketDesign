@@ -1,12 +1,12 @@
 package pe.puyu.jticketdesing.domain.designer.qr;
 
 import org.jetbrains.annotations.NotNull;
-import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
-import pe.puyu.jticketdesing.domain.inputs.block.ScaleType;
+import pe.puyu.jticketdesing.domain.components.block.SweetJustify;
+import pe.puyu.jticketdesing.domain.components.block.SweetScale;
 
 public record SweetQrStyle(
-    @NotNull PrinterJustifyAlign align,
+    @NotNull SweetJustify align,
     @NotNull Integer size,
-    @NotNull ScaleType scale
+    @NotNull SweetScale scale
 ) {
 }

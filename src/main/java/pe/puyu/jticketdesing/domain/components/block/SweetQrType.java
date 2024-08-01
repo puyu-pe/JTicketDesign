@@ -1,8 +1,8 @@
-package pe.puyu.jticketdesing.domain.inputs.block;
+package pe.puyu.jticketdesing.domain.components.block;
 
 import org.jetbrains.annotations.Nullable;
 
-public enum QrType {
+public enum SweetQrType {
 
     IMG("IMG"),
 
@@ -10,12 +10,12 @@ public enum QrType {
 
     private final String value;
 
-    QrType(String value){
+    SweetQrType(String value){
         this.value = value;
     }
 
-    public static QrType fromValue(@Nullable String value) {
-        for (QrType type : QrType.values()) {
+    public static SweetQrType fromValue(@Nullable String value) {
+        for (SweetQrType type : SweetQrType.values()) {
             if (type.value.equalsIgnoreCase(value)) {
                 return type;
             }

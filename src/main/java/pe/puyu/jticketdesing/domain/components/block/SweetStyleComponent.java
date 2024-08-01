@@ -1,17 +1,17 @@
-package pe.puyu.jticketdesing.domain.inputs.block;
+package pe.puyu.jticketdesing.domain.components.block;
 
 import org.jetbrains.annotations.Nullable;
 
-public record PrinterDesignStyle(
+public record SweetStyleComponent(
     @Nullable Integer fontWidth,
     @Nullable Integer fontHeight,
     @Nullable Boolean bold,
     @Nullable Boolean normalize,
     @Nullable Boolean bgInverted,
     @Nullable Character pad,
-    @Nullable PrinterJustifyAlign align,
+    @Nullable SweetJustify align,
     @Nullable Integer span,
-    @Nullable ScaleType scale,
+    @Nullable SweetScale scale,
     @Nullable Integer width,
     @Nullable Integer height
 ) {

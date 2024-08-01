@@ -6,10 +6,10 @@ import com.github.anastaciocintra.escpos.EscPosConst;
 import com.github.anastaciocintra.escpos.Style;
 import com.github.anastaciocintra.escpos.Style.FontSize;
 import com.github.anastaciocintra.escpos.barcode.QRCode;
-import pe.puyu.jticketdesing.domain.inputs.block.PrinterJustifyAlign;
-import pe.puyu.jticketdesing.domain.inputs.block.QrCorrectionLevel;
-import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
-import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
+import pe.puyu.jticketdesing.domain.components.block.SweetJustify;
+import pe.puyu.jticketdesing.domain.components.block.SweetQrCorrectionLevel;
+import pe.puyu.jticketdesing.domain.components.properties.SweetCutMode;
+import pe.puyu.jticketdesing.domain.components.drawer.SweetPinConnector;
 
 public class EscPosUtil {
 
@@ -21,14 +21,14 @@ public class EscPosUtil {
         }
     }
 
-    public static EscPos.CutMode toEscPosCutMode(PrinterCutMode cutMode) {
+    public static EscPos.CutMode toEscPosCutMode(SweetCutMode cutMode) {
         return switch (cutMode) {
             case PART -> EscPos.CutMode.PART;
             case FULL -> EscPos.CutMode.FULL;
         };
     }
 
-    public static EscPos.PinConnector toPinConnector(PrinterPinConnector pinConnector){
+    public static EscPos.PinConnector toPinConnector(SweetPinConnector pinConnector){
         return switch (pinConnector){
             case Pin_2 -> EscPos.PinConnector.Pin_2;
             case Pin_5 -> EscPos.PinConnector.Pin_5;
@@ -59,7 +59,7 @@ public class EscPosUtil {
         };
     }
 
-    public static EscPosConst.Justification toEscPosJustification(PrinterJustifyAlign align){
+    public static EscPosConst.Justification toEscPosJustification(SweetJustify align){
         return switch (align){
             case CENTER -> EscPosConst.Justification.Center;
             case RIGHT -> EscPosConst.Justification.Right;
@@ -67,7 +67,7 @@ public class EscPosUtil {
         };
     }
 
-    public static QRCode.QRErrorCorrectionLevel toQRErrorCorrectionLevel(QrCorrectionLevel correctionLevel){
+    public static QRCode.QRErrorCorrectionLevel toQRErrorCorrectionLevel(SweetQrCorrectionLevel correctionLevel){
         return switch (correctionLevel){
             case Q -> QRCode.QRErrorCorrectionLevel.QR_ECLEVEL_Q;
             case L -> QRCode.QRErrorCorrectionLevel.QR_ECLEVEL_L;

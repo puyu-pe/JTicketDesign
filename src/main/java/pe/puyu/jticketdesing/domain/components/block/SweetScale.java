@@ -1,8 +1,8 @@
-package pe.puyu.jticketdesing.domain.inputs.block;
+package pe.puyu.jticketdesing.domain.components.block;
 
 import org.jetbrains.annotations.Nullable;
 
-public enum ScaleType {
+public enum SweetScale {
     DEFAULT("DEFAULT"),
 
     FAST("FAST"),
@@ -15,12 +15,12 @@ public enum ScaleType {
 
     private final String value;
 
-    ScaleType(@Nullable String value){
+    SweetScale(@Nullable String value){
         this.value = value;
     }
 
-    public static ScaleType fromValue(String value){
-        for (ScaleType type : ScaleType.values()) {
+    public static SweetScale fromValue(String value){
+        for (SweetScale type : SweetScale.values()) {
             if (type.value.equalsIgnoreCase(value)) {
                 return type;
             }

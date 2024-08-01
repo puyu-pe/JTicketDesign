@@ -1,8 +1,8 @@
-package pe.puyu.jticketdesing.domain.inputs.block;
+package pe.puyu.jticketdesing.domain.components.block;
 
 
 
-public enum PrinterJustifyAlign {
+public enum SweetJustify {
     CENTER("CENTER"),
 
     LEFT("LEFT"),
@@ -11,12 +11,12 @@ public enum PrinterJustifyAlign {
 
     private final String value;
 
-    PrinterJustifyAlign(String value) {
+    SweetJustify(String value) {
         this.value = value;
     }
 
-    public static PrinterJustifyAlign fromValue(String value) {
-        for (PrinterJustifyAlign type : PrinterJustifyAlign.values()) {
+    public static SweetJustify fromValue(String value) {
+        for (SweetJustify type : SweetJustify.values()) {
             if (type.value.equalsIgnoreCase(value)) {
                 return type;
             }

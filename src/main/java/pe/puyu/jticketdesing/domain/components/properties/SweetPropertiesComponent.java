@@ -1,12 +1,12 @@
-package pe.puyu.jticketdesing.domain.inputs.properties;
+package pe.puyu.jticketdesing.domain.components.properties;
 
 import org.jetbrains.annotations.Nullable;
 
-public record PrinterDesignProperties(
+public record SweetPropertiesComponent(
     @Nullable Integer blockWidth,
     @Nullable Boolean normalize,
     @Nullable String charCode,
-    @Nullable PrinterDesignCut cutMode
+    @Nullable SweetCutComponent cutMode
 ) {
 
 }

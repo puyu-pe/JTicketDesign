@@ -5,13 +5,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pe.puyu.jticketdesing.domain.inputs.block.*;
-import pe.puyu.jticketdesing.domain.inputs.PrinterDesignObject;
-import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterDesignOpenDrawer;
-import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
-import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
-import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignCut;
-import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignProperties;
+import pe.puyu.jticketdesing.domain.components.block.*;
+import pe.puyu.jticketdesing.domain.components.SweetPrinterObjectComponent;
+import pe.puyu.jticketdesing.domain.components.drawer.SweetOpenDrawerComponent;
+import pe.puyu.jticketdesing.domain.components.drawer.SweetPinConnector;
+import pe.puyu.jticketdesing.domain.components.properties.SweetCutMode;
+import pe.puyu.jticketdesing.domain.components.properties.SweetCutComponent;
+import pe.puyu.jticketdesing.domain.components.properties.SweetPropertiesComponent;
 import pe.puyu.jticketdesing.domain.builder.SweetDesignObjectBuilder;
 import pe.puyu.jticketdesing.domain.builder.DesignObjectBuilderException;
 
@@ -33,21 +33,21 @@ public class GsonDesignObjectBuilder implements SweetDesignObjectBuilder {
     }
 
     @Override
-    public @NotNull PrinterDesignObject build() {
+    public @NotNull SweetPrinterObjectComponent build() {
         try {
-            PrinterDesignProperties properties = buildPrinterDesignProperties();
-            List<PrinterDesignBlock> blocks = buildPrinterDesignBlocks();
-            PrinterDesignOpenDrawer openDrawer = buildPrinterOpenDrawer();
-            return new PrinterDesignObject(properties, blocks, openDrawer);
+            SweetPropertiesComponent properties = buildPrinterDesignProperties();
+            List<SweetBlockComponent> blocks = buildPrinterDesignBlocks();
+            SweetOpenDrawerComponent openDrawer = buildPrinterOpenDrawer();
+            return new SweetPrinterObjectComponent(properties, blocks, openDrawer);
         } catch (Exception e) {
             throw new DesignObjectBuilderException(String.format("GsonDesignObjectBuilder throw an exception: %s", e.getMessage()), e);
         }
     }
 
-    private @Nullable PrinterDesignProperties buildPrinterDesignProperties() {
+    private @Nullable SweetPropertiesComponent buildPrinterDesignProperties() {
         if (designObject.has("properties") && designObject.get("properties").isJsonObject()) {
             GsonObject properties = new GsonObject(designObject.get("properties").getAsJsonObject());
-            return new PrinterDesignProperties(
+            return new SweetPropertiesComponent(
                 properties.getInt("blockWidth"),
                 properties.getBoolean("normalize"),
                 properties.getString("charCode"),
@@ -57,9 +57,9 @@ public class GsonDesignObjectBuilder implements SweetDesignObjectBuilder {
         return null;
     }
 
-    private @Nullable List<PrinterDesignBlock> buildPrinterDesignBlocks() {
+    private @Nullable List<SweetBlockComponent> buildPrinterDesignBlocks() {
         if (designObject.has("data")) {
-            List<PrinterDesignBlock> blocks = new LinkedList<>();
+            List<SweetBlockComponent> blocks = new LinkedList<>();
             JsonElement element = designObject.get("data");
             if (element.isJsonObject()) {
                 blocks.add(castBlock(element));
@@ -71,14 +71,14 @@ public class GsonDesignObjectBuilder implements SweetDesignObjectBuilder {
         return null;
     }
 
-    private @Nullable PrinterDesignBlock castBlock(JsonElement element) {
+    private @Nullable SweetBlockComponent castBlock(JsonElement element) {
         if (element.isJsonPrimitive()) {
-            PrinterDesignCell cell = new PrinterDesignCell(null, element.getAsString());
-            List<PrinterDesignCell> row = new LinkedList<>();
+            SweetCellComponent cell = new SweetCellComponent(null, element.getAsString());
+            List<SweetCellComponent> row = new LinkedList<>();
             row.add(cell);
-            List<List<PrinterDesignCell>> rows = new LinkedList<>();
+            List<List<SweetCellComponent>> rows = new LinkedList<>();
             rows.add(row);
-            return new PrinterDesignBlock(
+            return new SweetBlockComponent(
                 null,
                 null,
                 null,
@@ -89,7 +89,7 @@ public class GsonDesignObjectBuilder implements SweetDesignObjectBuilder {
             );
         } else if (element.isJsonObject()) {
             GsonObject block = new GsonObject(element.getAsJsonObject());
-            return new PrinterDesignBlock(
+            return new SweetBlockComponent(
                 block.getInt("gap"),
                 block.getCharacter("separator"),
                 buildQrProperty(block.getElement("qr")),
@@ -102,28 +102,28 @@ public class GsonDesignObjectBuilder implements SweetDesignObjectBuilder {
         return null;
     }
 
-    private @Nullable Map<String, PrinterDesignStyle> buildPrinterDesignStyles(@Nullable JsonElement styleElement) {
+    private @Nullable Map<String, SweetStyleComponent> buildPrinterDesignStyles(@Nullable JsonElement styleElement) {
         if (styleElement != null && styleElement.isJsonObject()) {
-            Map<String, PrinterDesignStyle> styles = new HashMap<>();
+            Map<String, SweetStyleComponent> styles = new HashMap<>();
             styleElement.getAsJsonObject().asMap().forEach((key, element) -> styles.put(key, castStyle(element)));
             return styles;
         }
         return null;
     }
 
-    private @Nullable PrinterDesignStyle castStyle(@NotNull JsonElement element) {
+    private @Nullable SweetStyleComponent castStyle(@NotNull JsonElement element) {
         if (element.isJsonObject()) {
             GsonObject style = new GsonObject(element.getAsJsonObject());
-            return new PrinterDesignStyle(
+            return new SweetStyleComponent(
                 style.getInt("fontWidth"),
                 style.getInt("fontHeight"),
                 style.getBoolean("bold"),
                 style.getBoolean("normalize"),
                 style.getBoolean("bgInverted"),
                 style.getCharacter("pad"),
-                PrinterJustifyAlign.fromValue(style.getString("align")),
+                SweetJustify.fromValue(style.getString("align")),
                 style.getInt("span"),
-                ScaleType.fromValue(style.getString("scale")),
+                SweetScale.fromValue(style.getString("scale")),
                 style.getInt("width"),
                 style.getInt("height")
             );
@@ -131,25 +131,25 @@ public class GsonDesignObjectBuilder implements SweetDesignObjectBuilder {
         return null;
     }
 
-    private @Nullable List<List<PrinterDesignCell>> buildRows(@Nullable JsonElement element) {
+    private @Nullable List<List<SweetCellComponent>> buildRows(@Nullable JsonElement element) {
         if (element != null && element.isJsonArray()) {
-            List<List<PrinterDesignCell>> rows = new LinkedList<>();
+            List<List<SweetCellComponent>> rows = new LinkedList<>();
             element.getAsJsonArray().forEach(row -> rows.add(castRow(row)));
             return rows;
         }
         return null;
     }
 
-    private List<PrinterDesignCell> castRow(@NotNull JsonElement element) {
-        List<PrinterDesignCell> row = new LinkedList<>();
+    private List<SweetCellComponent> castRow(@NotNull JsonElement element) {
+        List<SweetCellComponent> row = new LinkedList<>();
         if (element.isJsonPrimitive()) {
-            PrinterDesignCell cell = new PrinterDesignCell(null, element.getAsString());
+            SweetCellComponent cell = new SweetCellComponent(null, element.getAsString());
             row.add(cell);
             return row;
         } else if (element.isJsonObject()) {
             GsonObject cell = new GsonObject(element.getAsJsonObject());
-            PrinterDesignCell printerDesignCell = new PrinterDesignCell(cell.getString("className"), cell.getString("text"));
-            row.add(printerDesignCell);
+            SweetCellComponent sweetCellComponent = new SweetCellComponent(cell.getString("className"), cell.getString("text"));
+            row.add(sweetCellComponent);
             return row;
         } else if (element.isJsonArray()) {
             element.getAsJsonArray().forEach(item -> row.addAll(castRow(item)));
@@ -157,22 +157,22 @@ public class GsonDesignObjectBuilder implements SweetDesignObjectBuilder {
         return row;
     }
 
-    private @Nullable PrinterDesignCut buildPrinterCutModeProperty(@Nullable JsonElement element) {
+    private @Nullable SweetCutComponent buildPrinterCutModeProperty(@Nullable JsonElement element) {
         if (element != null && element.isJsonObject()) {
             GsonObject cut = new GsonObject(element.getAsJsonObject());
-            return new PrinterDesignCut(
+            return new SweetCutComponent(
                 cut.getInt("feed"),
-                PrinterCutMode.fromValue(cut.getString("mode"))
+                SweetCutMode.fromValue(cut.getString("mode"))
             );
         }
         return null;
     }
 
-    private @Nullable PrinterDesignOpenDrawer buildPrinterOpenDrawer() {
+    private @Nullable SweetOpenDrawerComponent buildPrinterOpenDrawer() {
         if (designObject.has("openDrawer") && designObject.get("openDrawer").isJsonObject()) {
             GsonObject openDrawer = new GsonObject(designObject.get("openDrawer").getAsJsonObject());
-            return new PrinterDesignOpenDrawer(
-                PrinterPinConnector.fromValue(openDrawer.getInt("pin")),
+            return new SweetOpenDrawerComponent(
+                SweetPinConnector.fromValue(openDrawer.getInt("pin")),
                 openDrawer.getInt("t1"),
                 openDrawer.getInt("t2")
             );
@@ -180,19 +180,19 @@ public class GsonDesignObjectBuilder implements SweetDesignObjectBuilder {
         return null;
     }
 
-    private @Nullable PrinterDesignQr buildQrProperty(@Nullable JsonElement element) {
+    private @Nullable SweetQrComponent buildQrProperty(@Nullable JsonElement element) {
         if (element == null) {
             return null;
         }
         if (element.isJsonPrimitive()) {
             String data = element.getAsString();
-            return new PrinterDesignQr(data, null, null);
+            return new SweetQrComponent(data, null, null);
         } else if (element.isJsonObject()) {
             GsonObject qr = new GsonObject(element.getAsJsonObject());
-            return new PrinterDesignQr(
+            return new SweetQrComponent(
                 qr.getString("data"),
-                QrType.fromValue(qr.getString("type")),
-                QrCorrectionLevel.fromValue(qr.getString("correctionLevel"))
+                SweetQrType.fromValue(qr.getString("type")),
+                SweetQrCorrectionLevel.fromValue(qr.getString("correctionLevel"))
             );
         }
         return null;
