@@ -7,7 +7,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import pe.puyu.jticketdesing.domain.DesignerHelper;
 import pe.puyu.jticketdesing.domain.table.util.JsonUtil;
 import pe.puyu.jticketdesing.domain.table.util.StringUtils;
 import pe.puyu.jticketdesing.domain.table.util.escpos.*;

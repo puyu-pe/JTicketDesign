@@ -1,7 +1,6 @@
-package pe.puyu.jticketdesing.domain;
+package pe.puyu.jticketdesing.domain.table;
 
 import com.github.anastaciocintra.escpos.EscPos;
-import pe.puyu.jticketdesing.domain.table.PrinterPropertiesReader;
 import pe.puyu.jticketdesing.domain.table.util.escpos.StyleText;
 import pe.puyu.jticketdesing.domain.table.util.escpos.StyleTextBuilder;
 
