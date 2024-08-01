@@ -26,10 +26,6 @@ public class SweetTable implements Iterable<SweetRow> {
         _table.addAll(rows);
     }
 
-    public void clear(){
-        _table.clear();
-    }
-
     public @NotNull SweetTableInfo getInfo() {
         return _info;
     }

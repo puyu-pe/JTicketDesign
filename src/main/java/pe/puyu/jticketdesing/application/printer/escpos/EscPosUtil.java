@@ -35,18 +35,6 @@ public class EscPosUtil {
         };
     }
 
-    public static int valueFontSize(FontSize fontSize) {
-        return switch (fontSize) {
-            case _2 -> 2;
-            case _3 -> 3;
-            case _4 -> 4;
-            case _5 -> 5;
-            case _6 -> 6;
-            case _7 -> 7;
-            default -> 1;
-        };
-    }
-
     public static FontSize toFontSize(int size) {
         return switch (size) {
             case 2 -> Style.FontSize._2;

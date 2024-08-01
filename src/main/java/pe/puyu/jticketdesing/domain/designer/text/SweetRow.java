@@ -13,11 +13,6 @@ public class SweetRow implements Iterable<SweetCell> {
         _row = new LinkedList<>();
     }
 
-    public SweetRow(@NotNull SweetRow otherRow) {
-        this();
-        otherRow.forEach(otherCell -> _row.add(new SweetCell(otherCell)));
-    }
-
     public void add(@NotNull SweetCell cell) {
         _row.add(cell);
     }

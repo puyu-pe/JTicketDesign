@@ -6,7 +6,7 @@ import pe.puyu.jticketdesing.domain.components.block.SweetJustify;
 import pe.puyu.jticketdesing.domain.components.block.SweetScale;
 
 public record SweetImageInfo(
-    @NotNull SweetScale sweetScale,
+    @NotNull SweetScale scale,
     @NotNull Integer width,
     @NotNull Integer height,
     @NotNull SweetJustify align

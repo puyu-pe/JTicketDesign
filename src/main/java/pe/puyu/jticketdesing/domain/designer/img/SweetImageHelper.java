@@ -38,7 +38,7 @@ public class SweetImageHelper {
     }
 
     public static BufferedImage resize(BufferedImage image, SweetImageInfo imageInfo) {
-        Image scaledImage = image.getScaledInstance(imageInfo.width(), imageInfo.height(), toImageScaleType(imageInfo.sweetScale()));
+        Image scaledImage = image.getScaledInstance(imageInfo.width(), imageInfo.height(), toImageScaleType(imageInfo.scale()));
         BufferedImage resizedImage = new BufferedImage(imageInfo.width(), imageInfo.height(), BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = resizedImage.createGraphics();
         g.drawImage(scaledImage, 0, 0, null);
@@ -46,8 +46,8 @@ public class SweetImageHelper {
         return resizedImage;
     }
 
-    public static int toImageScaleType(@NotNull SweetScale sweetScale) {
-        return switch (sweetScale) {
+    public static int toImageScaleType(@NotNull SweetScale scale) {
+        return switch (scale) {
             case DEFAULT -> Image.SCALE_DEFAULT;
             case FAST -> Image.SCALE_FAST;
             case SMOOTH -> Image.SCALE_SMOOTH;

@@ -12,7 +12,7 @@ import pe.puyu.jticketdesing.domain.components.drawer.SweetPinConnector;
 import pe.puyu.jticketdesing.domain.components.properties.SweetCutMode;
 import pe.puyu.jticketdesing.domain.components.properties.SweetCutComponent;
 import pe.puyu.jticketdesing.domain.components.properties.SweetPropertiesComponent;
-import pe.puyu.jticketdesing.domain.builder.SweetDesignObjectBuilder;
+import pe.puyu.jticketdesing.domain.builder.SweetPrinterObjectBuilder;
 import pe.puyu.jticketdesing.domain.builder.DesignObjectBuilderException;
 
 import java.util.HashMap;
@@ -20,7 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class GsonPrinterObjectBuilder implements SweetDesignObjectBuilder {
+public class GsonPrinterObjectBuilder implements SweetPrinterObjectBuilder {
 
     private final JsonObject printerObject;
 

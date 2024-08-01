@@ -7,10 +7,8 @@ import pe.puyu.jticketdesing.domain.components.drawer.SweetPinConnector;
 import java.awt.image.BufferedImage;
 
 public interface SweetPrinter {
-    // sin salto de linea
     void print(@NotNull String text, @NotNull SweetPrinterStyle style);
 
-    // con salto de linea
     void println(@NotNull String text, @NotNull SweetPrinterStyle style);
 
     void printImg(@NotNull BufferedImage image);

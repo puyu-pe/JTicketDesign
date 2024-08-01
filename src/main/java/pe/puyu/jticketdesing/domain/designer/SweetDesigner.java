@@ -2,7 +2,7 @@ package pe.puyu.jticketdesing.domain.designer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import pe.puyu.jticketdesing.domain.builder.SweetDesignObjectBuilder;
+import pe.puyu.jticketdesing.domain.builder.SweetPrinterObjectBuilder;
 import pe.puyu.jticketdesing.domain.designer.img.SweetImageBlock;
 import pe.puyu.jticketdesing.domain.designer.img.SweetImageHelper;
 import pe.puyu.jticketdesing.domain.designer.img.SweetImageInfo;
@@ -29,11 +29,15 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class SweetDesigner {
-    private final @NotNull SweetDesignObjectBuilder builder;
+    private final @NotNull SweetPrinterObjectBuilder builder;
     private final @NotNull SweetPrinter printer;
     private final @NotNull SweetDefaultComponentsProvider defaultProvider;
 
-    public SweetDesigner(@NotNull SweetDesignObjectBuilder builder, @NotNull SweetPrinter printer, @NotNull SweetDefaultComponentsProvider defaultProvider) {
+    public SweetDesigner(
+        @NotNull pe.puyu.jticketdesing.domain.builder.SweetPrinterObjectBuilder builder,
+        @NotNull SweetPrinter printer,
+        @NotNull SweetDefaultComponentsProvider defaultProvider
+    ) {
         this.builder = builder;
         this.printer = printer;
         this.defaultProvider = defaultProvider;
@@ -51,17 +55,17 @@ public class SweetDesigner {
         openDrawer(defaultProvider.getOpenDrawerComponent());
     }
 
-    private @NotNull SweetDesignHelper makeSweetHelper(@Nullable SweetPropertiesComponent propertiesDto) {
+    private @NotNull SweetDesignHelper makeSweetHelper(@Nullable SweetPropertiesComponent propertiesComponent) {
         SweetPropertiesComponent defaultProperties = defaultProvider.getPropertiesComponent();
-        propertiesDto = Optional.ofNullable(propertiesDto).orElse(defaultProperties);
-        int blockWidth = Optional.ofNullable(propertiesDto.blockWidth()).or(() -> Optional.ofNullable(defaultProperties.blockWidth())).orElse(0);
-        String charCode = Optional.ofNullable(propertiesDto.charCode()).or(() -> Optional.ofNullable(defaultProperties.charCode())).orElse("");
+        propertiesComponent = Optional.ofNullable(propertiesComponent).orElse(defaultProperties);
+        int blockWidth = Optional.ofNullable(propertiesComponent.blockWidth()).or(() -> Optional.ofNullable(defaultProperties.blockWidth())).orElse(0);
+        String charCode = Optional.ofNullable(propertiesComponent.charCode()).or(() -> Optional.ofNullable(defaultProperties.charCode())).orElse("");
         boolean normalize = Optional
-            .ofNullable(propertiesDto.normalize())
+            .ofNullable(propertiesComponent.normalize())
             .or(() -> Optional.ofNullable(defaultProperties.normalize()))
             .or(() -> Optional.ofNullable(defaultProvider.getStyleComponent().normalize()))
             .orElse(false);
-        SweetProperties.CutProperty cut = makeCutProperty(propertiesDto, defaultProperties);
+        SweetProperties.CutProperty cut = makeCutProperty(propertiesComponent, defaultProperties);
         SweetProperties properties = new SweetProperties(Math.max(blockWidth, 0), normalize, charCode, cut);
         return new SweetDesignHelper(properties, defaultProvider.getStyleComponent());
     }
@@ -154,7 +158,7 @@ public class SweetDesigner {
                     cellWidth = Math.max(cellWidth - gap, 0); // consider intermediate space
                 }
                 if (isLastItem && coveredColumns >= nColumns) {
-                    cellWidth = Math.max(remainingWidth, 0); // cover all remaining widthInPx
+                    cellWidth = Math.max(remainingWidth, 0); // cover all remaining width
                 }
                 remainingWidth -= coverWidthByCell;
                 SweetStringStyle newStringStyle = new SweetStringStyle(
