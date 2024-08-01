@@ -2,6 +2,7 @@ package pe.puyu.jticketdesing.domain.designer;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import pe.puyu.jticketdesing.domain.builder.SweetDesignObjectBuilder;
 import pe.puyu.jticketdesing.domain.designer.img.SweetImageBlock;
 import pe.puyu.jticketdesing.domain.designer.img.SweetImageHelper;
 import pe.puyu.jticketdesing.domain.designer.img.SweetImageInfo;
@@ -20,7 +21,6 @@ import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterDesignOpenDrawer;
 import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
 import pe.puyu.jticketdesing.domain.inputs.DesignDefaultValuesProvider;
 import pe.puyu.jticketdesing.domain.inputs.block.PrinterDesignCell;
-import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinter;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinterStyle;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinterQrHints;
@@ -29,25 +29,25 @@ import java.awt.image.BufferedImage;
 import java.util.*;
 
 public class SweetDesigner {
-    private final @NotNull DesignObjectMaker maker;
-    private final @NotNull SweetPrinter painter;
+    private final @NotNull SweetDesignObjectBuilder builder;
+    private final @NotNull SweetPrinter printer;
     private final @NotNull DesignDefaultValuesProvider defaultProvider;
 
-    public SweetDesigner(@NotNull DesignObjectMaker maker, @NotNull SweetPrinter painter, @NotNull DesignDefaultValuesProvider defaultProvider) {
-        this.maker = maker;
-        this.painter = painter;
+    public SweetDesigner(@NotNull SweetDesignObjectBuilder builder, @NotNull SweetPrinter printer, @NotNull DesignDefaultValuesProvider defaultProvider) {
+        this.builder = builder;
+        this.printer = printer;
         this.defaultProvider = defaultProvider;
     }
 
     public void paintDesign() {
-        PrinterDesignObject designObject = maker.build();
+        PrinterDesignObject designObject = builder.build();
         List<PrinterDesignBlock> blocks = Optional
             .ofNullable(designObject.blocks())
             .orElse(defaultProvider.getDefaultData());
         SweetDesignHelper helper = makeSweetHelper(designObject.properties());
         blocks.forEach(block -> printBlock(block, helper));
         SweetProperties.CutProperty cutProperty = helper.getProperties().cutProperty();
-        painter.cut(cutProperty.feed(), cutProperty.mode());
+        printer.cut(cutProperty.feed(), cutProperty.mode());
         openDrawer(defaultProvider.getDefaultOpenDrawer());
     }
 
@@ -121,7 +121,7 @@ public class SweetDesigner {
                     PrinterDesignCell cellDto = Optional.ofNullable(cellRow.get(i)).orElse(defaultCell);
                     String text = Optional.ofNullable(cellDto.text()).or(() -> Optional.ofNullable(defaultCell.text())).orElse("");
                     String className = Optional.ofNullable(cellDto.className()).or(() -> Optional.ofNullable(defaultCell.className())).orElse("");
-                    SweetPrinterStyle sweetPrinterStyle = helper.makePainterStyleFor(className, i, block.styles());
+                    SweetPrinterStyle sweetPrinterStyle = helper.makePrinterStyleFor(className, i, block.styles());
                     SweetStringStyle stringStyle = helper.makeSweetStringStyleFor(className, i, block.styles());
                     row.add(new SweetCell(text, 0, sweetPrinterStyle, stringStyle));
                 }
@@ -198,14 +198,14 @@ public class SweetDesigner {
                         cell.printerStyle().bgInverted(),
                         cell.printerStyle().charCode()
                     );
-                    painter.print(cell.text(), cell.printerStyle());
+                    printer.print(cell.text(), cell.printerStyle());
                     remainingWidth -= cell.width();
                     if (remainingWidth > 0) {
-                        painter.print(separator.repeat(gap), gapStyle);
+                        printer.print(separator.repeat(gap), gapStyle);
                         remainingWidth -= gap;
                     }
                 } else {
-                    painter.println(cell.text(), cell.printerStyle());
+                    printer.println(cell.text(), cell.printerStyle());
                 }
             }
         }
@@ -263,7 +263,7 @@ public class SweetDesigner {
             pin = Optional.ofNullable(openDrawer.pin()).orElse(pin);
             t1 = Optional.ofNullable(openDrawer.t1()).orElse(t1);
             t2 = Optional.ofNullable(openDrawer.t2()).orElse(t2);
-            painter.openDrawer(pin, t1, t2);
+            printer.openDrawer(pin, t1, t2);
         }
     }
 
@@ -272,7 +272,7 @@ public class SweetDesigner {
             BufferedImage image = SweetImageHelper.toBufferedImage(imageBlock.imgPath());
             BufferedImage resizedImage = SweetImageHelper.resize(image, imageBlock.imageInfo());
             BufferedImage justifiedImage = SweetImageHelper.justify(resizedImage, imageBlock.widthInPx(), imageBlock.imageInfo());
-            painter.printImg(justifiedImage);
+            printer.printImg(justifiedImage);
         } catch (Exception ignored) {
 
         }
@@ -286,10 +286,10 @@ public class SweetDesigner {
                 BufferedImage qrImage = SweetQrHelper.generateQr(qrInfo, style.size());
                 SweetImageInfo imageInfo = new SweetImageInfo(style.scale(), style.size(), style.size(), style.align());
                 BufferedImage justifiedQr = SweetImageHelper.justify(qrImage, qrBlock.widthInPx(), imageInfo);
-                painter.printImg(justifiedQr);
+                printer.printImg(justifiedQr);
             } else {
                 SweetPrinterQrHints hints = new SweetPrinterQrHints(style.size(), style.align(), qrInfo.correctionLevel());
-                painter.printQr(qrInfo.data(), hints);
+                printer.printQr(qrInfo.data(), hints);
             }
         } catch (Exception ignored) {
         }

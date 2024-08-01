@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.application.maker.gson;
+package pe.puyu.jticketdesing.application.builder.gson;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -12,23 +12,23 @@ import pe.puyu.jticketdesing.domain.inputs.drawer.PrinterPinConnector;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterCutMode;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignCut;
 import pe.puyu.jticketdesing.domain.inputs.properties.PrinterDesignProperties;
-import pe.puyu.jticketdesing.domain.maker.DesignObjectMaker;
-import pe.puyu.jticketdesing.domain.maker.DesignObjectMakerException;
+import pe.puyu.jticketdesing.domain.builder.SweetDesignObjectBuilder;
+import pe.puyu.jticketdesing.domain.builder.DesignObjectBuilderException;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class GsonDesignObjectMaker implements DesignObjectMaker {
+public class GsonDesignObjectBuilder implements SweetDesignObjectBuilder {
 
     private final JsonObject designObject;
 
-    public GsonDesignObjectMaker(@NotNull String jsonString) {
+    public GsonDesignObjectBuilder(@NotNull String jsonString) {
         this(JsonParser.parseString(jsonString).getAsJsonObject());
     }
 
-    public GsonDesignObjectMaker(@NotNull JsonObject jsonObject) {
+    public GsonDesignObjectBuilder(@NotNull JsonObject jsonObject) {
         this.designObject = jsonObject;
     }
 
@@ -40,7 +40,7 @@ public class GsonDesignObjectMaker implements DesignObjectMaker {
             PrinterDesignOpenDrawer openDrawer = buildPrinterOpenDrawer();
             return new PrinterDesignObject(properties, blocks, openDrawer);
         } catch (Exception e) {
-            throw new DesignObjectMakerException(String.format("GsonDesignObjectMaker throw an exception: %s", e.getMessage()), e);
+            throw new DesignObjectBuilderException(String.format("GsonDesignObjectBuilder throw an exception: %s", e.getMessage()), e);
         }
     }
 

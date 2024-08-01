@@ -27,7 +27,7 @@ public class SweetDesignHelper {
         this._defaultStyle = defaultStyle;
     }
 
-    public @NotNull SweetPrinterStyle makePainterStyleFor(
+    public @NotNull SweetPrinterStyle makePrinterStyleFor(
         @NotNull String className,
         @NotNull Integer index,
         @Nullable Map<String, @Nullable PrinterDesignStyle> styles
