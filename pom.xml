@@ -150,7 +150,7 @@
                     <launcher>jticketdesing</launcher>
                     <jlinkImageName>jticketdesing</jlinkImageName>
                     <jlinkZipName>jticketdesing</jlinkZipName>
-                    <mainClass>pe.puyu.jticketdesing/pe.puyu.jticketdesing.Main</mainClass>
+                    <mainClass>pe.puyu.jticketdesing/pe.puyu.SweetTicketDesign.Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>

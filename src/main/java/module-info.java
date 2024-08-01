@@ -5,11 +5,11 @@ module pe.puyu.jticketdesing {
     requires com.google.zxing;
     requires com.google.zxing.javase;
     requires org.jetbrains.annotations;
-    exports pe.puyu.jticketdesing.domain.designer;
-    exports pe.puyu.jticketdesing.application.builder.gson;
-    exports pe.puyu.jticketdesing.application.components;
-    exports pe.puyu.jticketdesing.application.printer.escpos;
-    exports pe.puyu.jticketdesing.domain.table.util.escpos;
-    exports pe.puyu.jticketdesing.domain.table;
-    exports pe.puyu.jticketdesing.domain.table.util;
+    exports pe.puyu.SweetTicketDesign.domain.designer;
+    exports pe.puyu.SweetTicketDesign.application.builder.gson;
+    exports pe.puyu.SweetTicketDesign.application.components;
+    exports pe.puyu.SweetTicketDesign.application.printer.escpos;
+    exports pe.puyu.SweetTicketDesign.domain.table.util.escpos;
+    exports pe.puyu.SweetTicketDesign.domain.table;
+    exports pe.puyu.SweetTicketDesign.domain.table.util;
 }

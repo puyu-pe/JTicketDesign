@@ -63,7 +63,7 @@ y SweetTableDesing (apartir de v 1.0.0) para diseño de tablas responsive ideal 
 
 ```java
 import com.github.anastaciocintra.output.TcpIpOutputStream;
-import pe.puyu.jticketdesing.domain.SweetTicketDesign;
+import pe.puyu.SweetTicketDesign.domain.SweetTicketDesign;
 
 import java.io.OutputStream;
 
