@@ -148,7 +148,7 @@ public class GsonPrinterObjectBuilder implements SweetPrinterObjectBuilder {
             return row;
         } else if (element.isJsonObject()) {
             GsonObject cellElement = new GsonObject(element.getAsJsonObject());
-            SweetCellComponent cell = new SweetCellComponent(cellElement.getString("className"), cellElement.getString("text"));
+            SweetCellComponent cell = new SweetCellComponent(cellElement.getString("class"), cellElement.getString("text"));
             row.add(cell);
             return row;
         } else if (element.isJsonArray()) {
