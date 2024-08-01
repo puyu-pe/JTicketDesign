@@ -8,7 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import pe.puyu.jticketdesing.application.defaultprovider.SimpleDesignDefaultProvider;
 import pe.puyu.jticketdesing.application.maker.gson.GsonDesignObjectMaker;
-import pe.puyu.jticketdesing.application.painter.escpos.EscPosPrinter;
+import pe.puyu.jticketdesing.application.printer.escpos.EscPosPrinter;
 import pe.puyu.jticketdesing.domain.SweetTicketDesign;
 import pe.puyu.jticketdesing.domain.designer.SweetDesigner;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinter;
@@ -18,7 +18,7 @@ import javax.print.PrintService;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException {
-        try (OutputStream outputStream = ip("192.168.18.39")) {
+        try (OutputStream outputStream = ip("192.168.1.38")) {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             testSweetDesigner(byteArrayOutputStream);
             outputStream.write(byteArrayOutputStream.toByteArray());

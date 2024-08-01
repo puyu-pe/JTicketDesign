@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.application.painter.escpos;
+package pe.puyu.jticketdesing.application.printer.escpos;
 
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.Style;
