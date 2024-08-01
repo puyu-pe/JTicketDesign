@@ -1,8 +1,9 @@
-package pe.puyu.jticketdesing.util.escpos;
+package pe.puyu.jticketdesing.domain.table.util.escpos;
 
 import com.github.anastaciocintra.escpos.Style;
 import com.github.anastaciocintra.escpos.Style.FontSize;
 
+@Deprecated(since = "0.1.0", forRemoval = true)
 public class StyleText {
 	private FontSize fontWidth = FontSize._1;
 	private FontSize fontHeight = FontSize._1;

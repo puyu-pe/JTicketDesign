@@ -1,12 +1,13 @@
 package pe.puyu.jticketdesing.domain;
 
 import com.github.anastaciocintra.escpos.EscPos;
-import pe.puyu.jticketdesing.metadata.PrinterPropertiesReader;
-import pe.puyu.jticketdesing.util.escpos.StyleText;
-import pe.puyu.jticketdesing.util.escpos.StyleTextBuilder;
+import pe.puyu.jticketdesing.domain.table.PrinterPropertiesReader;
+import pe.puyu.jticketdesing.domain.table.util.escpos.StyleText;
+import pe.puyu.jticketdesing.domain.table.util.escpos.StyleTextBuilder;
 
 import java.io.IOException;
 
+@Deprecated(since = "0.1.0", forRemoval = true)
 public class DesignerHelper<T extends  PrinterPropertiesReader> {
 	private final T propertiesReader;
 

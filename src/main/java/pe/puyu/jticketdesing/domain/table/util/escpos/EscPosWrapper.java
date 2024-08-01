@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.util.escpos;
+package pe.puyu.jticketdesing.domain.table.util.escpos;
 
 import java.awt.image.BufferedImage;
 
@@ -13,8 +13,9 @@ import com.github.anastaciocintra.escpos.image.CoffeeImageImpl;
 import com.github.anastaciocintra.escpos.image.EscPosImage;
 import com.github.anastaciocintra.escpos.image.RasterBitImageWrapper;
 
-import pe.puyu.jticketdesing.util.StringUtils;
+import pe.puyu.jticketdesing.domain.table.util.StringUtils;
 
+@Deprecated(since = "0.1.0", forRemoval = true)
 public class EscPosWrapper {
   private final EscPos escPos;
 

@@ -9,7 +9,6 @@ import com.google.gson.JsonParser;
 import pe.puyu.jticketdesing.application.components.DefaultComponentsProvider;
 import pe.puyu.jticketdesing.application.builder.gson.GsonPrinterObjectBuilder;
 import pe.puyu.jticketdesing.application.printer.escpos.EscPosPrinter;
-import pe.puyu.jticketdesing.domain.SweetTicketDesign;
 import pe.puyu.jticketdesing.domain.designer.SweetDesigner;
 import pe.puyu.jticketdesing.domain.printer.SweetPrinter;
 import pe.puyu.jticketdesing.domain.table.SweetTableDesign;
@@ -38,13 +37,6 @@ public class Main {
         designer.paintDesign();
     }
 
-    private static void testPrint(OutputStream outputStream) throws Exception {
-        String pathToFile = "/home/socamaru/Documentos/projects/testPrintJson/print.json";
-        FileReader reader = new FileReader(pathToFile);
-        JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
-        SweetTicketDesign printDesign = new SweetTicketDesign(jsonObject);
-        outputStream.write(printDesign.getBytes());
-    }
 
     private static void testTableDesign(OutputStream outputStream) throws IOException {
         String pathToFile = "/home/socamaru/Documentos/projects/testPrintJson/tables.json";

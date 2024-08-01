@@ -1,5 +1,6 @@
-package pe.puyu.jticketdesing.util.escpos;
+package pe.puyu.jticketdesing.domain.table.util.escpos;
 
+@Deprecated(since = "0.1.0", forRemoval = true)
 public enum JustifyAlign {
 	CENTER("CENTER"),
 	LEFT("LEFT"),

@@ -1,10 +1,9 @@
-package pe.puyu.jticketdesing.metadata;
+package pe.puyu.jticketdesing.domain.table;
 
 import com.github.anastaciocintra.escpos.EscPos;
-import com.github.anastaciocintra.escpos.Style;
 import com.google.gson.JsonObject;
-import pe.puyu.jticketdesing.util.escpos.StyleEscPosUtil;
 
+@Deprecated(since = "0.1.0", forRemoval = true)
 public class PrinterPropertiesReader {
 	protected JsonObject properties;
 	protected final JsonObject ticket;

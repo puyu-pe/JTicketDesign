@@ -1,4 +1,4 @@
-package pe.puyu.jticketdesing.util;
+package pe.puyu.jticketdesing.domain.table.util;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -11,6 +11,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+@Deprecated(since = "0.1.0", forRemoval = true)
 public class JsonUtil {
 
 	public static JsonArray normalizeToJsonArray(JsonElement jsonElement) {

@@ -1,10 +1,11 @@
-package pe.puyu.jticketdesing.util;
+package pe.puyu.jticketdesing.domain.table.util;
 
 import java.text.Normalizer;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+@Deprecated(since = "0.1.0", forRemoval = true)
 public class StringUtils {
 
   public static String repeat(char character, int length) {

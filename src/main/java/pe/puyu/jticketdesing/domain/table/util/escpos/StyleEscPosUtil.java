@@ -1,7 +1,8 @@
-package pe.puyu.jticketdesing.util.escpos;
+package pe.puyu.jticketdesing.domain.table.util.escpos;
 
 import com.github.anastaciocintra.escpos.Style;
 
+@Deprecated(since = "0.1.0", forRemoval = true)
 public class StyleEscPosUtil {
 
 	public static Style toEscPosStyle(StyleText styleText){
