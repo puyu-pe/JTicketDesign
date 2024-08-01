@@ -87,7 +87,7 @@
 
 ```json
 {
-  "title": ["JTICKET DESIGN", "REPORTE DE EJEMPLO"],
+  "title": ["TICKET DESIGN", "REPORTE DE EJEMPLO"],
   "details": [
     "LUGAR : ventana 01",
     "FECHA - HORA: IMPRESIÓN 30-04-2024",

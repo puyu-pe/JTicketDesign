@@ -1,16 +1,20 @@
 ```
-********************************************************************** 
-|        _ _____ _      _        _   ____            _               | 
-|       | |_   _(_) ___| | _____| |_|  _ \  ___  ___(_) __ _ _ __    | 
-|    _  | | | | | |/ __| |/ / _ \ __| | | |/ _ \/ __| |/ _` | '_ \   | 
-|   | |_| | | | | | (__|   <  __/ |_| |_| |  __/\__ \ | (_| | | | |  | 
-|    \___/  |_| |_|\___|_|\_\___|\__|____/ \___||___/_|\__, |_| |_|  | 
-|                                                      |___/         | 
-********************************************************************** 
+  ______                                      __   ________  __            __                   __      _______                       __                     
+ /      \                                    |  \ |        \|  \          |  \                 |  \    |       \                     |  \                    
+|  $$$$$$\ __   __   __   ______    ______  _| $$_ \$$$$$$$$ \$$  _______ | $$   __   ______  _| $$_   | $$$$$$$\  ______    _______  \$$  ______   _______  
+| $$___\$$|  \ |  \ |  \ /      \  /      \|   $$ \  | $$   |  \ /       \| $$  /  \ /      \|   $$ \  | $$  | $$ /      \  /       \|  \ /      \ |       \ 
+ \$$    \ | $$ | $$ | $$|  $$$$$$\|  $$$$$$\\$$$$$$  | $$   | $$|  $$$$$$$| $$_/  $$|  $$$$$$\\$$$$$$  | $$  | $$|  $$$$$$\|  $$$$$$$| $$|  $$$$$$\| $$$$$$$\
+ _\$$$$$$\| $$ | $$ | $$| $$    $$| $$    $$ | $$ __ | $$   | $$| $$      | $$   $$ | $$    $$ | $$ __ | $$  | $$| $$    $$ \$$    \ | $$| $$  | $$| $$  | $$
+|  \__| $$| $$_/ $$_/ $$| $$$$$$$$| $$$$$$$$ | $$|  \| $$   | $$| $$_____ | $$$$$$\ | $$$$$$$$ | $$|  \| $$__/ $$| $$$$$$$$ _\$$$$$$\| $$| $$__| $$| $$  | $$
+ \$$    $$ \$$   $$   $$ \$$     \ \$$     \  \$$  $$| $$   | $$ \$$     \| $$  \$$\ \$$     \  \$$  $$| $$    $$ \$$     \|       $$| $$ \$$    $$| $$  | $$
+  \$$$$$$   \$$$$$\$$$$   \$$$$$$$  \$$$$$$$   \$$$$  \$$    \$$  \$$$$$$$ \$$   \$$  \$$$$$$$   \$$$$  \$$$$$$$   \$$$$$$$ \$$$$$$$  \$$ _\$$$$$$$ \$$   \$$
+                                                                                                                                         |  \__| $$          
+                                                                                                                                          \$$    $$          
+                                                                                                                                           \$$$$$$           
 ```
 
-[![Maven Central](https://img.shields.io/maven-central/v/pe.puyu/JTicketDesing.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/pe.puyu/JTicketDesing)<br>
-JTicketDesing genera varios tipos de diseño para tickets que se imprimiran en una ticketera termica,
+[![Maven Central](https://img.shields.io/maven-central/v/pe.puyu/SweetTicketDesign.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/pe.puyu/SweetTicketDesign)<br>
+SweetTicketDesign genera varios tipos de diseño para tickets que se imprimiran en una ticketera termica,
 apartir de un objeto json, [vea Modelos de tickets soportados](#modelos-de-tickets-soportados), Se apoya en
 la libreria [escpos coffee](https://github.com/anastaciocintra/escpos-coffee)
 para la generación de comandos escpos.
@@ -27,25 +31,25 @@ para la generación de comandos escpos.
 
 <h2 id="empezando">✨Empezando</h2>
 
-JTicketDesign esta disponible como dependencia en Maven Central.
+SweetTicketDesign esta disponible como dependencia en Maven Central.
 Agrega lo siguiente a tu pom.xml
 
 ```xml
 
 <dependency>
   <groupId>pe.puyu</groupId>
-  <artifactId>JTicketDesing</artifactId>
-  <version><!--Aqui va la version, ejm: 0.2.0--></version>
+  <artifactId>SweetTicketDesign</artifactId>
+  <version><!--Aqui va la version, ejm: 0.1.0--></version>
 </dependency>
 ```
 
 > Ultima
-> versión: [![Maven Central](https://img.shields.io/maven-central/v/pe.puyu/JTicketDesing.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/pe.puyu/JTicketDesing)
+> versión: [![Maven Central](https://img.shields.io/maven-central/v/pe.puyu/SweetTicketDesign.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/pe.puyu/SweetTicketDesign)
 
 <h2 id="uso-basico">📚 Uso Basico</h2>
 
-JTicketDesing ofrece dos clases de diseño, SweetTicketDesign (apartir de v 0.1.0) para diseño de tickets de punto de venta (POS)
-y SweetTableDesing (apartir de v 1.0.0) para diseño de tablas responsive ideal para reportes. Ambas clases tienen el mismo comportamiento de instanciación. 
+SweetTicketDesign ofrece dos clases de diseño, SweetTicketDesign (apartir de v 0.1.0) para diseño de tickets de punto de venta (POS)
+y SweetTableDesign (apartir de v 1.0.0) para diseño de tablas responsive ideal para reportes. Ambas clases tienen el mismo comportamiento de instanciación. 
 
 1. Ambas clases tiene constructores para aceptar un JsonObject de [gson](https://github.com/google/gson) o un String (formato json).
 2. El diseño sera devuelto en bytes de comandos escpos con la
@@ -341,12 +345,12 @@ interface CellBodyStyle{
 
 La API de SweetTicketDesign y SweetTableDesign son muy simples y solo consiste en llamar a su constructor con el json y luego getBytes().
 Toda la complejidad esta en armar el objeto json, y en enviar esto a una ticketera correspondiente. Conectarse con diferentes tipos de ticketeras es 
-algo que **no** ofrece JTicketDesing, para ello existe otra herramienta 
+algo que **no** ofrece SweetTicketDesign, para ello existe otra herramienta 
 
 <h3>Puka HTTP</h3>
 
 Puka http es una herramienta multiplataforma que actua como servicio de impresión local e implementa una **API http** para trabajos de impresión de tickets y reportes.
-PukaHTTP usa por debajo JTicketDesign para emitir los comandos EscPOS. Asi mismo soporta diferentes interfaces de conexión a ticketeras como 
+PukaHTTP usa por debajo SweetTicketDesign para emitir los comandos EscPOS. Asi mismo soporta diferentes interfaces de conexión a ticketeras como 
 ethernet, usb, samba , samba nativo, cups, linux-usb, etc. Para mas detalles en su [repositorio de github](https://github.com/puyu-pe/puka-http).
 
 Se puede descargar el instalador multiplataforma desde [su pagina de descarga.](https://www.jdeploy.com/gh/puyu-pe/puka-http).

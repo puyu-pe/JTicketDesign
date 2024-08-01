@@ -1,4 +1,4 @@
-module pe.puyu.jticketdesing {
+module pe.puyu.SweetTicketDesign {
     requires com.google.gson;
     requires escpos.coffee;
     requires java.desktop;

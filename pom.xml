@@ -4,11 +4,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>pe.puyu</groupId>
-    <artifactId>JTicketDesing</artifactId>
-    <version>1.0.4</version>
-    <name>JTicketDesing</name>
-    <description>Una libreria para diseño de tickets, utilizando comandos escpos</description>
-    <url>https://github.com/puyu-pe/JTicketDesign</url>
+    <artifactId>SweetTicketDesign</artifactId>
+    <version>0.1.0</version>
+    <name>SweetTicketDesign</name>
+    <description>Library for creating print layouts for printers</description>
+    <url>https://github.com/puyu-pe/SweetTicketDesign</url>
 
     <licenses>
         <license>
@@ -147,10 +147,10 @@
                     <noHeaderFiles>true</noHeaderFiles>
                     <stripDebug>true</stripDebug>
                     <noManPages>true</noManPages>
-                    <launcher>jticketdesing</launcher>
-                    <jlinkImageName>jticketdesing</jlinkImageName>
-                    <jlinkZipName>jticketdesing</jlinkZipName>
-                    <mainClass>pe.puyu.jticketdesing/pe.puyu.SweetTicketDesign.Main</mainClass>
+                    <launcher>sweet-ticket-design</launcher>
+                    <jlinkImageName>sweet-ticket-design</jlinkImageName>
+                    <jlinkZipName>sweet-ticket-design</jlinkZipName>
+                    <mainClass>pe.puyu.SweetTicketDesign/pe.puyu.SweetTicketDesign.Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>
@@ -168,8 +168,8 @@
     </distributionManagement>
 
     <scm>
-        <connection>scm:git:git://github.com/puyu-pe/JTicketDesign.git</connection>
-        <developerConnection>scm:git:ssh://github.com:puyu-pe/JTicketDesign.git</developerConnection>
-        <url>https://github.com/puyu-pe/JTicketDesign/</url>
+        <connection>scm:git:git://github.com/puyu-pe/SweetTicketDesign.git</connection>
+        <developerConnection>scm:git:ssh://github.com:puyu-pe/SweetTicketDesign.git</developerConnection>
+        <url>https://github.com/puyu-pe/SweetTicketDesign/</url>
     </scm>
 </project>
