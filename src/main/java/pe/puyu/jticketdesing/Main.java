@@ -7,7 +7,7 @@ import com.github.anastaciocintra.output.TcpIpOutputStream;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import pe.puyu.jticketdesing.application.components.DefaultComponentsProvider;
-import pe.puyu.jticketdesing.application.builder.gson.GsonDesignObjectBuilder;
+import pe.puyu.jticketdesing.application.builder.gson.GsonPrinterObjectBuilder;
 import pe.puyu.jticketdesing.application.printer.escpos.EscPosPrinter;
 import pe.puyu.jticketdesing.domain.SweetTicketDesign;
 import pe.puyu.jticketdesing.domain.designer.SweetDesigner;
@@ -32,7 +32,7 @@ public class Main {
         String pathToFile = "/home/socamaru/Documentos/projects/testPrintJson/designer.json";
         FileReader reader = new FileReader(pathToFile);
         JsonObject jsonObject = JsonParser.parseReader(reader).getAsJsonObject();
-        GsonDesignObjectBuilder builder = new GsonDesignObjectBuilder(jsonObject);
+        GsonPrinterObjectBuilder builder = new GsonPrinterObjectBuilder(jsonObject);
         SweetPrinter printer = new EscPosPrinter(outputStream);
         SweetDesigner designer = new SweetDesigner(builder, printer, new DefaultComponentsProvider());
         designer.paintDesign();
